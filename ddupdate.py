@@ -151,7 +151,7 @@ def get_parser(conf):
         "-l", "--list-plugins", metavar="kind",
         choices=['services', 'ip-plugins', 'all'],
         help='List plugins of given kind: '
-        + 'ip-plugins, address-plugins or all  [all]',
+        + 'ip-plugins, services or all  [all]',
         const='all', nargs='?')
     others.add_argument(
         "-h", "--help", metavar="plugin",
@@ -198,12 +198,12 @@ def log_setup():
 
 def log_options(args):
     ' Print some info on seledted options. '
+    log.info("Loglevel: " + logging.getLevelName(args.loglevel))
     log.info("Using hostname: " + args.hostname)
     log.info("Using ip address plugin: " + args.ip_plugin)
     log.info("Using service plugin: " + args.service_plugin)
     log.info("Plugin options: "
              + (' '.join(args.options) if args.options else ''))
-    log.info("Loglevel: " + logging.getLevelName(args.loglevel))
 
 
 def load_plugins(path):
@@ -227,10 +227,12 @@ def load_plugins(path):
 
 def list_plugins(ip_plugins, service_plugins, kind):
     ''' List all loaded plugins (noreturn). '''
-    for name, plugin in ip_plugins.items():
-        print("%-20s %s" % (name, plugin.oneliner()))
-    for name, plugin in service_plugins.items():
-        print("%-20s %s" % (name, plugin.oneliner()))
+    if kind == 'all' or kind.startswith('i'):
+        for name, plugin in ip_plugins.items():
+            print("%-20s %s" % (name, plugin.oneliner()))
+    if kind == 'all' or kind.startswith('s'):
+        for name, plugin in service_plugins.items():
+            print("%-20s %s" % (name, plugin.oneliner()))
     sys.exit(0)
 
 
