@@ -61,12 +61,12 @@ or \fIdebug\fR.
 It defaults to \fIwarning\fR.
 
 .TP 4
-\fB-o, --option\fR <\fIoption\fR>
+\fB-o, --option\fR <\fIplugin option\fR>
 Option interpreted by plugins, documented in \fI--help <plugin>\fR.
 May be given multiple times as required.
 Any option on the command line will clear the list of options as of the
 config file.
-See OPTIONS.
+See PLUGIN OPTIONS.
 
 .P
 Other options:
@@ -83,8 +83,8 @@ List ip-plugins or service-plugins. By default, lists all.
 \fB-v, --version\fR
 Print ddupdate version.
 
-.SH OPTIONS
-The options are generally just handed to the plugins without
+.SH PLUGIN OPTIONS
+The plugin options are generally just handed to the plugins without
 any further interpretation.
 An option is either a single keyword, or a \fIkey=value\fR
 string.
@@ -116,49 +116,19 @@ seconds.
 
 .SH PLUGIN LOADING
 ddupdate looks for a directory named \fIplugins\fR and tries to load
-plugins from all files in this directory. The seach for \fIplugins\R
+plugins from all files in this directory. The search for \fIplugins\fR
 is done, in descending priority:
 .IP \(bu 4
 In the same directory as the ddclient.py module. This is the development
 case, and the highest priority.
 .IP \(bu 4
-User plugins are in  \fI~/.local/share/ddclient/plugins\fR. Setting the
-XDG_DATA_HOME environment relocates this to $XDG_DATA_HOME/ddupdate/plugins.
+User plugins are searched in  \fI~/.local/share/ddclient\fR. Setting the
+XDG_DATA_HOME environment relocates this to $XDG_DATA_HOME/ddupdate.
 .IP \(bu 4
-The directories \fI/usr/local/share/ddupdate/plugins\fR and
-\fI/usr/share/ddupdate/plugins\fR. Setting the XDG_DATA_DIRS environment
+The directories \fI/usr/local/share/ddupdate\fR and
+\fI/usr/share/ddupdate\fR. Setting the XDG_DATA_DIRS environment
 variable relocates these directories according to the freedesktop
 specification.
-
-
-
-.SH DDCLIENT COMPARISON
-Compared to ddclient(8), ddupdate has some differences:
-
-.IP \(bu 4
-Here are no provisions to run as a daemon; instead, systemd and
-NetworkManager could be used to run periodically and/or when interfaces
-goes up or down.
-Systems without these tools have similar mechanisms which could be used
-instead.
-.IP \(bu 4
-ddupdate has no syslog provisions, it just logs to stdout. However, systemd
-has mechanisms to direct this to syslog should it be required.
-.IP \(bu 4
-Username and password credentials are stored in the
-standard .netrc file instead  of being part of main configuration.
-.IP \(bu 4
-ddupdate is written in python instead of perl.
-.IP \(bu 4
-Service providers and address getters are separate plugins instead of
-patches to main script and configuration.
-.IP \(bu 4
-ddupdate has no provisions for alternative services being invoked
-if the primary fails. However, this can be accomplished using
-systemd.unit's onFailure and restart directives.
-.IP \(bu 4
-ddupdate has a more elaborate documentation and help with an upstream
-manpage and dynamic, runtime plugin help.
 
 
 .SH EXAMPLES
@@ -171,15 +141,30 @@ Update on dyndns.com using the external address as obtained using
 the default interface plugin:
 
 .nf
-	ddupdate -a default-if -p dyndns -H myhost.dyndns.org
+	ddupdate -i default-if -s dyndns -H myhost.dyndns.org
 .fu
 .P
 Make a debug run without actually updating:
+
 .nf
-	ddupdate -a default-if -p dry_run -loglevel debug \\
+	ddupdate -i default-if -s dry_run --loglevel debug \\
             -H myhost.dyndns.org
 .fi
 
+.SH ENVIRONMENT
+dduodate respects the data paths defined by freedesktop.org.
+
+.TP 4
+.B XDG_CACHE
+Locates the cached addresses files. See FILES.
+
+.TP 4
+.B XDG_DATA_HOME
+Locates user plugins. See PLUGIN LOADING.
+
+.TP 4
+.B XDG_DATA_DIRS
+Involved in system plugins, see PLUGIN LOADING.
 
 .SH FILES
 .TP 4
@@ -194,7 +179,7 @@ Default values for all command line options.
 .B /usr/share/ddupdate/plugins
 Base directory for upstream plugins.
 .TP 4
-.B /usr/share/ddupdate/plugins
+.B /usr/local/share/ddupdate/plugins
 Base directory for site plugins.
 .TP 4
 .B ~/.local/share/ddupdate/plugins

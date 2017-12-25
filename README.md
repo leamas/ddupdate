@@ -1,4 +1,4 @@
-# ddupdate - tool for updating dns data for dynamic ip addresses.
+# ddupdate - tool updating dns data for dynamic ip addresses.
 
 ## General
 
@@ -33,7 +33,7 @@ To make a test version possible to run from anywhere make a symlink:
 
 It's also possible to make a user installation, using a horrible cludge:
 
-    $ USER\_INSTALL\FIX=1 python3 setup.py install --user
+    $ USER_INSTALL_FIX=1 python3 setup.py install --user
 
 To make a local installation in /usr/local run something like
 
@@ -85,7 +85,7 @@ Next, pick an update plugin and check the help info, here dynu:
 If all looks good, register on dynu.com. This will end up in a hostname,
 username and password. Create an entry in the ~/.netrc file like:
 
-    machine api.dynu.com login leamas password secret
+    machine api.dynu.com login <username> password <secret>
 
 Note that this file must be protected for other users (otherwise no tools
 will accept it). Do:

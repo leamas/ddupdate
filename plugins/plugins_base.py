@@ -109,6 +109,7 @@ class IpPlugin(AbstractPlugin):
 
     def run(self, config, log, ip=None):
         ''' Given a configuration namespace and a log, return ip address.
+            Raises IpLookupError on errors.
         '''
         assert False, "Attempt to invoke abstract run()."
 
@@ -125,5 +126,7 @@ class UpdatePlugin(AbstractPlugin):
 
     def run(self, config, log, ip=None):
         ''' Given configuration, address and log do the actual update.
+            Most (not all) services doesnt't need an address.
+            Raises UpdateError on errors.
         '''
         assert False, "Attempt to invoke abstract run()."

@@ -36,11 +36,13 @@ DEFAULTS = {
     'ip-cache': os.path.join(CACHE_DIR, 'ddupdate')
 }
 
+
 def ip_cache_setup(opts):
     ''' Ensure that our cache directory exists, return cache file path '''
     if not os.path.exists(os.path.dirname(opts.ip_cache)):
         os.makedirs(os.path.dirname(opts.ip_cache))
     return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
+
 
 def ip_cache_data(opts, default=("0.0.0.0", 100000)):
     ''' Return  a (address, cache age in minute) tuples. If not existing,
@@ -251,6 +253,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
 
     sys.exit(0)
 
+
 def build_load_path():
     ''' Return list of paths to load plugins from. '''
     paths = []
@@ -264,8 +267,9 @@ def build_load_path():
     paths.extend(syspaths.split(':'))
     paths = [os.path.join(p, 'ddupdate') for p in paths]
     paths.insert(0, os.getcwd())
-    log.debug('paths :%s' , ':'.join(paths))
+    log.debug('paths :%s', ':'.join(paths))
     return paths
+
 
 def main():
     ''' Indeed: main function. '''

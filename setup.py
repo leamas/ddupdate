@@ -17,7 +17,7 @@ else:
         ('/etc', ['ddupdate.conf']),
         ('/lib/systemd/system', glob('systemd/*')),
         ('share/man/man8', ['ddupdate.8']),
-        ('share/doc/ddupdate', ['README.md', 'COPYING'])
+        ('share/doc/ddupdate', ['README.md', 'COPYING', 'ddupdate.8.html'])
     ]
 
 setup(

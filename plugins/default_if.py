@@ -17,7 +17,7 @@ class DefaultIfPLugin(IpPlugin):
     Options used: none
     '''
     _name = 'default-if'
-    _oneliner = 'Get internal ip address from default interface (linux)'
+    _oneliner = 'Get ip address from default interface (linux)'
 
     def run(self, config, log, ip=None):
         '''
