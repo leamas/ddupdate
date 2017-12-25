@@ -4,18 +4,5 @@
 
 ''' Wrapper for ddupdate, meant to be a symlink. '''
 
-import sys
-import os.path
-
-_HERE = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, _HERE)
-
-if not os.path.exists(os.path.join(_HERE, 'plugins')):
-    sys.stderr.write("Cannot find plugins\n")
-    sys.stderr.write(
-        "Please symlink the plugins directory to %s\n" % _HERE)
-    sys.exit(1)
-
-
 import ddupdate
 ddupdate.main()
