@@ -1,0 +1,2 @@
+Example file for activating ddupdate when an interface goes up. Install into
+/etc/NetworkManager/dispatcher.d to activate
