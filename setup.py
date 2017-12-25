@@ -16,7 +16,8 @@ else:
         ('share/ddupdate/plugins', glob('plugins/*.py')),
         ('/etc', ['ddupdate.conf']),
         ('/lib/systemd/system', glob('systemd/*')),
-        ('/usr/share/man/man8', ['ddupdate.8'])
+        ('share/man/man8', ['ddupdate.8']),
+        ('share/doc/ddupdate', ['README.md', 'COPYING'])
     ]
 
 setup(
