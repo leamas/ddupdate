@@ -16,7 +16,4 @@ pep8: plugins ddupdate ddupdate.py setup.py
 ddupdate.8.html: ddupdate.8
 	man2html $? > $@
 
-
 .phony:
-
-
