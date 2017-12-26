@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-#
+
+''' Update DNS data for dynamically ip addresses  '''
+
 # pylint: disable=invalid-name
-
-''' update DNS data for dynamically ip addresses  '''
-
 
 import argparse
 import configparser
