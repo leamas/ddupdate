@@ -32,8 +32,8 @@ class DefaultIfPLugin(IpPlugin):
         if if_ is None:
             raise IpLookupError("Cannot find default interface, giving up")
         use_next = False
-        for word in subprocess.getoutput('ifconfig ' + if_).split():
+        for word in subprocess.getoutput('ip address show dev ' + if_).split():
             if use_next:
-                return word
+                return word.split('/')[0]
             use_next = word == 'inet'
         raise IpLookupError("Cannot find address for %s, giving up", if_)
