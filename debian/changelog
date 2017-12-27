@@ -1,5 +1,5 @@
-ddupdate (0.1-1) unstable; urgency=medium
+ddupdate (0.1-1~1) unstable; urgency=medium
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release (Closes: #000001)
 
  -- Alec Leamas <leamas.alec@gmail.com>  Tue, 26 Dec 2017 22:08:21 +0100
