@@ -70,11 +70,11 @@ First, list all plugins:
     default-if           Get ip address from default interface (linux)
     default-web-ip       Obtain external address as seen from the net
     hardcoded-if         Get address from a configuration option
-    ddupdate --list-plugins services
+    $ ddupdate --list-plugins services
     no-ip                Updates DNS data on no-ip.com
     duckdns              Update DNS data on duckdns.org
     dynu                 Updates DNS data on dynu.com
-    changeip             Updates DNS data on changeip.com
+    changeip             Updates DNS data on changip.com
     freedns              Updates host on freedns.afraid.org
     dtdns                Updates DNS data on dtdns.com
     dnsexit              Updates host on www.dnsexit.com
