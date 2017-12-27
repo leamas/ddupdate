@@ -25,7 +25,7 @@ class DuckdnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'duckdns'
-    _oneliner = 'Update DNS data on duckdns.org'
+    _oneliner = 'Updates DNS data on duckdns.org'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
     def run(self, config, log, ip=None):

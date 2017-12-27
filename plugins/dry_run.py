@@ -17,6 +17,7 @@ class DryRunPlugin(UpdatePlugin):
     '''
     _name = 'dry-run'
     _oneliner = 'Debug dummy update plugin'
+    _ip_cache_ttl = 1    # we do not cache these runs, right?
 
     def run(self, config, log, ip=None):
         ''' Run the actual module work. '''
