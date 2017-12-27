@@ -162,6 +162,11 @@ is distributed in the package.
 
 ## Packaging
 
+  - ddupdate is available as a pypi package from the master branch. It can
+    be installed using pip:
+
+        $ pip install --user ddupdate
+
   - fedora is packaged in the *fedora* branch. Building requires the fedora
     toolchain in the *rpmdevtools* and *rpm-build* packages. To build:
 
@@ -170,7 +175,7 @@ is distributed in the package.
         $ spectool -g ddupdate.spec
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
 
-    This creates both a source and a binary package underneath *rpmbuild*.
+    This creates both a source and a binary rpm package underneath *rpmbuild*.
 
   - The debian packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*

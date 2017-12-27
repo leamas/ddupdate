@@ -4,6 +4,8 @@ import os
 from glob import glob
 from setuptools import setup
 
+# pylint: disable=bad-continuation
+
 if 'USER_INSTALL_FIX' in os.environ:
     USER_SHARE = os.path.expanduser('~/.local/share/')
     DATA = [
@@ -17,18 +19,27 @@ else:
         ('/etc', ['ddupdate.conf']),
         ('/lib/systemd/system', glob('systemd/*')),
         ('share/man/man8', ['ddupdate.8']),
-        ('share/doc/ddupdate', ['README.md', 'COPYING', 'ddupdate.8.html']),
+        ('share/doc/ddupdate', ['README.md', 'LICENSE.txt', 'ddupdate.8.html']),
         ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
     ]
 
 setup(
     name='ddupdate',
     version='0.0.1',
-    description='Update dns data for dynamic IP addresses',
+    description='Update dns data for dynamic ip addresses',
     license='MIT',
-    url='http://github.com/TBD',
+    url='http://github.com/leamas/ddupdate',
     author='Alec Leamas',
     author_email='alec.leamas@nowhere.net',
+    install_requires = ['straight.plugin'],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: End Users/Desktop',
+        'Topic :: System :: Networking',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.4',
+    ],
+    keywords = ['dyndns', 'dhcp', 'dns'],
     py_modules=['ddupdate'],
     scripts=['ddupdate'],
     data_files=DATA
