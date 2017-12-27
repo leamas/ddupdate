@@ -37,6 +37,7 @@ new services and address detection strategies.
 
 %prep
 %autosetup -n %{name}-%{version}
+sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 
 
 %build
