@@ -1,0 +1,28 @@
+Source: ddupdate
+Section: net
+Priority: optional
+Maintainer: Alec Leamas <leamas.alec@gmail.com>
+Build-Depends: debhelper (>= 9),
+ python3-all-dev, 
+ dh-systemd, 
+ dh-python,
+ python3-setuptools
+Standards-Version: 4.0.0
+Homepage: http://github.com/leamas/ddupdate
+#Vcs-Git: https://anonscm.debian.org/collab-maint/ddupdate.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ddupdate.git
+
+Package: ddupdate
+Architecture: all
+Depends: python3, ${misc:Depends}, ${python3:Depends}
+Description: Tool updating DNS data for dynamic IP addresses
+ ddupdate is a tool for automatically updating dns data for a system using
+ e. g., DHCP. The goal is it should be possible to access a system with a
+ fixed dns name such as myhost.somewhere.net even if the IP  address is
+ changed
+ . 
+ From another perspective, ddupdate is a tool replicating part of the
+ existing ddclient functionality, but with a better overall design and user
+ interaction. In particular, it has better help, logging and documentation.
+ Thanks to the plugin design, it's also much easier to provide support for
+ new services and address detection strategies.

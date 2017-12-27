@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_systemd_enable/10.7.2
+# This will only remove masks created by d-s-h on package removal.
+deb-systemd-helper unmask ddupdate.service >/dev/null || true
+
+# was-enabled defaults to true, so new installations run enable.
+if deb-systemd-helper --quiet was-enabled ddupdate.service; then
+	# Enables the unit on first installation, creates new
+	# symlinks on upgrades if the unit file has changed.
+	deb-systemd-helper enable ddupdate.service >/dev/null || true
+else
+	# Update the statefile to add new symlinks (if any), which need to be
+	# cleaned up on purge. Also remove old symlinks.
+	deb-systemd-helper update-state ddupdate.service >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/10.7.2
+# This will only remove masks created by d-s-h on package removal.
+deb-systemd-helper unmask ddupdate.timer >/dev/null || true
+
+# was-enabled defaults to true, so new installations run enable.
+if deb-systemd-helper --quiet was-enabled ddupdate.timer; then
+	# Enables the unit on first installation, creates new
+	# symlinks on upgrades if the unit file has changed.
+	deb-systemd-helper enable ddupdate.timer >/dev/null || true
+else
+	# Update the statefile to add new symlinks (if any), which need to be
+	# cleaned up on purge. Also remove old symlinks.
+	deb-systemd-helper update-state ddupdate.timer >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/10.7.2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+	deb-systemd-invoke start ddupdate.service ddupdate.timer >/dev/null || true
+fi
+# End automatically added section

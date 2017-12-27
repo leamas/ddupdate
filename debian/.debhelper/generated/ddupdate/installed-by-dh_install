@@ -1,0 +1,5 @@
+debian/tmp/usr/bin/ddupdate
+debian/tmp/lib/systemd/system/ddupdate.service
+debian/tmp/lib/systemd/system/ddupdate.timer
+debian/tmp/usr/share/ddupdate
+debian/tmp/usr/share/man/man8/ddupdate.8

@@ -1,0 +1,13 @@
+[Unit]
+Description=Update DNS  data for this host
+After=network.target
+
+[Service]
+# User=ddupdate
+Type=oneshot
+Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+ExecStart=/usr/local/bin/ddupdate
+
+[Install]
+WantedBy=multi-user.target
+

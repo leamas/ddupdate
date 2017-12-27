@@ -1,0 +1,27 @@
+#!/bin/sh
+
+export LC_ALL=C
+
+if ! /usr/bin/systemctl is-enabled ddupdate.timer >/dev/null 2>&1; then
+    exit 0
+fi
+
+case "$2" in
+    "down")
+        if /sbin/ip route ls | grep -q '^default'; then
+	    exit 0
+	fi
+	/usr/bin/logger "ddupdate: default interface down: stopping timer" || :
+        /usr/bin/systemctl stop ddupdate.timer || :
+	;;
+    "up")
+        if /sbin/ip -o route show dev "$1" | grep -q '^default'
+	then
+	    /usr/bin/logger \
+		"ddupdate: default interface up: starting timer" || :
+            /usr/bin/systemctl start ddupdate.service || :
+	fi
+	;;
+    *)
+        ;;
+esac
