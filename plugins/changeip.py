@@ -20,7 +20,7 @@ class ChangeIpPlugin(UpdatePlugin):
         none
     '''
     _name = 'changeip'
-    _oneliner = 'Updates DNS data on changip.com'
+    _oneliner = 'Updates DNS data on changeip.com'
     _url = "https://nic.ChangeIP.com/nic/update?&hostname={0}"
 
     def run(self, config, log, ip=None):

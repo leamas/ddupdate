@@ -64,17 +64,22 @@ In this case the machine's real address should be registered.
 
 First, list all plugins:
 
-    $ ddupdate  --list-plugins
+    $ ddupdate --list-plugins ip-plugins
     ip-disabled          Force update service to provide ip address
     ip-from-command      Obtain address from a command
-    default-if           Get internal ip address from default interface (linux)
+    default-if           Get ip address from default interface (linux)
     default-web-ip       Obtain external address as seen from the net
-    hardcoded-if         Obtain internal address from hardcoded interface
+    hardcoded-if         Get address from a configuration option
+    ddupdate --list-plugins services
     no-ip                Updates DNS data on no-ip.com
     duckdns              Update DNS data on duckdns.org
     dynu                 Updates DNS data on dynu.com
+    changeip             Updates DNS data on changeip.com
     freedns              Updates host on freedns.afraid.org
+    dtdns                Updates DNS data on dtdns.com
+    dnsexit              Updates host on www.dnsexit.com
     dry-run              Debug dummy update plugin
+
 
 Next, pick an update plugin and check the help info, here dynu:
 
@@ -160,10 +165,10 @@ is distributed in the package.
   - fedora is packaged in the *fedora* branch. Building requires the fedora
     toolchain in the *rpmdevtools* and *rpm-build* packages. To build:
 
-      $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
-      $ cd ddupdate
-      $ spectool -g ddupdate.spec
-      $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
+        $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
+        $ cd ddupdate
+        $ spectool -g ddupdate.spec
+        $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
 
     This creates both a source and a binary package underneath *rpmbuild*.
 
@@ -171,7 +176,7 @@ is distributed in the package.
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
     and *git*  are required to build. To build current version 0.1 do:
 
-      $ git clone -b debian https://github.com/leamas/ddupdate.git
-      $ cd ddupdate
-      $ gbp buildpackage --git-upstream-tag=0.1
-      $ git clean -fd    # To be able to rebuild
+        $ git clone -b debian https://github.com/leamas/ddupdate.git
+        $ cd ddupdate
+        $ gbp buildpackage --git-upstream-tag=0.1
+        $ git clean -fd    # To be able to rebuild
