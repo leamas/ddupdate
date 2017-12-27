@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-# Automatically added by dh_systemd_start/10.7.2
-if [ -d /run/systemd/system ]; then
-	deb-systemd-invoke stop ddupdate.service ddupdate.timer >/dev/null
-fi
-# End automatically added section
