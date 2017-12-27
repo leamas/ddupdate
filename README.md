@@ -1,4 +1,4 @@
-# ddupdate - tool updating dns data for dynamic ip addresses.
+# ddupdate - update dns data for dynamic ip addresses.
 
 ## General
 
@@ -23,6 +23,14 @@ which can use the output from a command.
 
 Writing new plugins for not-so-odd services should not be fairly simple
 given the examples available.
+
+## Dependencies
+
+Just a few:
+   - python3
+   - python3-straight-plugin
+   - python3-setuptools
+   - The /usr/bin/ip command is used in some plugins.
 
 ## Installation
 
@@ -50,9 +58,9 @@ most common case is to use the address as seen from the internet.
 This makes it possible for users on internet to access the machine.
 
 On the other hand, it might be necessary to register another type of
-address for example when using DHCP addresses on an interal network behind
-a router and the machine should be reached by users on the local network.
-In this case the machines's real address should be registered.
+address for example when using DHCP addresses on an internal network behind
+a router and the machine should be reached by users on this network.
+In this case the machine's real address should be registered.
 
 First, list all plugins:
 
@@ -103,12 +111,11 @@ All looks good. Now, let's try to actually update that hostname on dynu.com:
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
       --hostname myhost.dynu.net -L info
-    INFO - Using hostname: snorken.dynu.net
+    INFO - Loglevel: INFO
+    INFO - Using hostname: myhost.dynu.net
     INFO - Using ip address plugin: default-web-ip
     INFO - Using service plugin: dynu
     INFO - Plugin options:
-    INFO - Loglevel: INFO
-    INFO - Loaded 5 address and 5 service plugins
     INFO - Using ip address: 90.224.208.212
     INFO - Update OK
 
@@ -117,7 +124,7 @@ Again fine. Update /etc/ddupdate.conf to something like
     [update]
     address-plugin = web-default-ip
     service-plugin = dynu
-    hostname = host1.hostname
+    hostname = myhost.dynu.net
     loglevel = info
 
 After which it should be possible to just invoke *ddupdate* without
@@ -133,6 +140,7 @@ not to use the upstream systemd files. Do:
 Check the two /etc/ files, in particular for paths. Test the service and
 the logged info:
 
+    $ sudo systemctl daemon-reload
     $ sudo systemcl start ddupdate.service
     $ sudo journalctl -u ddupdate.service
 
@@ -140,3 +148,30 @@ When all is fine make sure ddupdate is run hourly using:
 
     $ sudo systemctl start ddupdate.timer
     $ sudo systemctl enable ddupdate.timer
+
+## Configuring NetworkManager
+
+NetworkManager can be configured to start/stop ddupdate when interfaces goes
+up or down. An example script to drop in /etc/NetworkManager/dispatcher.d
+is distributed in the package.
+
+## Packaging
+
+  - fedora is packaged in the *fedora* branch. Building requires the fedora
+    toolchain in the *rpmdevtools* and *rpm-build* packages. To build:
+
+      $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
+      $ cd ddupdate
+      $ spectool -g ddupdate.spec
+      $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
+
+    This creates both a source and a binary package underneath *rpmbuild*.
+
+  - The debian packaging is based on gbp and lives in the *debian* and
+    *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
+    and *git*  are required to build. To build current version 0.1 do:
+
+      $ git clone -b debian https://github.com/leamas/ddupdate.git
+      $ cd ddupdate
+      $ gbp buildpackage --git-upstream-tag=0.1
+      $ git clean -fd    # To be able to rebuild
