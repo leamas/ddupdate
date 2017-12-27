@@ -1,0 +1,192 @@
+.TH DDUPDATE "8" "Last change: Dec 2017" "ddupdate" "System Administration Utilities"
+.SH NAME
+.P
+\fBddupdate\fR - Update dns data for dynamic IP addresses
+.SH SYNOPSIS
+.B ddupdate
+[\fIoptions\fR]
+.SH DESCRIPTION
+A tool to update dynamic IP addresses typically obtained using DHCP at
+dynamic DNS services such as Dyndns, Hammernode, Zoneedit or EasyDNS,
+thus allowing the use a of fixed hostname like myhost.dyndns.org to access
+a machine.
+The tool caches the address, and only attempts the update
+if the address actually changes.
+.P
+The tool has a plugin structure with plugins for obtaining the actual
+address (typically hardware-dependent) and to update it (service
+dependent).
+.P
+The normal usecase is to specify all commandline options in the config
+file.
+However, all options in this file could be overridden by actual command line
+options e. g., while testing.
+.P
+Using service providers and possibly also firewalls requires use of
+username/password credentials.
+For these, the netrc(5) file is used.
+.PP
+
+.SH OPTIONS
+
+Options for normal operation:
+.TP 4
+\fB-H, --hostname\fR <\fIhostname\fR>
+Hostname to update,  typically fully qualified. Defaults to the not really
+usable host.nowhere.net
+
+.TP 4
+\fB-s, --service-plugin\fR <\fIplugin\fR>
+Plugin used to update the dns data for the address obtained
+from the ip-plugin. Defaults to dry-run, which just prints the
+address obtained from the ip plugin.
+
+.TP 4
+\fB-i, --ip-plugin\fR <\fIplugin\fR>
+Plugin used to obtain the actual ip address. Defaults to default-if,
+which localizes the default interface using heuristics and uses it's
+address.
+
+.TP 4
+\fB-c, --config-file\fR <\fIpath\fR>
+File containing default values for all command line options.
+A relative path is interpreted from current directory.
+See [FILES] below.
+
+.TP 4
+\fB-L, --loglevel\fR [\fIlevel\fR]
+Determine the amount of logging information. \fIlevel\fR is a symbolic
+syslog level: \fIerror\fR,\fIwarning, \fIinfo\fR,
+or \fIdebug\fR.
+It defaults to \fIwarning\fR.
+
+.TP 4
+\fB-o, --option\fR <\fIplugin option\fR>
+Option interpreted by plugins, documented in \fI--help <plugin>\fR.
+May be given multiple times as required.
+Any option on the command line will clear the list of options as of the
+config file.
+See PLUGIN OPTIONS.
+
+.P
+Other options:
+
+.TP 4
+\fB-h, --help [plugin]  \fR
+Print help. If given a plugin argument, prints help for this plugin.
+
+.TP 4
+\fB-l, --list-plugins\fR [\flip-plugins\fR|\flservices\fR]
+List ip-plugins or service-plugins. By default, lists all.
+
+.TP 4
+\fB-v, --version\fR
+Print ddupdate version.
+
+.SH PLUGIN OPTIONS
+The plugin options are generally just handed to the plugins without
+any further interpretation.
+An option is either a single keyword, or a \fIkey=value\fR
+string.
+No whitespace is allowed in \fIkey\fR or \fIvalue\fR.
+Commonly used options includes:
+.TP 4
+\fBfirewall=hostname\fR
+For ip-plugins plugins retrieving the address from the local firewall.
+The hostname must normally be present in .netrc to provide username
+and password.
+.TP 4
+\fBip=address\fR
+Used by the fixed-address plugin, which uses a hardcoded ip address
+instead of probing for it.
+.TP 4
+\fBforce\fR
+Force an update despite that there is no change compared to the
+cached address.
+.TP 4
+\fBproxy=hostname\fR
+Use given HTTP proxy when connecting to service provider.
+.TP 4
+\fBssl\fR
+Use an encrypted SSL connection when connecting to service provider.
+.TP 4
+\fBtimeout=seconds\fR
+Timeout when communicating with service provider, defaults to 120
+seconds.
+
+.SH PLUGIN LOADING
+ddupdate looks for a directory named \fIplugins\fR and tries to load
+plugins from all files in this directory. The search for \fIplugins\fR
+is done, in descending priority:
+.IP \(bu 4
+In the same directory as the ddclient.py module. This is the development
+case, and the highest priority.
+.IP \(bu 4
+User plugins are searched in  \fI~/.local/share/ddclient\fR. Setting the
+XDG_DATA_HOME environment relocates this to $XDG_DATA_HOME/ddupdate.
+.IP \(bu 4
+The directories \fI/usr/local/share/ddupdate\fR and
+\fI/usr/share/ddupdate\fR. Setting the XDG_DATA_DIRS environment
+variable relocates these directories according to the freedesktop
+specification.
+
+
+.SH EXAMPLES
+.P
+Please note that the command line options are normally stored
+in /etc/ddupdate.conf, allowing an invocation without command line
+options.
+.P
+Update on dyndns.com using the external address as obtained using
+the default interface plugin:
+
+.nf
+	ddupdate -i default-if -s dyndns -H myhost.dyndns.org
+.fi
+.P
+Make a debug run without actually updating:
+
+.nf
+	ddupdate -i default-if -s dry_run --loglevel debug \\
+            -H myhost.dyndns.org
+.fi
+
+.SH ENVIRONMENT
+dduodate respects the data paths defined by freedesktop.org.
+
+.TP 4
+.B XDG_CACHE
+Locates the cached addresses files. See FILES.
+
+.TP 4
+.B XDG_DATA_HOME
+Locates user plugins. See PLUGIN LOADING.
+
+.TP 4
+.B XDG_DATA_DIRS
+Involved in system plugins, see PLUGIN LOADING.
+
+.SH FILES
+.TP 4
+.B .netrc
+Used to store username and password for logging in to service providers
+to update, firewalls to get the IP address etc. See netrc(5) for
+the format used.
+.TP 4
+.B /etc/ddupdate.conf
+Default values for all command line options.
+.TP 4
+.B /usr/share/ddupdate/plugins
+Base directory for upstream plugins.
+.TP 4
+.B /usr/local/share/ddupdate/plugins
+Base directory for site plugins.
+.TP 4
+.B ~/.local/share/ddupdate/plugins
+Base directory for user specified plugins.
+.TP 4
+.B  ~/cache/ddupdate/*
+Cached address from last update with an actual change, one for each
+update service.
+Setting the XDG_CACHE_HOME environment variable relocates these files to
+$XDG_CACHE_HOME/ddupdate/*.

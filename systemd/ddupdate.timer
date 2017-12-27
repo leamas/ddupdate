@@ -1,0 +1,9 @@
+[Unit]
+Description=Run ddupdate hourly and on boot
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

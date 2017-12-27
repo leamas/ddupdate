@@ -1,0 +1,231 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of DDUPDATE</TITLE>
+</HEAD><BODY>
+<H1>DDUPDATE</H1>
+Section: System Administration Utilities (8)<BR>Updated: Last change: Dec 2017<BR><A HREF="#index">Index</A>
+<A HREF="/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+<B>ddupdate</B> - Update dns data for dynamic IP addresses
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ddupdate</B>
+
+[<I>options</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+A tool to update dynamic IP addresses typically obtained using DHCP at
+dynamic DNS services such as Dyndns, Hammernode, Zoneedit or EasyDNS,
+thus allowing the use a of fixed hostname like myhost.dyndns.org to access
+a machine.
+The tool caches the address, and only attempts the update
+if the address actually changes.
+<P>
+
+The tool has a plugin structure with plugins for obtaining the actual
+address (typically hardware-dependent) and to update it (service
+dependent).
+<P>
+
+The normal usecase is to specify all commandline options in the config
+file.
+However, all options in this file could be overridden by actual command line
+options e. g., while testing.
+<P>
+
+Using service providers and possibly also firewalls requires use of
+username/password credentials.
+For these, the <A HREF="/man/man2html?5+netrc">netrc</A>(5) file is used.
+<P>
+
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+Options for normal operation:
+<DL COMPACT>
+<DT><B>-H, --hostname</B> &lt;<I>hostname</I>&gt;<DD>
+Hostname to update,  typically fully qualified. Defaults to the not really
+usable host.nowhere.net
+<P>
+<DT><B>-s, --service-plugin</B> &lt;<I>plugin</I>&gt;<DD>
+Plugin used to update the dns data for the address obtained
+from the ip-plugin. Defaults to dry-run, which just prints the
+address obtained from the ip plugin.
+<P>
+<DT><B>-i, --ip-plugin</B> &lt;<I>plugin</I>&gt;<DD>
+Plugin used to obtain the actual ip address. Defaults to default-if,
+which localizes the default interface using heuristics and uses it's
+address.
+<P>
+<DT><B>-c, --config-file</B> &lt;<I>path</I>&gt;<DD>
+File containing default values for all command line options.
+A relative path is interpreted from current directory.
+See [FILES] below.
+<P>
+<DT><B>-L, --loglevel</B> [<I>level</I>]<DD>
+Determine the amount of logging information. <I>level</I> is a symbolic
+syslog level: <I>error</I>,<I>warning, info</I>,
+or <I>debug</I>.
+It defaults to <I>warning</I>.
+<P>
+<DT><B>-o, --option</B> &lt;<I>plugin option</I>&gt;<DD>
+Option interpreted by plugins, documented in <I>--help &lt;plugin&gt;</I>.
+May be given multiple times as required.
+Any option on the command line will clear the list of options as of the
+config file.
+See PLUGIN OPTIONS.
+<P>
+</DL>
+<P>
+
+Other options:
+<P>
+<DL COMPACT>
+<DT><B>-h, --help [plugin]  </B><DD>
+Print help. If given a plugin argument, prints help for this plugin.
+<P>
+<DT><B>-l, --list-plugins</B> [ip-plugins|services]<DD>
+List ip-plugins or service-plugins. By default, lists all.
+<P>
+<DT><B>-v, --version</B><DD>
+Print ddupdate version.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>PLUGIN OPTIONS</H2>
+
+The plugin options are generally just handed to the plugins without
+any further interpretation.
+An option is either a single keyword, or a <I>key=value</I>
+string.
+No whitespace is allowed in <I>key</I> or <I>value</I>.
+Commonly used options includes:
+<DL COMPACT>
+<DT><B>firewall=hostname</B><DD>
+For ip-plugins plugins retrieving the address from the local firewall.
+The hostname must normally be present in .netrc to provide username
+and password.
+<DT><B>ip=address</B><DD>
+Used by the fixed-address plugin, which uses a hardcoded ip address
+instead of probing for it.
+<DT><B>force</B><DD>
+Force an update despite that there is no change compared to the
+cached address.
+<DT><B>proxy=hostname</B><DD>
+Use given HTTP proxy when connecting to service provider.
+<DT><B>ssl</B><DD>
+Use an encrypted SSL connection when connecting to service provider.
+<DT><B>timeout=seconds</B><DD>
+Timeout when communicating with service provider, defaults to 120
+seconds.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>PLUGIN LOADING</H2>
+
+ddupdate looks for a directory named <I>plugins</I> and tries to load
+plugins from all files in this directory. The search for <I>plugins</I>
+is done, in descending priority:
+<DL COMPACT>
+<DT>&bull;<DD>
+In the same directory as the ddclient.py module. This is the development
+case, and the highest priority.
+<DT>&bull;<DD>
+User plugins are in  <I>~/.local/share/ddclient/plugins</I>. Setting the
+XDG_DATA_HOME environment relocates this to $XDG_DATA_HOME/ddupdate/plugins.
+<DT>&bull;<DD>
+The directories <I>/usr/local/share/ddupdate/plugins</I> and
+<I>/usr/share/ddupdate/plugins</I>. Setting the XDG_DATA_DIRS environment
+variable relocates these directories according to the freedesktop
+specification.
+<P>
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+Please note that the command line options are normally stored
+in /etc/ddupdate.conf, allowing an invocation without command line
+options.
+<P>
+
+Update on dyndns.com using the external address as obtained using
+the default interface plugin:
+<P>
+<PRE>
+        ddupdate -a default-if -p dyndns -H myhost.dyndns.org
+
+Make a debug run without actually updating:
+
+        ddupdate -a default-if -p dry_run -loglevel debug \
+            -H myhost.dyndns.org
+</PRE>
+
+<P>
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>.netrc</B>
+
+<DD>
+Used to store username and password for logging in to service providers
+to update, firewalls to get the IP address etc. See <A HREF="/man/man2html?5+netrc">netrc</A>(5) for
+the format used.
+<DT><B>/etc/ddupdate.conf</B>
+
+<DD>
+Default values for all command line options.
+<DT><B>/usr/share/ddupdate/plugins</B>
+
+<DD>
+Base directory for upstream plugins.
+<DT><B>/usr/local/share/ddupdate/plugins</B>
+
+<DD>
+Base directory for site plugins.
+<DT><B>~/.local/share/ddupdate/plugins</B>
+
+<DD>
+Base directory for user specified plugins.
+<DT><B>~/cache/ddupdate/*</B>
+
+<DD>
+Cached address from last update with an actual change, one for each
+update service.
+Setting the XDG_CACHE_HOME environment variable relocates these files to
+$XDG_CACHE_HOME/ddupdate/*.
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">PLUGIN OPTIONS</A><DD>
+<DT><A HREF="#lbAG">PLUGIN LOADING</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 19:46:12 GMT, December 25, 2017
+</BODY>
+</HTML>
