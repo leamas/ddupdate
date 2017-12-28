@@ -1,8 +1,6 @@
 
 ''' Update DNS data for dynamically ip addresses  '''
 
-# pylint: disable=invalid-name
-
 import argparse
 import configparser
 import logging

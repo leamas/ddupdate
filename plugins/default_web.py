@@ -31,9 +31,9 @@ class DefaultWebPlugin(IpPlugin):
                 html = response.read().decode('ascii')
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-            m = pat.search(html)
-            if m:
-                return html[m.start(): m.end()]
+            match = pat.search(html)
+            if match:
+                return html[match.start(): match.end()]
             log.debug("Cannot parse address reply")
             return None
 
