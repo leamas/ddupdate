@@ -1,4 +1,5 @@
 ''' ddclient plugin base classes and common code. '''
+
 import inspect
 import urllib.request
 

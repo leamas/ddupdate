@@ -1,6 +1,5 @@
 '''
-ddupdate plugin updating data on dynu.com. As usual, any
-host updated ,ust first be defined in the web UI-
+ddupdate plugin updating data on dynu.com.
 
 See: ddupdate(8)
 
@@ -16,10 +15,11 @@ class DunyPlugin(UpdatePlugin):
     Update a dns entry on dynu.com
 
     Supports ip address discovery and can thus work with the ip-disabled
-    plugin.
+    plugin. As usual, any host updated must first be defined in the web UI
 
     .netrc: Use a line like:
         machine api.dynu.com login <username> password <password>
+
     Options:
         none
     '''

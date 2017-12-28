@@ -1,8 +1,9 @@
 '''
-ddupdate plugin updating data on freedns.org.
+ddupdate plugin updating data on freedns.afraid.org.
 
 See: ddupdate(8)
 '''
+
 import hashlib
 from netrc import netrc
 

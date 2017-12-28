@@ -1,5 +1,6 @@
 '''
-ddupdate plugin providing an ip address to use.all
+ddupdate plugin providing an ip address to use a
+from an interface option.
 
 See: ddupdate(8)
 '''
@@ -14,7 +15,8 @@ class HardcodedIfPlugin(IpPlugin):
     '''
     Use address on hardcoded interface
 
-    Options: if=interface
+    Options:
+        if=interface
     '''
     __version__ = '0.0.1'
     _name = 'hardcoded-if'

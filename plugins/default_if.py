@@ -12,7 +12,8 @@ from plugins.plugins_base import IpPlugin, IpLookupError
 class DefaultIfPLugin(IpPlugin):
     '''
     Locates the default interface by digging in the routing tables
-    and returmns it's address using linux-specific code.
+    and returns it's address using linux-specific code based on
+    the ip utility which must be in $PATH
 
     Options used: none
     '''

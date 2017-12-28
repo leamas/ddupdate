@@ -13,8 +13,10 @@ class IpDisabledPlugin(IpPlugin):
     ddupdate plugin providing a null ip address, to be used when the
     update service determines the address
 
-    Options: nothing
-    netrc: Nothing
+    Options:
+        None
+    netrc:
+        None
     '''
     _name = 'ip-disabled'
     _oneliner = 'Force update service to provide ip address'

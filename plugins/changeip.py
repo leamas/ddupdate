@@ -1,5 +1,5 @@
 '''
-ddupdate plugin updating data on no-ip.com.
+ddupdate plugin updating data on changeip.com.
 
 See: ddupdate(8)
 '''

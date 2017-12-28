@@ -1,5 +1,5 @@
 '''
-ddupdate plugin making the actual update work
+ddupdate dummy plugin making absolutely no update.
 
 See: ddupdate(8)
 '''

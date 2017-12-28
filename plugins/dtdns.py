@@ -15,10 +15,11 @@ class DtdnsPlugin(UpdatePlugin):
     Update a dns entry on dtdns.com
 
     Supports ip address discovery and can thus work with the ip-disabled
-    plugin.
+    plugin. As usual any host updated must first be defined in the web UI
 
     .netrc: Use a line like:
         machine www.dtdns.com login <user>  password <password>
+
     Options:
         none
     '''

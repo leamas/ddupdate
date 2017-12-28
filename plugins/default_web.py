@@ -1,5 +1,5 @@
 '''
-ddupdate plugin to retrieve address.
+ddupdate plugin to retrieve address as seen from internet
 
 See: ddupdate(8)
 '''
