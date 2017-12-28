@@ -192,8 +192,8 @@ is distributed in the package.
 
 ## Writing plugins
 
-Writing plugins is not hard. Most plugins are about 10-20 lines of code
-+ docs, most of which is boilerplate stuff. The best way is to look at
+Writing plugins is not hard. Most plugins are about 10-20 lines of code +
+docs, most of which is boilerplate stuff. The best way is to look at
 the existing plugins and pick solutions from them. Some hints:
 
   - Before writing the plugin, make tests with wget or curl to make
@@ -207,13 +207,13 @@ the existing plugins and pick solutions from them. Some hints:
     --list-plugins.
 
   - Authentication:
-        + Some sites uses standard basic authentication. This is handled
-          by *http_basic_auth_setup* e. g., no_ip.py
-        + Others uses username + password in the url e. g., dnsexit.py
-        + Other uses hashed passwords, e. g., dynu.py
-        + API tokens are handled in e. g., duckdns.py
-        + Some have broken basic authentication, see now_dns.py
+      - Some sites uses standard basic authentication. This is handled
+        by *http_basic_auth_setup* e. g., no_ip.py
+      - Others uses username + password in the url e. g., dnsexit.py
+      - Other uses hashed passwords, e. g., dynu.py
+      - API tokens are handled in e. g., duckdns.py
+      - Some have broken basic authentication, see now_dns.py
   - Reply decoding:
-        + Most sites just returns some text, simple enough
-        + json: example in system_ns.py
-        + html: example in duiadns.py
+      - Most sites just returns some text, simple enough
+      - json: example in system_ns.py
+      - html: example in duiadns.py
