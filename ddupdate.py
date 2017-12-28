@@ -226,10 +226,10 @@ def load_plugins(path):
 def list_plugins(ip_plugins, service_plugins, kind):
     ''' List all loaded plugins (noreturn). '''
     if kind == 'all' or kind.startswith('i'):
-        for name, plugin in ip_plugins.items():
+        for name, plugin in sorted(ip_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
     if kind == 'all' or kind.startswith('s'):
-        for name, plugin in service_plugins.items():
+        for name, plugin in sorted(service_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
     sys.exit(0)
 
