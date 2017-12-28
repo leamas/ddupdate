@@ -45,8 +45,9 @@ class DefaultWebPlugin(IpPlugin):
         if ip:
             return ip
         log.info("Falling back to ifconfig.co")
-        ip = check_url('wget https://ifconfig.co')
+        ip = check_url('https://ifconfig.co')
         if ip:
             return ip
         raise IpLookupError(
-            "Cannot obtain ip address (dyndns.org and ipify.org tried)")
+            "Cannot obtain ip address (%s, %s and %s tried)" %
+            ('checkip.dyndns.org', 'ipify.org', 'ifconfig.co'))
