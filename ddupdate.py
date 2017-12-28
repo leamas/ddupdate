@@ -123,11 +123,11 @@ def get_parser(conf):
         default=conf['hostname'])
     normals.add_argument(
         "-s", "--service-plugin", metavar="plugin",
-        help='Plugin used to actually update a dns hostname to an address',
+        help='Service plugin used to actually update a dns hostname address',
         default=conf['service-plugin'])
     normals.add_argument(
         "-i", "--ip-plugin", metavar="plugin",
-        help='Plugin used to obtain the ip address to use',
+        help='Ip plugin used to obtain the ip address to use',
         default=conf['ip-plugin'])
     normals.add_argument(
         "-c", "--config-file", metavar="path",
