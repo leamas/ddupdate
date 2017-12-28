@@ -2,6 +2,8 @@
 import inspect
 import urllib.request
 
+from urllib.parse import urlencode
+
 from netrc import netrc
 
 
@@ -33,18 +35,25 @@ def dict_of_opts(options):
     return result
 
 
-def get_response(log, url):
-    ''' Read from url and return html. Raise UpdateError if code
-    is != 200.
+def get_response(log, url, data=None):
+    '''
+    Read from url and return html. If data is not None, this makes
+    a http post request wuth the data, a dict, as form data. Otherwise,
+    it is a http get.
+
+    Raises UpdateError if return code is != 200.
     '''
     log.debug("Trying url: %s", url)
+    form_data = urlencode(data).encode() if data else None
+    if data:
+        log.debug("Posting data: " + form_data.decode('ascii'))
     try:
-        with urllib.request.urlopen(url) as response:
+        with urllib.request.urlopen(url, form_data) as response:
             code = response.getcode()
             html = response.read().decode('ascii')
-            log.debug("Got response (%d) : %s", code, html)
     except urllib.error.HTTPError as err:
         raise UpdateError("Error reading %s :%s" % (url, err))
+    log.debug("Got response (%d) : %s", code, html)
     if code != 200:
         raise UpdateError("Cannot update, response code: %d", code)
     return html
