@@ -16,7 +16,6 @@ from straight.plugin import load
 from plugins.plugins_base import IpPlugin, IpLookupError
 from plugins.plugins_base import UpdatePlugin, UpdateError
 
-log = logging.getLogger('ddupdate')
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -29,7 +28,8 @@ DEFAULTS = {
     'service-plugin': 'dry-run',
     'loglevel': 'info',
     'options': None,
-    'ip-cache': os.path.join(CACHE_DIR, 'ddupdate')
+    'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
+    'force': False
 }
 
 
@@ -38,6 +38,15 @@ def ip_cache_setup(opts):
     if not os.path.exists(os.path.dirname(opts.ip_cache)):
         os.makedirs(os.path.dirname(opts.ip_cache))
     return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
+
+
+def ip_cache_clear(opts, log):
+    ''' Remove the cache file for actual service plugin in opts. '''
+    path = ip_cache_setup(opts)
+    if not os.path.exists(path):
+        return
+    log.debug("Removing cache file: " + path)
+    os.unlink(path)
 
 
 def ip_cache_data(opts, default=("0.0.0.0", 100000)):
@@ -69,7 +78,7 @@ def here(path):
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
 
 
-def parse_conffile():
+def parse_conffile(log):
     ' Parse config file path, returns verified path or None. '
     path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
@@ -90,7 +99,7 @@ def parse_conffile():
     return path
 
 
-def parse_config(path):
+def parse_config(path, log):
     ' Parse config file, return fully populated dict of key-values '
     results = {}
     config = configparser.ConfigParser()
@@ -152,6 +161,10 @@ def get_parser(conf):
         + 'ip-plugins, services or all  [all]',
         const='all', nargs='?')
     others.add_argument(
+        "-f", "--force",
+        help='Force run even if the cache is fresh',
+        default=False, action='store_true')
+    others.add_argument(
         "-h", "--help", metavar="plugin",
         help='Print overall help or help for given plugin',
         nargs='?', const='-')
@@ -186,15 +199,17 @@ def parse_options(conf):
 
 def log_setup():
     ' Setup the module log. '
+    log = logging.getLogger('ddupdate')
     log.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     log.addHandler(handler)
+    return log
 
 
-def log_options(args):
+def log_options(log, args):
     ' Print some info on seledted options. '
     log.info("Loglevel: " + logging.getLevelName(args.loglevel))
     log.info("Using hostname: " + args.hostname)
@@ -204,7 +219,7 @@ def log_options(args):
              + (' '.join(args.options) if args.options else ''))
 
 
-def load_plugins(path):
+def load_plugins(path, log):
     ''' Load ip and service plugins into dicts keyed by name. '''
     path = os.path.join(path, 'plugins')
     # This is weird, likely a bug. Absolute paths does not make it
@@ -250,7 +265,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     sys.exit(0)
 
 
-def build_load_path():
+def build_load_path(log):
     ''' Return list of paths to load plugins from. '''
     paths = []
     path = os.path.expanduser('~/.local/share')
@@ -271,15 +286,15 @@ def main():
     ''' Indeed: main function. '''
     ip_plugins = {}
     service_plugins = {}
-    log_setup()
-    conffile_path = parse_conffile()
-    conf = parse_config(conffile_path) if conffile_path else DEFAULTS
+    log = log_setup()
+    conffile_path = parse_conffile(log)
+    conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
     opts = parse_options(conf)
     log.handlers[0].setLevel(opts.loglevel)
-    log_options(opts)
-    load_paths = build_load_path()
+    log_options(log, opts)
+    load_paths = build_load_path(log)
     for path in reversed(load_paths):
-        getters, setters = load_plugins(path)
+        getters, setters = load_plugins(path, log)
         ip_plugins.update(getters)
         service_plugins.update(setters)
     if opts.help and opts.help != '-':
@@ -299,6 +314,8 @@ def main():
         ip = None
     else:
         log.info("Using ip address: " + ip)
+    if opts.force:
+        ip_cache_clear(opts, log)
     addr, age = ip_cache_data(opts)
     if opts.service_plugin not in service_plugins:
         log.error("No such service plugin: %s", opts.service_plugin)

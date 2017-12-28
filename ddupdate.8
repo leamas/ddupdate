@@ -42,7 +42,7 @@ usable host.nowhere.net
 \fB-s, --service-plugin\fR <\fIplugin\fR>
 Plugin used to update the dns data for the address obtained
 from the ip-plugin. Defaults to dry-run, which just prints the
-address obtained from the ip plugin.
+address.
 
 .TP 4
 \fB-i, --ip-plugin\fR <\fIplugin\fR>
@@ -75,6 +75,10 @@ See PLUGIN OPTIONS.
 Other options:
 
 .TP 4
+\fB-f, --force\fR
+Force \fBddupdate\fR to run even if the cached value is still valid.
+
+.TP 4
 \fB-h, --help [plugin]  \fR
 Print help. If given a plugin argument, prints help for this plugin.
 
@@ -104,8 +108,7 @@ Used by the fixed-address plugin, which uses a hardcoded ip address
 instead of probing for it.
 .TP 4
 \fBforce\fR
-Force an update despite that there is no change compared to the
-cached address.
+Force an update despite server-imposed restrictions.
 .TP 4
 \fBproxy=hostname\fR
 Use given HTTP proxy when connecting to service provider.
