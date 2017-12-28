@@ -38,10 +38,13 @@ def get_response(log, url):
     is != 200.
     '''
     log.debug("Trying url: %s", url)
-    with urllib.request.urlopen(url) as response:
-        code = response.getcode()
-        html = response.read().decode('ascii')
-        log.debug("Got response (%d) : %s", code, html)
+    try:
+        with urllib.request.urlopen(url) as response:
+            code = response.getcode()
+            html = response.read().decode('ascii')
+            log.debug("Got response (%d) : %s", code, html)
+    except urllib.error.HTTPError as err:
+        raise UpdateError("Error reading %s :%s" % (url, err))
     if code != 200:
         raise UpdateError("Cannot update, response code: %d", code)
     return html
