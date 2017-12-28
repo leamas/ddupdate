@@ -1,11 +1,11 @@
 %global debug_package %{nil}
-%global gittag 0.1
+#global gittag 0.0.2
 
-%global commit 95f9fd84aeb6edb5ea92d0f0b1e4c8581d1232bb
+%global commit ee77d70142268b49134f633a457e58b07c890296
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
-Version:        0.1
+Version:        0.0.2
 Release:        0.1.%{shortcommit}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
@@ -13,8 +13,8 @@ Group:          Applications/System
 License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
-Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
-#Source0:        %%{url}/archive/%%{commit}/%%{name}-%%{shortcommit}.tar.gz
+#Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
+Source0:        %{url}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
 
 %{?systemd_requires}
 
@@ -36,8 +36,9 @@ Thanks to the plugin design, it's also much easier to provide support for
 new services and address detection strategies.
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup -n %{name}-%{commit}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
+sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 
 
 %build
@@ -47,9 +48,19 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 python3 setup.py install --root=$RPM_BUILD_ROOT --prefix=/usr
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mv $RPM_BUILD_ROOT/lib/systemd/system/* $RPM_BUILD_ROOT/usr/lib/systemd/system
-rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/COPYING
+rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/LICENSE.txt
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/ddupdate.8.html
 
+%pre
+getent group ddupdate >/dev/null || groupadd -r ddupdate
+getent passwd ddupdate >/dev/null || \
+    useradd -r -g ddupdate -d /var/lib/ddupdate -s /sbin/nologin \
+    -c "Updates dns info for dynamic ip address" ddupdate
+test -d /var/lib/ddupdate || {
+    mkdir /var/lib/ddupdate
+    chown ddupdate:ddupdate /var/lib/ddupdate
+    chmod 600 /var/lib/ddupdate
+}
 
 %post
 %systemd_post ddupdate.timer
@@ -62,7 +73,7 @@ rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/ddupdate.8.html
 
 
 %files
-%license COPYING
+%license LICENSE.txt
 %doc README.md
 %{_bindir}/ddupdate
 %config(noreplace) /etc/ddupdate.conf
