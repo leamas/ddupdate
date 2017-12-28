@@ -18,7 +18,6 @@ class HardcodedIfPlugin(IpPlugin):
     Options:
         if=interface
     '''
-    __version__ = '0.0.1'
     _name = 'hardcoded-if'
     _oneliner = 'Get address from a configuration option'
 

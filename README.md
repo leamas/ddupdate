@@ -4,7 +4,7 @@
 
 ddupdate is a tool for automatically updating dns data for a system using
 e. g., DHCP. The goal is it should be possible to access a system with a
-fixed dns name such as myhost.somewhere.net even if the IP  address is
+fixed dns name such as myhost.somewhere.net even if the IP address is
 changed.
 
 From another perspective, ddupdate is a tool replicating part of the
@@ -16,13 +16,11 @@ new services and address detection strategies.
 ## Status
 
 Like... well, alpha. Fresh code, here is probably bugs lurking around.
-That said, here is support for duckdns, afraid.org, no-ip.com and dynu.com.
-IP addresses to register can be retrieved in a multitude of ways from
-none at all (trusting the service provider) to the generic 'cmd' plugin
-which can use the output from a command.
-
-Writing new plugins for not-so-odd services should not be fairly simple
-given the examples available.
+That said, it supports more than 10 services including  duckdns,
+afraid.org, no-ip.com and dynu.com. Ip addresses to register can be
+retrieved in a multitude of ways from none at all (trusting the service
+provider) to the generic 'cmd' plugin which can use the output from a
+command.
 
 ## Dependencies
 
@@ -43,7 +41,7 @@ It's also possible to make a user installation, using a horrible cludge:
 
     $ USER_INSTALL_FIX=1 python3 setup.py install --user
 
-To make a local installation in /usr/local run something like
+To make a local site installation in /usr/local run something like
 
     $ sudo python3 setup.py --prefix=/usr/local
 
@@ -71,15 +69,18 @@ First, list all plugins:
     default-web-ip       Obtain external address as seen from the net
     hardcoded-if         Get address from a configuration option
     $ ddupdate --list-plugins services
-    no-ip                Updates DNS data on no-ip.com
-    duckdns              Update DNS data on duckdns.org
-    dynu                 Updates DNS data on dynu.com
-    changeip             Updates DNS data on changip.com
-    freedns              Updates host on freedns.afraid.org
-    dtdns                Updates DNS data on dtdns.com
-    dnsexit              Updates host on www.dnsexit.com
+    changeip             Updates DNS data on changeip.com
+    dnsexit              Updates DNS data on www.dnsexit.com
     dry-run              Debug dummy update plugin
-
+    dtdns                Updates DNS data on dtdns.com
+    duckdns              Updates DNS data on duckdns.org
+    duiadns              Updates DNS data on duiadns.com
+    dynu                 Updates DNS data on dynu.com
+    freedns.afraid       Updates DNS data on freedns.afraid.org
+    freedns.io           Updates DNS data on freedns.io
+    no-ip                Updates DNS data on no-ip.com
+    now-dns              Updates DNS data on now-dns.com
+    system-ns            Updates DNS data on system-ns.com
 
 Next, pick an update plugin and check the help info, here dynu:
 
@@ -92,8 +93,11 @@ Next, pick an update plugin and check the help info, here dynu:
     Supports ip address discovery and can thus work with the ip-disabled
     plugin.
 
-    netrc: Uses username/password for machine api.dynu.com.
-    Options used: none
+    .netrc: Use a line like:
+        machine api.dynu.com login <username> password <password>
+
+    Options:
+        none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
 username and password. Create an entry in the ~/.netrc file like:
@@ -179,9 +183,37 @@ is distributed in the package.
 
   - The debian packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.1 do:
+    and *git*  are required to build. To build current version 0.0.2 do:
 
         $ git clone -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
-        $ gbp buildpackage --git-upstream-tag=0.1
+        $ gbp buildpackage --git-upstream-tag=0.0.2.
         $ git clean -fd    # To be able to rebuild
+
+## Writing plugins
+
+Writing plugins is not hard. Most plugins are about 10-20 lines of code
++ docs, most of which is boilerplate stuff. The best way is to look at
+the existing plugins and pick solutions from them. Some hints:
+
+  - Before writing the plugin, make tests with wget or curl to make
+    sure how the api works. Essential step, this one.
+
+  - Each plugin must contain a main class derived from IpPlugin or
+    ServicePlugin. The class docstring is the *help <plugin>* documentation.
+
+  - The class \_name property is the official name of the plugin, must be
+    unique. \_oneliner is indeed the short summary displayed by
+    --list-plugins.
+
+  - Authentication:
+        + Some sites uses standard basic authentication. This is handled
+          by *http_basic_auth_setup* e. g., no_ip.py
+        + Others uses username + password in the url e. g., dnsexit.py
+        + Other uses hashed passwords, e. g., dynu.py
+        + API tokens are handled in e. g., duckdns.py
+        + Some have broken basic authentication, see now_dns.py
+  - Reply decoding:
+        + Most sites just returns some text, simple enough
+        + json: example in system_ns.py
+        + html: example in duiadns.py

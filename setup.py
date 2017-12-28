@@ -26,7 +26,7 @@ else:
 
 setup(
     name='ddupdate',
-    version='0.0.1',
+    version='0.0.2',
     description='Update dns data for dynamic ip addresses',
     license='MIT',
     url='http://github.com/leamas/ddupdate',
