@@ -104,7 +104,7 @@ class AbstractPlugin(object):
 
     def run(self, config, log, ip=None):
         ''' Run the actual module work. '''
-        assert False, "Attempt to invoke abstract run()."
+        raise NotImplementedError("Attempt to invoke abstract run()")
 
 
 class IpPlugin(AbstractPlugin):
@@ -114,7 +114,7 @@ class IpPlugin(AbstractPlugin):
         ''' Given a configuration namespace and a log, return ip address.
             Raises IpLookupError on errors.
         '''
-        assert False, "Attempt to invoke abstract run()."
+        raise NotImplementedError("Attempt to invoke abstract run()")
 
 
 class UpdatePlugin(AbstractPlugin):
@@ -132,4 +132,4 @@ class UpdatePlugin(AbstractPlugin):
             Most (not all) services doesnt't need an address.
             Raises UpdateError on errors.
         '''
-        assert False, "Attempt to invoke abstract run()."
+        raise NotImplementedError("Attempt to invoke abstract run()")
