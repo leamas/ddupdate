@@ -42,11 +42,8 @@ To make a test version possible to run from anywhere make a symlink::
 
     $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
 
-It's also possible to make a user installation, using a horrible cludge::
-
-    $ USER_INSTALL_FIX=1 python3 setup.py install --user
-
-To make a local site installation in /usr/local run something like::
+User installations are not supported at this point. To make a local site
+installation in /usr/local run something like::
 
     $ sudo python3 setup.py --prefix=/usr/local
 
@@ -194,11 +191,11 @@ ddupdate has a multitude of packaging:
 
   - The debian packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.0.2 do::
+    and *git*  are required to build. To build current version 0.0.3 do::
 
         $ git clone -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
-        $ gbp buildpackage --git-upstream-tag=0.0.2.
+        $ gbp buildpackage --git-upstream-tag=0.0.3.
         $ git clean -fd    # To be able to rebuild
 
 Writing plugins
