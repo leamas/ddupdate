@@ -1,5 +1,7 @@
-ddupdate (0.1-1~1) unstable; urgency=medium
+ddupdate (0.0.2-1) experimental; urgency=medium
 
-  * Initial release (Closes: #000001)
+  * New upstream release
+  * Purgin inconsistent history
 
- -- Alec Leamas <leamas.alec@gmail.com>  Tue, 26 Dec 2017 22:08:21 +0100
+ -- Alec Leamas <leamas.alec@gmail.com>  Fri, 29 Dec 2017 11:25:58 +0100
+
