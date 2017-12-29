@@ -290,7 +290,7 @@ def main():
     log.handlers[0].setLevel(opts.loglevel)
     log_options(log, opts)
     load_paths = build_load_path(log)
-    for path in reversed(load_paths):
+    for path in load_paths:
         getters, setters = load_plugins(path, log)
         ip_plugins.update(getters)
         service_plugins.update(setters)
