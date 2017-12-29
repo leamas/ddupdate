@@ -4,10 +4,10 @@ ddupdate plugin updating data on duiadns.com.
 See: ddupdate(8)
 
 '''
-from netrc import netrc
 from html.parser import HTMLParser
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DuiadnsParser(HTMLParser):
@@ -58,13 +58,12 @@ class DuiadnsPlugin(UpdatePlugin):
     _oneliner = 'Updates DNS data on duiadns.com'
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
 
+    # pylint: disable=unused-variable
+
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('ip.duiadns.net')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password/token for ip.duiadns.net found in .netrc")
-        url = self._url.format(config.hostname, auth[2])
+        user, password = get_netrc_auth('ip.duiadns.net')
+        url = self._url.format(config.hostname, password)
         if ip:
             url += "&ip4=" + ip
         html = get_response(log, url)

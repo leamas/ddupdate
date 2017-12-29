@@ -1,6 +1,7 @@
 ''' ddclient plugin base classes and common code. '''
 
 import inspect
+import os.path
 import urllib.request
 
 from urllib.parse import urlencode
@@ -10,13 +11,9 @@ from netrc import netrc
 
 def http_basic_auth_setup(url, host):
     ''' Setup urllib to provide user/pw from netrc on url. '''
-    credentials = netrc()
-    auth = credentials.authenticators(host)
-    if auth is None:
-        raise UpdateError(
-            "No username/password for %s in .netrc" % host)
+    user, password = get_netrc_auth(host)
     pwmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-    pwmgr.add_password(None, url, auth[0], auth[2])
+    pwmgr.add_password(None, url, user, password)
     auth_handler = urllib.request.HTTPBasicAuthHandler(pwmgr)
     opener = urllib.request.build_opener(auth_handler)
     urllib.request.install_opener(opener)
@@ -58,6 +55,18 @@ def get_response(log, url, data=None):
     if code != 200:
         raise UpdateError("Cannot update, response code: %d", code)
     return html
+
+
+def get_netrc_auth(machine):
+    ''' Return a (user, password) tuple based on ~/-netrc or /etc/netrc. '''
+    if os.path.exists(os.path.expanduser('~/.netrc')):
+        path = os.path.expanduser('~/.netrc')
+    elif os.path.exists('/etc/netrc'):
+        path = '/etc/netrc'
+    auth = netrc(path).authenticators(machine)
+    if not auth[2]:
+        raise UpdateError("No password found for " + machine)
+    return auth[0], auth[2]
 
 
 class IpLookupError(Exception):

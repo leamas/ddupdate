@@ -5,9 +5,7 @@ See: ddupdate(8)
 
 '''
 import hashlib
-from netrc import netrc
-
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, get_response, get_netrc_auth
 
 
 class DunyPlugin(UpdatePlugin):
@@ -30,11 +28,9 @@ class DunyPlugin(UpdatePlugin):
 
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('api.dynu.com')
-        if not auth:
-            raise UpdateError("No password for api.duny.com found in .netrc")
-        pw_hash = hashlib.md5(auth[2].encode()).hexdigest()
-        url = self._url.format(config.hostname, auth[0], pw_hash)
+        user, password = get_netrc_auth('api.dynu.com')
+        pw_hash = hashlib.md5(password.encode()).hexdigest()
+        url = self._url.format(config.hostname, user, pw_hash)
         if ip:
             url += "&myip=" + ip
         get_response(log, url)

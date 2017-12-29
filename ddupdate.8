@@ -181,7 +181,11 @@ Involved in system plugins, see PLUGIN LOADING.
 .B ~/.netrc
 Used to store username and password for logging in to service providers
 to update, firewalls to get the IP address etc. See netrc(5) for
-the format used.
+the format used. The file must have restricted permissions like 600 to
+be accepted.
+.TP 4
+.B /etc/netrc
+Fallback location for credentials when \fI~/.netrc\fR is not found.
 .TP 4
 .B \fI~/.config/ddupdate.conf\fR.
 Default config file location

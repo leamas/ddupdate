@@ -4,9 +4,7 @@ ddupdate plugin updating data on freedns.io
 See: ddupdate(8)
 '''
 
-from netrc import netrc
-
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, get_netrc_auth, get_response
 
 
 class FreednsIoPlugin(UpdatePlugin):
@@ -31,12 +29,11 @@ class FreednsIoPlugin(UpdatePlugin):
 
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('freedns.io')
-        if not auth or not auth[2]:
-            raise UpdateError("No password for freedns.io found in .netrc")
+        user, password = get_netrc_auth('freedns.io')
+
         data = {
-            'username': auth[0],
-            'password': auth[2],
+            'username': user,
+            'password': password,
             'host': config.hostname.split('.freedns.io')[0],
             'record': 'A'
         }

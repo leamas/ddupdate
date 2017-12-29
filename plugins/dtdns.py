@@ -5,9 +5,8 @@ host updated ,ust first be defined in the web UI-
 See: ddupdate(8)
 
 '''
-from netrc import netrc
-
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DtdnsPlugin(UpdatePlugin):
@@ -27,12 +26,12 @@ class DtdnsPlugin(UpdatePlugin):
     _oneliner = 'Updates DNS data on dtdns.com'
     _url = "https://www.dtdns.com/api/autodns.cfm?id={0}&pw={1}"
 
+    # pylint: disable=unused-variable
+
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('www.dtdns.com')
-        if not auth:
-            raise UpdateError("No password for dtns.com found in .netrc")
-        url = self._url.format(config.hostname, auth[2])
+        user, password = get_netrc_auth('www.dtdns.com')
+        url = self._url.format(config.hostname, password)
         if ip:
             url += "&ip=" + ip
         try:
