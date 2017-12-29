@@ -1,10 +1,10 @@
 '''
-ddupdate plugin making the actual update work
+ddupdate dummy plugin making absolutely no update.
 
 See: ddupdate(8)
 '''
 
-from plugins.plugins_base import UpdatePlugin
+from ddupdate.plugins_base import UpdatePlugin
 
 
 class DryRunPlugin(UpdatePlugin):
@@ -17,6 +17,7 @@ class DryRunPlugin(UpdatePlugin):
     '''
     _name = 'dry-run'
     _oneliner = 'Debug dummy update plugin'
+    _ip_cache_ttl = 1    # we do not cache these runs, right?
 
     def run(self, config, log, ip=None):
         ''' Run the actual module work. '''

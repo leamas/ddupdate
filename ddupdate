@@ -1,6 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 # pylint: disable=invalid-name, wrong-import-position
 
-import ddupdate
-ddupdate.main()
+import os.path
+import sys
+
+home = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+
+sys.path.insert(0,os.path.join( home, 'lib'))
+os.chdir(home)
+
+try:
+    import lib.ddupdate.main as main
+except ModuleNotFoundError:
+    import ddupdate.main as main
+
+main.main()

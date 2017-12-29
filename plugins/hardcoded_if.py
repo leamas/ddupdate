@@ -1,5 +1,6 @@
 '''
-ddupdate plugin providing an ip address to use.all
+ddupdate plugin providing an ip address to use a
+from an interface option.
 
 See: ddupdate(8)
 '''
@@ -7,16 +8,16 @@ See: ddupdate(8)
 import subprocess
 import sys
 
-from plugins.plugins_base import IpPlugin, dict_of_opts
+from ddupdate.plugins_base import IpPlugin, dict_of_opts
 
 
 class HardcodedIfPlugin(IpPlugin):
     '''
     Use address on hardcoded interface
 
-    Options: if=interface
+    Options:
+        if=interface
     '''
-    __version__ = '0.0.1'
     _name = 'hardcoded-if'
     _oneliner = 'Get address from a configuration option'
 

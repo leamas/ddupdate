@@ -1,12 +1,13 @@
 '''
-ddupdate plugin updating data on freedns.org.
+ddupdate plugin updating data on freedns.afraid.org.
 
 See: ddupdate(8)
 '''
+
 import hashlib
 from netrc import netrc
 
-from plugins.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
 
 
 class FreednsPlugin(UpdatePlugin):
@@ -24,8 +25,8 @@ class FreednsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'freedns'
-    _oneliner = 'Updates host on freedns.afraid.org'
+    _name = 'freedns.afraid'
+    _oneliner = 'Updates DNS data on freedns.afraid.org'
     _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
     def run(self, config, log, ip=None):

@@ -1,5 +1,5 @@
 '''
-ddupdate plugin to retrieve address.
+ddupdate plugin to retrieve address as seen from internet
 
 See: ddupdate(8)
 '''
@@ -7,7 +7,7 @@ See: ddupdate(8)
 import urllib.request
 import re
 
-from plugins.plugins_base import IpPlugin, IpLookupError
+from ddupdate.plugins_base import IpPlugin, IpLookupError
 
 
 class DefaultWebPlugin(IpPlugin):
@@ -31,9 +31,9 @@ class DefaultWebPlugin(IpPlugin):
                 html = response.read().decode('ascii')
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-            m = pat.search(html)
-            if m:
-                return html[m.start(): m.end()]
+            match = pat.search(html)
+            if match:
+                return html[match.start(): match.end()]
             log.debug("Cannot parse address reply")
             return None
 
@@ -45,8 +45,9 @@ class DefaultWebPlugin(IpPlugin):
         if ip:
             return ip
         log.info("Falling back to ifconfig.co")
-        ip = check_url('wget https://ifconfig.co')
+        ip = check_url('https://ifconfig.co')
         if ip:
             return ip
         raise IpLookupError(
-            "Cannot obtain ip address (dyndns.org and ipify.org tried)")
+            "Cannot obtain ip address (%s, %s and %s tried)" %
+            ('checkip.dyndns.org', 'ipify.org', 'ifconfig.co'))

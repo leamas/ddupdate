@@ -5,7 +5,7 @@ See: ddupdate(8)
 '''
 from netrc import netrc
 
-from plugins.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
 
 
 class DnsexitPlugin(UpdatePlugin):
@@ -30,7 +30,7 @@ class DnsexitPlugin(UpdatePlugin):
         None
     '''
     _name = 'dnsexit'
-    _oneliner = 'Updates host on www.dnsexit.com'
+    _oneliner = 'Updates DNS data on www.dnsexit.com'
 
     _update_host = 'http://update.dnsexit.com'
     _url = '{0}/RemoteUpdate.sv?login={1}&password={2}&host={3}'

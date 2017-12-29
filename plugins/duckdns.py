@@ -5,8 +5,7 @@ See: ddupdate(8)
 
 '''
 from netrc import netrc
-
-from plugins.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
 
 
 class DuckdnsPlugin(UpdatePlugin):
@@ -25,7 +24,7 @@ class DuckdnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'duckdns'
-    _oneliner = 'Update DNS data on duckdns.org'
+    _oneliner = 'Updates DNS data on duckdns.org'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
     def run(self, config, log, ip=None):

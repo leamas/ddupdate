@@ -1,11 +1,11 @@
 '''
-ddupdate plugin updating data on no-ip.com.
+ddupdate plugin updating data on changeip.com.
 
 See: ddupdate(8)
 '''
 
-from plugins.plugins_base import UpdatePlugin, UpdateError
-from plugins.plugins_base import http_basic_auth_setup, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import http_basic_auth_setup, get_response
 
 
 class ChangeIpPlugin(UpdatePlugin):
@@ -20,7 +20,7 @@ class ChangeIpPlugin(UpdatePlugin):
         none
     '''
     _name = 'changeip'
-    _oneliner = 'Updates DNS data on changip.com'
+    _oneliner = 'Updates DNS data on changeip.com'
     _url = "https://nic.ChangeIP.com/nic/update?&hostname={0}"
 
     def run(self, config, log, ip=None):
