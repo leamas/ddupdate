@@ -1,6 +1,8 @@
-# ddupdate - update dns data for dynamic ip addresses.
+ddupdate - update dns data for dynamic ip addresses.
+====================================================
 
-## General
+General
+-------
 
 ddupdate is a tool for automatically updating dns data for a system using
 e. g., DHCP. The goal is it should be possible to access a system with a
@@ -13,7 +15,8 @@ interaction. In particular, it has better help, logging and documentation.
 Thanks to the plugin design, it's also much easier to provide support for
 new services and address detection strategies.
 
-## Status
+Status
+------
 
 Like... well, alpha. Fresh code, here is probably bugs lurking around.
 That said, it supports more than 10 services including  duckdns,
@@ -22,7 +25,8 @@ retrieved in a multitude of ways from none at all (trusting the service
 provider) to the generic 'cmd' plugin which can use the output from a
 command.
 
-## Dependencies
+Dependencies
+------------
 
 Just a few:
    - python3
@@ -30,22 +34,24 @@ Just a few:
    - python3-setuptools
    - The /usr/bin/ip command is used in some plugins.
 
-## Installation
+Installation
+------------
 
 ddupdate can be run as a regular user straight off the cloned git directory.
-To make a test version possible to run from anywhere make a symlink:
+To make a test version possible to run from anywhere make a symlink::
 
     $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
 
-It's also possible to make a user installation, using a horrible cludge:
+It's also possible to make a user installation, using a horrible cludge::
 
     $ USER_INSTALL_FIX=1 python3 setup.py install --user
 
-To make a local site installation in /usr/local run something like
+To make a local site installation in /usr/local run something like::
 
     $ sudo python3 setup.py --prefix=/usr/local
 
-## Configuration
+Configuration
+-------------
 
 Configuration is basically about selecting a plugin for a specific ddns
 service and possibly another plugin which provides the ip address to be
@@ -60,7 +66,7 @@ address for example when using DHCP addresses on an internal network behind
 a router and the machine should be reached by users on this network.
 In this case the machine's real address should be registered.
 
-First, list all plugins:
+First, list all plugins::
 
     $ ddupdate --list-plugins ip-plugins
     ip-disabled          Force update service to provide ip address
@@ -82,7 +88,7 @@ First, list all plugins:
     now-dns              Updates DNS data on now-dns.com
     system-ns            Updates DNS data on system-ns.com
 
-Next, pick an update plugin and check the help info, here dynu:
+Next, pick an update plugin and check the help info, here dynu::
 
     $ ddupdate --help dynu
     Name: dynu
@@ -100,23 +106,23 @@ Next, pick an update plugin and check the help info, here dynu:
         none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
-username and password. Create an entry in the ~/.netrc file like:
+username and password. Create an entry in the ~/.netrc file like::
 
     machine api.dynu.com login <username> password <secret>
 
 Note that this file must be protected for other users (otherwise no tools
-will accept it). Do:
+will accept it). Do::
 
     $ chmod 600 ~/.netrc
 
 Now, let's select the plugin which provides the ip address to register.
 For the default case, the default-web-ip plugin generates the address as
-seen from the network. This can be tested using:
+seen from the network. This can be tested using::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
     dry-run: Using address 90.224.208.212 and hostname host.nowhere.net
 
-All looks good. Now, let's try to actually update that hostname on dynu.com:
+All looks good. Now, let's try to actually update that hostname on dynu.com::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
       --hostname myhost.dynu.net -L info
@@ -128,7 +134,7 @@ All looks good. Now, let's try to actually update that hostname on dynu.com:
     INFO - Using ip address: 90.224.208.212
     INFO - Update OK
 
-Again fine. Update /etc/ddupdate.conf to something like
+Again fine. Update /etc/ddupdate.conf to something like::
 
     [update]
     address-plugin = web-default-ip
@@ -139,7 +145,8 @@ Again fine. Update /etc/ddupdate.conf to something like
 After which it should be possible to just invoke *ddupdate* without
 any options.
 
-## Configuring systemd
+Configuring systemd
+-------------------
 
 systemd is used to invoke ddupdate periodically. The safest bet is
 not to use the upstream systemd files. Do:
@@ -158,21 +165,25 @@ When all is fine make sure ddupdate is run hourly using:
     $ sudo systemctl start ddupdate.timer
     $ sudo systemctl enable ddupdate.timer
 
-## Configuring NetworkManager
+Configuring NetworkManager
+--------------------------
 
 NetworkManager can be configured to start/stop ddupdate when interfaces goes
 up or down. An example script to drop in /etc/NetworkManager/dispatcher.d
 is distributed in the package.
 
-## Packaging
+Packaging
+---------
+
+ddupdate has a multitude of packaging:
 
   - ddupdate is available as a pypi package from the master branch. It can
-    be installed using pip:
+    be installed using pip::
 
         $ pip install --user ddupdate
 
   - fedora is packaged in the *fedora* branch. Building requires the fedora
-    toolchain in the *rpmdevtools* and *rpm-build* packages. To build:
+    toolchain in the *rpmdevtools* and *rpm-build* packages. To build::
 
         $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
         $ cd ddupdate
@@ -183,14 +194,15 @@ is distributed in the package.
 
   - The debian packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.0.2 do:
+    and *git*  are required to build. To build current version 0.0.2 do::
 
         $ git clone -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ gbp buildpackage --git-upstream-tag=0.0.2.
         $ git clean -fd    # To be able to rebuild
 
-## Writing plugins
+Writing plugins
+---------------
 
 Writing plugins is not hard. Most plugins are about 10-20 lines of code +
 docs, most of which is boilerplate stuff. The best way is to look at

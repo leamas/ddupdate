@@ -17,4 +17,7 @@ pep8: plugins ddupdate lib/ddupdate/main.py lib/ddupdate/plugins_base.py setup.p
 ddupdate.8.html: ddupdate.8
 	man2html $? > $@
 
+README.rst: README.md
+	cp $? $@
+
 .phony:
