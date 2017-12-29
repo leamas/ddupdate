@@ -12,7 +12,11 @@ override_dh_clean:
 	rm -rf ddupdate.egg-info
 
 override_dh_auto_install:
-	python3 setup.py install --root=debian/tmp --prefix=/usr
+	python3 setup.py install \
+		--root=debian/tmp \
+	        --prefix=/usr \
+		--install-lib /usr/lib/python3/dist-packages
+	py3clean debian/tmp
 	sed -i '/ExecStart/s|/usr/local|/usr|' \
 	    debian/tmp/lib/systemd/system/ddupdate.service
 

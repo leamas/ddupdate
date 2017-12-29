@@ -1,0 +1,81 @@
+Description: Fix path of /usr/bin/ddupdate in service file
+--- /dev/null
++++ ddupdate-0.0.2/lib/ddupdate.egg-info/PKG-INFO
+@@ -0,0 +1,16 @@
++Metadata-Version: 1.1
++Name: ddupdate
++Version: 0.0.2
++Summary: Update dns data for dynamic ip addresses
++Home-page: http://github.com/leamas/ddupdate
++Author: Alec Leamas
++Author-email: alec.leamas@nowhere.net
++License: MIT
++Description: UNKNOWN
++Keywords: dyndns,dhcp,dns
++Platform: UNKNOWN
++Classifier: Development Status :: 3 - Alpha
++Classifier: Intended Audience :: End Users/Desktop
++Classifier: Topic :: System :: Networking
++Classifier: License :: OSI Approved :: MIT License
++Classifier: Programming Language :: Python :: 3.4
+--- /dev/null
++++ ddupdate-0.0.2/lib/ddupdate.egg-info/SOURCES.txt
+@@ -0,0 +1,34 @@
++LICENSE.txt
++README.md
++ddupdate
++ddupdate.8
++ddupdate.8.html
++ddupdate.conf
++setup.py
++dispatcher.d/50-ddupdate
++lib/ddupdate/main.py
++lib/ddupdate/plugins_base.py
++lib/ddupdate.egg-info/PKG-INFO
++lib/ddupdate.egg-info/SOURCES.txt
++lib/ddupdate.egg-info/dependency_links.txt
++lib/ddupdate.egg-info/requires.txt
++lib/ddupdate.egg-info/top_level.txt
++plugins/changeip.py
++plugins/default_if.py
++plugins/default_web.py
++plugins/dnsexit.py
++plugins/dry_run.py
++plugins/dtdns.py
++plugins/duckdns.py
++plugins/duiadns.py
++plugins/dynu.py
++plugins/freedns.py
++plugins/freedns_io.py
++plugins/hardcoded_if.py
++plugins/ip_disabled.py
++plugins/ip_from_cmd.py
++plugins/no_ip.py
++plugins/now_dns.py
++plugins/system_ns.py
++systemd/ddupdate.service
++systemd/ddupdate.timer
+\ No newline at end of file
+--- /dev/null
++++ ddupdate-0.0.2/lib/ddupdate.egg-info/dependency_links.txt
+@@ -0,0 +1 @@
++
+--- /dev/null
++++ ddupdate-0.0.2/lib/ddupdate.egg-info/requires.txt
+@@ -0,0 +1 @@
++straight.plugin
+--- /dev/null
++++ ddupdate-0.0.2/lib/ddupdate.egg-info/top_level.txt
+@@ -0,0 +1 @@
++ddupdate
+--- ddupdate-0.0.2.orig/systemd/ddupdate.service
++++ ddupdate-0.0.2/systemd/ddupdate.service
+@@ -6,7 +6,7 @@ After=network.target
+ # User=ddupdate
+ Type=oneshot
+ Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+-ExecStart=/usr/local/bin/ddupdate
++ExecStart=/usr/bin/ddupdate
+ 
+ [Install]
+ WantedBy=multi-user.target

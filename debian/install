@@ -2,3 +2,4 @@ usr/bin/ddupdate
 lib/systemd/system/*
 usr/share/ddupdate
 usr/share/man/man8/ddupdate*
+usr/lib/python3/dist-packages/*

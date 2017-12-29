@@ -6,7 +6,7 @@ After=network.target
 # User=ddupdate
 Type=oneshot
 Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
-ExecStart=/usr/local/bin/ddupdate
+ExecStart=/usr/bin/ddupdate
 
 [Install]
 WantedBy=multi-user.target
