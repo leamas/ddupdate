@@ -34,8 +34,8 @@ DEFAULTS = {
 
 def ip_cache_setup(opts):
     ''' Ensure that our cache directory exists, return cache file path '''
-    if not os.path.exists(os.path.dirname(opts.ip_cache)):
-        os.makedirs(os.path.dirname(opts.ip_cache))
+    if not os.path.exists(opts.ip_cache):
+        os.makedirs(opts.ip_cache)
     return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
 
 
