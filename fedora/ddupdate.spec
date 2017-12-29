@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 #global gittag 0.0.2
 
-%global commit ee77d70142268b49134f633a457e58b07c890296
+%global commit b6c7add6ac4039e27c058cbdda975f59df2fe726
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
