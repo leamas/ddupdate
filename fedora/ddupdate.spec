@@ -1,20 +1,20 @@
 %global debug_package %{nil}
-#global gittag 0.0.2
+%global gittag 0.0.2
 
-%global commit b6c7add6ac4039e27c058cbdda975f59df2fe726
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
+#global commit b6c7add6ac4039e27c058cbdda975f59df2fe726
+#global shortcommit %%(c=%%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
 Version:        0.0.2
-Release:        0.1.%{shortcommit}%{?dist}
+Release:        0.2%{?shortcommit:.}%{?shortcommit}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
 License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
-#Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
-Source0:        %{url}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
+Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
+#Source0:        %%{url}/archive/%%{commit}/%%{name}-%%{shortcommit}.tar.gz
 
 %{?systemd_requires}
 
@@ -36,7 +36,7 @@ Thanks to the plugin design, it's also much easier to provide support for
 new services and address detection strategies.
 
 %prep
-%autosetup -n %{name}-%{commit}
+%autosetup -n %{name}-%{version}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 
@@ -84,5 +84,8 @@ test -d /var/lib/ddupdate || {
 
 
 %changelog
+* Fri Dec 29 2017 Alec Leamas <leamas.alec@gmail.com> - 0.0.2-0.2
+- New upstream release, initial install testing done.
+
 * Tue Dec 26 2017 Alec Leamas <leamas.alec@gmail.com> - 0.1-0.1.95f9fd8%{?dist}
 - Initial release
