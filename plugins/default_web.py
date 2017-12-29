@@ -7,7 +7,7 @@ See: ddupdate(8)
 import urllib.request
 import re
 
-from plugins.plugins_base import IpPlugin, IpLookupError
+from ddupdate.plugins_base import IpPlugin, IpLookupError
 
 
 class DefaultWebPlugin(IpPlugin):

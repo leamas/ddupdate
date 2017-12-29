@@ -13,9 +13,8 @@ import time
 
 from straight.plugin import load
 
-from plugins.plugins_base import IpPlugin, IpLookupError
-from plugins.plugins_base import UpdatePlugin, UpdateError
-
+from ddupdate.plugins_base import IpPlugin, IpLookupError
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -221,18 +220,14 @@ def log_options(log, args):
 
 def load_plugins(path, log):
     ''' Load ip and service plugins into dicts keyed by name. '''
-    path = os.path.join(path, 'plugins')
-    # This is weird, likely a bug. Absolute paths does not make it
-    path = os.path.relpath(path)
-    log.debug("Loading plugins from: %s", path)
-    if not os.path.exists(path):
-        return {}, {}
-    getters = load(path, subclasses=IpPlugin)
+    sys.path.insert(0, path)
+    getters = load('plugins', subclasses=IpPlugin)
     getters = getters.produce()
     getters_by_name = {plug.name(): plug for plug in getters}
-    setters = load(path, subclasses=UpdatePlugin)
+    setters = load('plugins', UpdatePlugin)
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
+    sys.path.pop(0)
     log.debug("Loaded %d address and %d service plugins",
               len(getters), len(setters))
     return getters_by_name, setters_by_name

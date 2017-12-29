@@ -5,7 +5,7 @@ See: ddupdate(8)
 
 '''
 
-from plugins.plugins_base import IpPlugin
+from ddupdate.plugins_base import IpPlugin
 
 
 class IpDisabledPlugin(IpPlugin):

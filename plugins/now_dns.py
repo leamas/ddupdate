@@ -9,7 +9,7 @@ import base64
 import urllib.request
 import urllib.error
 
-from plugins.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
 
 
 class NowDnsPlugin(UpdatePlugin):

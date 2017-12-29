@@ -7,7 +7,7 @@ See: ddupdate(8)
 '''
 from netrc import netrc
 
-from plugins.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
 
 
 class DtdnsPlugin(UpdatePlugin):

@@ -4,8 +4,8 @@ ddupdate plugin updating data on changeip.com.
 See: ddupdate(8)
 '''
 
-from plugins.plugins_base import UpdatePlugin, UpdateError
-from plugins.plugins_base import http_basic_auth_setup, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import http_basic_auth_setup, get_response
 
 
 class ChangeIpPlugin(UpdatePlugin):

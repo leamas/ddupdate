@@ -2,5 +2,13 @@
 
 # pylint: disable=invalid-name, wrong-import-position
 
-import ddupdate
-ddupdate.main()
+import os.path
+import sys
+
+home = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+
+sys.path.insert(0, os.path.join(home, 'lib'))
+os.chdir(home)
+
+import lib.ddupdate.main
+lib.ddupdate.main.main()

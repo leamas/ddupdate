@@ -41,7 +41,8 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     keywords=['dyndns', 'dhcp', 'dns'],
-    py_modules=['ddupdate'],
+    package_dir={'': 'lib'},
+    packages=['ddupdate'],
     scripts=['ddupdate'],
     data_files=DATA
 )
