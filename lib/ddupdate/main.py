@@ -79,7 +79,9 @@ def here(path):
 
 def parse_conffile(log):
     ' Parse config file path, returns verified path or None. '
-    path = '/etc/ddupdate.conf'
+    path = os.path.expanduser('~/.config/ddupdate.conf')
+    if not os.path.exists(path):
+        path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
         if arg.startswith('-c') or arg.startswith('--conf'):
@@ -140,7 +142,7 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [/etc/ddupdate.conf]',
+        + ' [~/.config/dupdate.conf:/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
         "-L", "--loglevel", metavar='level',

@@ -55,6 +55,7 @@ address.
 File containing default values for all command line options.
 A relative path is interpreted from current directory.
 See [FILES] below.
+An example file is distributed with the sources.
 
 .TP 4
 \fB-L, --loglevel\fR [\fIlevel\fR]
@@ -136,6 +137,10 @@ The directories listed in the XDG_DATA_DIRS environment variable,
 by default \fI/usr/local/share:/usr/share\fR, are searched for
 \fIddupdate/plugins\fR.
 
+.P
+By default, the location of the file is \fI~/.config/ddupdate.conf\fR. If
+not found, \fI/etc/ddupdate.conf\fR is used.
+
 .SH EXAMPLES
 .P
 Please note that the command line options are normally stored
@@ -178,8 +183,11 @@ Used to store username and password for logging in to service providers
 to update, firewalls to get the IP address etc. See netrc(5) for
 the format used.
 .TP 4
-.B /etc/ddupdate.conf
-Default values for all command line options.
+.B \fI~/.config/ddupdate.conf\fR.
+Default config file location
+.TP 4
+.B  \fI/etc/ddupdate.conf\fR
+Fallback configuration file location.
 .TP 4
 .B /usr/share/ddupdate/plugins
 Default directory for upstream plugins, see PLUGIN LOADING.
