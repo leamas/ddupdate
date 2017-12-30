@@ -6,10 +6,10 @@
 .B ddupdate
 [\fIoptions\fR]
 .SH DESCRIPTION
-A tool to update dynamic IP addresses typically obtained using DHCP at
-dynamic DNS services such as Dyndns, Hammernode, Zoneedit or EasyDNS.
+A tool to update dynamic IP addresses typically obtaineor d using DHCP at
+dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
 The goal is that it should be possible to access a machine with a fixed
-name like myhost.dyndns.org even if the ip address changes.
+name like myhost.duckdns.org even if the ip address changes.
 \fBddupdate\fR caches the address, and only attempts the update if the address
 actually is changed.
 .P
@@ -53,9 +53,9 @@ address.
 .TP 4
 \fB-c, --config-file\fR <\fIpath\fR>
 File containing default values for all command line options.
-A relative path is interpreted from current directory.
-See [FILES] below.
+The path must be absolute.
 An example file is distributed with the sources.
+See [FILES] below.
 
 .TP 4
 \fB-L, --loglevel\fR [\fIlevel\fR]
@@ -126,7 +126,7 @@ seconds.
 plugins from all files in this directory. The search for \fIplugins\fR
 is done, in descending priority:
 .IP \(bu 4
-The directory \fIplugins\fR in the same directory as the ddupdate.py module.
+The directory \fIplugins\fR in the same directory as the main.py module.
 This is the development case, and the highest priority.
 .IP \(bu 4
 User plugins are searched in \fI~/.local/share/ddupdate/plugins\fR.
@@ -147,14 +147,15 @@ Please note that the command line options are normally stored
 in /etc/ddupdate.conf, allowing an invocation without command line
 options.
 .P
-Update on dyndns.com using the external address as obtained using
-the default interface plugin:
+Update on dyndns.com using the external address as seen from the
+internet, displaying the address used:
 
 .nf
-	ddupdate -i default-if -s dyndns -H myhost.dyndns.org
+	ddupdate -i default-web-ip -s dyndns -H myhost.dyndns.org -L info
 .fi
 .P
-Make a debug run without actually updating:
+Make a debug run without actually updating, displaying the address
+on the local, default interface:
 
 .nf
 	ddupdate -i default-if -s dry_run --loglevel debug \\
@@ -162,10 +163,10 @@ Make a debug run without actually updating:
 .fi
 
 .SH ENVIRONMENT
-dduodate respects the data paths defined by freedesktop.org.
+ddupdate respects the data paths defined by freedesktop.org.
 
 .TP 4
-.B XDG_CACHE
+.B XDG_CACHE_HOME
 Locates the cached addresses files. See FILES.
 
 .TP 4
@@ -187,10 +188,10 @@ be accepted.
 .B /etc/netrc
 Fallback location for credentials when \fI~/.netrc\fR is not found.
 .TP 4
-.B \fI~/.config/ddupdate.conf\fR.
+.B ~/.config/ddupdate.conf
 Default config file location
 .TP 4
-.B  \fI/etc/ddupdate.conf\fR
+.B  /etc/ddupdate.conf
 Fallback configuration file location.
 .TP 4
 .B /usr/share/ddupdate/plugins
