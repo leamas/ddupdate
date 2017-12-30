@@ -7,13 +7,9 @@ General
 ddupdate is a tool for automatically updating dns data for a system using
 e. g., DHCP. The goal is it should be possible to access a system with a
 fixed dns name such as myhost.somewhere.net even if the IP address is
-changed.
+changed. Another goal is tp provide a flexible, user-friendly, maintainable
+and linux-centric alternative to the ubiquitous ddclient.
 
-From another perspective, ddupdate is a tool replicating part of the
-existing ddclient functionality, but with a better overall design and user
-interaction. In particular, it has better help, logging and documentation.
-Thanks to the plugin design, it's also much easier to provide support for
-new services and address detection strategies.
 
 Status
 ------
@@ -29,7 +25,7 @@ Dependencies
 ------------
 
 Just a few:
-   - python3
+   - python3 (tested on 3.6)
    - python3-straight-plugin
    - python3-setuptools
    - The /usr/bin/ip command is used in some plugins.
@@ -58,12 +54,11 @@ First question is what kind of ip address which should be registered. The
 most common case is to use the address as seen from the internet.
 This makes it possible for users on internet to access the machine.
 
-On the other hand, it might be necessary to register another type of
-address for example when using DHCP addresses on an internal network behind
+Another case is when using DHCP addresses on an internal network behind
 a router and the machine should be reached by users on this network.
 In this case the machine's real address should be registered.
 
-First, list all plugins::
+In any case, begin with listing all plugins::
 
     $ ddupdate --list-plugins ip-plugins
     ip-disabled          Force update service to provide ip address
@@ -174,13 +169,13 @@ Packaging
 
 ddupdate has a multitude of packaging:
 
-  - ddupdate is available as a pypi package from the master branch. It can
-    be installed using pip::
+  - ddupdate is available as a **pypi package** from the master branch. It
+    can be installed using pip::
 
-        $ pip install --user ddupdate
+        $ sudo pip install ddupdate --prefix=/usr
 
-  - fedora is packaged in the *fedora* branch. Building requires the fedora
-    toolchain in the *rpmdevtools* and *rpm-build* packages. To build::
+  - **fedora** is packaged in the *fedora* branch. Building requires the
+    fedora toolchain in the *rpmdevtools* and *rpm-build* packages. To build::
 
         $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
         $ cd ddupdate
@@ -189,7 +184,7 @@ ddupdate has a multitude of packaging:
 
     This creates both a source and a binary rpm package underneath *rpmbuild*.
 
-  - The debian packaging is based on gbp and lives in the *debian* and
+  - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
     and *git*  are required to build. To build current version 0.0.4 do::
 
@@ -209,7 +204,7 @@ the existing plugins and pick solutions from them. Some hints:
     sure how the api works. Essential step, this one.
 
   - Each plugin must contain a main class derived from IpPlugin or
-    ServicePlugin. The class docstring is the *help <plugin>* documentation.
+    UpdatePlugin. The class docstring is the *help <plugin>* documentation.
 
   - The class \_name property is the official name of the plugin, must be
     unique. \_oneliner is indeed the short summary displayed by
@@ -222,6 +217,8 @@ the existing plugins and pick solutions from them. Some hints:
       - Other uses hashed passwords, e. g., dynu.py
       - API tokens are handled in e. g., duckdns.py
       - Some have broken basic authentication, see now_dns.py
+  - Most services uses a http GET request to set the data. See
+    freedns\_io.py for a http GET example.
   - Reply decoding:
       - Most sites just returns some text, simple enough
       - json: example in system_ns.py
