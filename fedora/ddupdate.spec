@@ -1,8 +1,8 @@
 %global debug_package %{nil}
-%global gittag 0.0.2
+#global gittag 0.0.2
 
-#global commit b6c7add6ac4039e27c058cbdda975f59df2fe726
-#global shortcommit %%(c=%%{commit}; echo ${c:0:7})
+%global commit 0489e0280b58a868d73a3ddd451d239b3c035d7b
+%global shortcommit %%(c=%%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
 Version:        0.0.2
@@ -13,8 +13,8 @@ Group:          Applications/System
 License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
-Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
-#Source0:        %%{url}/archive/%%{commit}/%%{name}-%%{shortcommit}.tar.gz
+#Source0:       %%{url}/archive/%%{gittag}/%%{name}-%%{version}.tar.gz
+Source0:        %{url}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
 
 %{?systemd_requires}
 
@@ -41,9 +41,10 @@ ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup -n %{name}-%{commit}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
+cp README.md README.rst
 
 
 %build
@@ -79,7 +80,7 @@ test -d /var/lib/ddupdate || {
 
 %files
 %license LICENSE.txt
-%doc README.md
+%doc README.md README.rst
 %{_bindir}/ddupdate
 %config(noreplace) /etc/ddupdate.conf
 %{_unitdir}/ddupdate.*
