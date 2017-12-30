@@ -24,16 +24,21 @@ Requires:       python3-straight-plugin
 Requires:       /usr/sbin/ip
 
 %description
-ddupdate is a tool for automatically updating dns data for a system using
-e. g., DHCP. The goal is it should be possible to access a system with a
-fixed dns name such as myhost.somewhere.net even if the IP  address is
-changed.
 
-From another perspective, ddupdate is a tool replicating part of the
-existing ddclient functionality, but with a better overall design and user
-interaction. In particular, it has better help, logging and documentation.
-Thanks to the plugin design, it's also much easier to provide support for
-new services and address detection strategies.
+A tool to update dynamic IP addresses typically obtained using DHCP
+at dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
+The goal is that it should be possible to access a machine with a fixed
+name like myhost.duckdns.org even if the ip address changes. ddupdate
+caches the address, and only attempts the update if the address actu‐
+ally is changed.
+
+The tool has a plugin structure with plugins for obtaining the actual
+address (typically hardware-dependent) and to update it (service depen‐
+dent). For supported services, it's a linux-centric, user-friendly and
+flexible alternative to the uiquotious ddclient.
+
+ddupdate is distributed with systemd support to run at regular intervals,
+and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
 %autosetup -n %{name}-%{version}
