@@ -5,9 +5,9 @@ See: ddupdate(8)
 
 '''
 import json
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class SystemNsPlugin(UpdatePlugin):
@@ -30,13 +30,12 @@ class SystemNsPlugin(UpdatePlugin):
     _apihost = 'https://system-ns.com/api'
     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
 
+    # pylint: disable=unused-variable
+
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('system-ns.com')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password token for system-ns found in .netrc")
-        url = self._url.format(self._apihost, config.hostname, auth[2])
+        user, password = get_netrc_auth('system-ns.com')
+        url = self._url.format(self._apihost, config.hostname, password)
         if ip:
             url += "&ip=" + ip
         html = get_response(log, url)

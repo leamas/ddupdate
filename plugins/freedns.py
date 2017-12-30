@@ -5,9 +5,9 @@ See: ddupdate(8)
 '''
 
 import hashlib
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class FreednsPlugin(UpdatePlugin):
@@ -38,11 +38,8 @@ class FreednsPlugin(UpdatePlugin):
         '''
         def build_shasum():
             ''' Compute sha1sum('user|password') used in url. '''
-            auth = netrc().authenticators('freedns.afraid.org')
-            if auth is None:
-                raise UpdateError(
-                    "No username/password for freedns.afraid.org in .netrc")
-            token = "{0}|{1}".format(auth[0], auth[2])
+            user, password = get_netrc_auth('freedns.afraid.org')
+            token = "{0}|{1}".format(user, password)
             return hashlib.sha1(token.encode()).hexdigest()
 
         if ip:

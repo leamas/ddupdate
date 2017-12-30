@@ -4,12 +4,11 @@ ddupdate plugin updating data on now-dns.com.
 See: ddupdate(8)
 
 '''
-from netrc import netrc
 import base64
 import urllib.request
 import urllib.error
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_netrc_auth
 
 
 class NowDnsPlugin(UpdatePlugin):
@@ -34,14 +33,11 @@ class NowDnsPlugin(UpdatePlugin):
 
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('now-dns.com')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password for now-dns.com found in .netrc")
         url = self._url.format(config.hostname)
         if ip:
             url += '&myip=' + ip
-        credentials = '%s:%s' % (auth[0], auth[2])
+        user, password = get_netrc_auth('now-dns.com')
+        credentials = '%s:%s' % (user, password)
         encoded_credentials = base64.b64encode(credentials.encode('ascii'))
         req = urllib.request.Request(url)
         req.add_header('Authorization',

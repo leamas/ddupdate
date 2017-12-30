@@ -31,6 +31,10 @@ DEFAULTS = {
     'force': False
 }
 
+def envvar_default(var, default=None):
+    ''' Return var if found in environment, else default. '''
+    return os.environ[var] if var in os.environ else default
+
 
 def ip_cache_setup(opts):
     ''' Ensure that our cache directory exists, return cache file path '''
@@ -79,7 +83,10 @@ def here(path):
 
 def parse_conffile(log):
     ' Parse config file path, returns verified path or None. '
-    path = '/etc/ddupdate.conf'
+    path = envvar_default('XDG_CONFIG_HOME',
+                          os.path.expanduser('~/.config/ddupdate.conf'))
+    if not os.path.exists(path):
+        path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
         if arg.startswith('-c') or arg.startswith('--conf'):
@@ -140,7 +147,8 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [/etc/ddupdate.conf]',
+        + ' [' + envvar_default('XDG_CONFIG_HOME',' ~/.cache/ddupdate.conf')
+        + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
         "-L", "--loglevel", metavar='level',
@@ -184,7 +192,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.0.2"
+    parser.version = "0.0.4"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -288,7 +296,7 @@ def main():
     log.handlers[0].setLevel(opts.loglevel)
     log_options(log, opts)
     load_paths = build_load_path(log)
-    for path in reversed(load_paths):
+    for path in load_paths:
         getters, setters = load_plugins(path, log)
         ip_plugins.update(getters)
         service_plugins.update(setters)

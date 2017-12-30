@@ -6,10 +6,10 @@
 .B ddupdate
 [\fIoptions\fR]
 .SH DESCRIPTION
-A tool to update dynamic IP addresses typically obtained using DHCP at
-dynamic DNS services such as Dyndns, Hammernode, Zoneedit or EasyDNS.
+A tool to update dynamic IP addresses typically obtaineor d using DHCP at
+dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
 The goal is that it should be possible to access a machine with a fixed
-name like myhost.dyndns.org even if the ip address changes.
+name like myhost.duckdns.org even if the ip address changes.
 \fBddupdate\fR caches the address, and only attempts the update if the address
 actually is changed.
 .P
@@ -53,7 +53,8 @@ address.
 .TP 4
 \fB-c, --config-file\fR <\fIpath\fR>
 File containing default values for all command line options.
-A relative path is interpreted from current directory.
+The path must be absolute.
+An example file is distributed with the sources.
 See [FILES] below.
 
 .TP 4
@@ -125,7 +126,7 @@ seconds.
 plugins from all files in this directory. The search for \fIplugins\fR
 is done, in descending priority:
 .IP \(bu 4
-The directory \fIplugins\fR in the same directory as the ddupdate.py module.
+The directory \fIplugins\fR in the same directory as the main.py module.
 This is the development case, and the highest priority.
 .IP \(bu 4
 User plugins are searched in \fI~/.local/share/ddupdate/plugins\fR.
@@ -136,20 +137,25 @@ The directories listed in the XDG_DATA_DIRS environment variable,
 by default \fI/usr/local/share:/usr/share\fR, are searched for
 \fIddupdate/plugins\fR.
 
+.P
+By default, the location of the file is \fI~/.config/ddupdate.conf\fR. If
+not found, \fI/etc/ddupdate.conf\fR is used.
+
 .SH EXAMPLES
 .P
 Please note that the command line options are normally stored
 in /etc/ddupdate.conf, allowing an invocation without command line
 options.
 .P
-Update on dyndns.com using the external address as obtained using
-the default interface plugin:
+Update on dyndns.com using the external address as seen from the
+internet, displaying the address used:
 
 .nf
-	ddupdate -i default-if -s dyndns -H myhost.dyndns.org
+	ddupdate -i default-web-ip -s dyndns -H myhost.dyndns.org -L info
 .fi
 .P
-Make a debug run without actually updating:
+Make a debug run without actually updating, displaying the address
+on the local, default interface:
 
 .nf
 	ddupdate -i default-if -s dry_run --loglevel debug \\
@@ -157,10 +163,10 @@ Make a debug run without actually updating:
 .fi
 
 .SH ENVIRONMENT
-dduodate respects the data paths defined by freedesktop.org.
+ddupdate respects the data paths defined by freedesktop.org.
 
 .TP 4
-.B XDG_CACHE
+.B XDG_CACHE_HOME
 Locates the cached addresses files. See FILES.
 
 .TP 4
@@ -171,15 +177,28 @@ Locates user plugins. See PLUGIN LOADING.
 .B XDG_DATA_DIRS
 Involved in system plugins, see PLUGIN LOADING.
 
+.TP 4
+.B XDG_CONFIG_HOME
+User configuration file parent directory location, defaults to
+\fI~/.config\fR.
+
 .SH FILES
 .TP 4
 .B ~/.netrc
 Used to store username and password for logging in to service providers
 to update, firewalls to get the IP address etc. See netrc(5) for
-the format used.
+the format used. The file must have restricted permissions like 600 to
+be accepted.
 .TP 4
-.B /etc/ddupdate.conf
-Default values for all command line options.
+.B /etc/netrc
+Fallback location for credentials when \fI~/.netrc\fR is not found.
+.TP 4
+.B ~/.config/ddupdate.conf
+Default config file location. If defined, the XDG_CONFIG_HOME variable
+relocates this to \fI$XDG_CONFIG_HOME/ddupdate.conf\fR.
+.TP 4
+.B  /etc/ddupdate.conf
+Fallback configuration file location.
 .TP 4
 .B /usr/share/ddupdate/plugins
 Default directory for upstream plugins, see PLUGIN LOADING.

@@ -4,8 +4,8 @@ ddupdate plugin updating data on duckdns.org.
 See: ddupdate(8)
 
 '''
-from netrc import netrc
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DuckdnsPlugin(UpdatePlugin):
@@ -27,14 +27,13 @@ class DuckdnsPlugin(UpdatePlugin):
     _oneliner = 'Updates DNS data on duckdns.org'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
+    # pylint: disable=unused-variable
+
     def run(self, config, log, ip=None):
 
-        auth = netrc().authenticators('www.duckdns.org')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password/token for www.duckdns.org found in .netrc")
+        user, password = get_netrc_auth('www.duckdns.org')
         hostname = config.hostname.split('.duckdns.org')[0]
-        url = self._url.format(hostname, auth[2])
+        url = self._url.format(hostname, password)
         if ip:
             url += "&ip=" + ip
         html = get_response(log, url)

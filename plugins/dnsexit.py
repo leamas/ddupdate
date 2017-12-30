@@ -3,9 +3,9 @@ ddupdate plugin updating data on dnsexit.com.
 
 See: ddupdate(8)
 '''
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DnsexitPlugin(UpdatePlugin):
@@ -40,12 +40,9 @@ class DnsexitPlugin(UpdatePlugin):
     def run(self, config, log, ip=None):
         if not ip:
             log.warn(self._ip_warning)
-        auth = netrc().authenticators('update.dnsexit.com')
-        if not auth:
-            raise UpdateError(
-                "No user/password for update.dnsexit.com found in .netrc")
+        user, password = get_netrc_auth('update.dnsexit.com')
         url = self._url.format(
-            self._update_host, auth[0], auth[2], config.hostname)
+            self._update_host, user, password, config.hostname)
         if ip:
             url += "&myip=" + ip
         # if debugging:

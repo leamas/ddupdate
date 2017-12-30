@@ -7,7 +7,7 @@ import sys
 
 home = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
-sys.path.insert(0,os.path.join( home, 'lib'))
+sys.path.insert(0, os.path.join(home, 'lib'))
 os.chdir(home)
 
 try:
