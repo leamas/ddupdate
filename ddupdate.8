@@ -177,6 +177,11 @@ Locates user plugins. See PLUGIN LOADING.
 .B XDG_DATA_DIRS
 Involved in system plugins, see PLUGIN LOADING.
 
+.TP 4
+.B XDG_CONFIG_HOME
+User configuration file parent directory location, defaults to
+\fI~/.config\fR.
+
 .SH FILES
 .TP 4
 .B ~/.netrc
@@ -189,7 +194,8 @@ be accepted.
 Fallback location for credentials when \fI~/.netrc\fR is not found.
 .TP 4
 .B ~/.config/ddupdate.conf
-Default config file location
+Default config file location. If defined, the XDG_CONFIG_HOME variable
+relocates this to \fI$XDG_CONFIG_HOME/ddupdate.conf\fR.
 .TP 4
 .B  /etc/ddupdate.conf
 Fallback configuration file location.

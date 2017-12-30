@@ -31,6 +31,10 @@ DEFAULTS = {
     'force': False
 }
 
+def envvar_default(var, default=None):
+    ''' Return var if found in environment, else default. '''
+    return os.environ[var] if var in os.environ else default
+
 
 def ip_cache_setup(opts):
     ''' Ensure that our cache directory exists, return cache file path '''
@@ -79,7 +83,8 @@ def here(path):
 
 def parse_conffile(log):
     ' Parse config file path, returns verified path or None. '
-    path = os.path.expanduser('~/.config/ddupdate.conf')
+    path = envvar_default('XDG_CONFIG_HOME',
+                          os.path.expanduser('~/.config/ddupdate.conf'))
     if not os.path.exists(path):
         path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
@@ -142,7 +147,8 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [~/.config/dupdate.conf:/etc/dupdate.conf]',
+        + ' [' + envvar_default('XDG_CONFIG_HOME',' ~/.cache/ddupdate.conf')
+        + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
         "-L", "--loglevel", metavar='level',
