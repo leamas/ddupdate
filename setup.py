@@ -8,23 +8,15 @@ from setuptools import setup
 ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
 
-if 'USER_INSTALL_FIX' in os.environ:
-    USER_SHARE = os.path.expanduser('~/.local/share/')
-    DATA = [
-        (os.path.join(USER_SHARE, 'plugins'), glob('plugins/*.py')),
-        (os.path.join(USER_SHARE, 'man/man8'), ['ddupdate.8']),
-        (os.path.expanduser('~/bin'), ['ddupdate'])
-    ]
-else:
-    DATA = [
-        ('share/ddupdate/plugins', glob('plugins/*.py')),
-        ('/etc', ['ddupdate.conf']),
-        ('/lib/systemd/system', glob('systemd/*')),
-        ('share/man/man8', ['ddupdate.8']),
-        ('share/doc/ddupdate',
-            ['README.rst', 'LICENSE.txt', 'ddupdate.8.html']),
-        ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
-    ]
+DATA = [
+    ('share/ddupdate/plugins', glob('plugins/*.py')),
+    ('/etc', ['ddupdate.conf']),
+    ('/lib/systemd/system', glob('systemd/*')),
+    ('share/man/man8', ['ddupdate.8']),
+    ('share/doc/ddupdate',
+        ['README.rst', 'LICENSE.txt', 'ddupdate.8.html']),
+    ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
+]
 
 setup(
     name='ddupdate',

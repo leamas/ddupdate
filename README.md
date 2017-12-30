@@ -5,8 +5,8 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-e. g., DHCP. The goal is it should be possible to access a system with a
-fixed dns name such as myhost.somewhere.net even if the IP address is
+for example  DHCP. The goal is it should be possible to access a system with
+a fixed dns name such as myhost.somewhere.net even if the IP address is
 changed. Another goal is tp provide a flexible, user-friendly, maintainable
 and linux-centric alternative to the ubiquitous ddclient.
 
@@ -33,26 +33,36 @@ Just a few:
 Installation
 ------------
 
-ddupdate can be run as a regular user straight off the cloned git directory.
-To make a test version possible to run from anywhere make a symlink::
+**ddupdate** can be run as a regular user straight off the cloned git
+directory. To make a test version possible to run from anywhere make a
+symlink::
 
     $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
 
-User installations are not supported at this point. To make a local site
-installation in /usr/local run something like::
+User installations are not supported. To make a local site installation
+in /usr/local run something like::
 
     $ sudo python3 setup.py --prefix=/usr/local
+
+**ddupdate** can be installed in an virtualenv root by a regular user. To
+use the plugins in the venv in favor of the system ones add the proper
+path to XDG\_DATA\_DIRS using something like::
+
+    $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
+
+See Packaging below for building proper native packages for Debian and
+Fedora. This is the preferred installation method on these platforms.
 
 Configuration
 -------------
 
 Configuration is basically about selecting a plugin for a specific ddns
 service and possibly another plugin which provides the ip address to be
-registered. Some plugins needs specific options.
+registered. Some plugins needs specific plugin options.
 
 First question is what kind of ip address which should be registered. The
-most common case is to use the address as seen from the internet.
-This makes it possible for users on internet to access the machine.
+most common case is to use the address as seen from the internet to make
+it possible for users on internet to access the machine.
 
 Another case is when using DHCP addresses on an internal network behind
 a router and the machine should be reached by users on this network.
@@ -98,7 +108,7 @@ Next, pick an update plugin and check the help info, here dynu::
         none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
-username and password. Create an entry in the ~/.netrc file like::
+username and password. Create an entry in the *~/.netrc*  file like::
 
     machine api.dynu.com login <username> password <secret>
 
@@ -126,7 +136,8 @@ All looks good. Now, let's try to actually update that hostname on dynu.com::
     INFO - Using ip address: 90.224.208.212
     INFO - Update OK
 
-Again fine. Update /etc/ddupdate.conf to something like::
+Again fine. Update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
+something like::
 
     [update]
     address-plugin = web-default-ip
@@ -141,18 +152,18 @@ Configuring systemd
 -------------------
 
 systemd is used to invoke ddupdate periodically. The safest bet is
-not to use the upstream systemd files. Do:
+not to use the upstream systemd files. Do::
 
     $ sudo cp /lib/systemd/system/ddupdate* /etc/systemd/system
 
-Check the two /etc/ files, in particular for paths. Test the service and
-the logged info:
+Check the two /etc files, in particular for paths. Test the service and
+the logged info::
 
     $ sudo systemctl daemon-reload
     $ sudo systemcl start ddupdate.service
     $ sudo journalctl -u ddupdate.service
 
-When all is fine make sure ddupdate is run hourly using:
+When all is fine make sure ddupdate is run hourly using::
 
     $ sudo systemctl start ddupdate.timer
     $ sudo systemctl enable ddupdate.timer
@@ -175,7 +186,8 @@ ddupdate has a multitude of packaging:
         $ sudo pip install ddupdate --prefix=/usr
 
   - **fedora** is packaged in the *fedora* branch. Building requires the
-    fedora toolchain in the *rpmdevtools* and *rpm-build* packages. To build::
+    fedora toolchain in the *git*, *rpmdevtools* and *rpm-build* packages.
+    To build::
 
         $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
         $ cd ddupdate
@@ -197,8 +209,8 @@ Writing plugins
 ---------------
 
 Writing plugins is not hard. Most plugins are about 10-20 lines of code +
-docs, most of which is boilerplate stuff. The best way is to look at
-the existing plugins and pick solutions from them. Some hints:
+docs, most of which boilerplate stuff. The best way is to look at the
+existing plugins and pick solutions from them. Some hints:
 
   - Before writing the plugin, make tests with wget or curl to make
     sure how the api works. Essential step, this one.
@@ -218,7 +230,7 @@ the existing plugins and pick solutions from them. Some hints:
       - API tokens are handled in e. g., duckdns.py
       - Some have broken basic authentication, see now_dns.py
   - Most services uses a http GET request to set the data. See
-    freedns\_io.py for a http GET example.
+    freedns\_io.py for a http POST example.
   - Reply decoding:
       - Most sites just returns some text, simple enough
       - json: example in system_ns.py
