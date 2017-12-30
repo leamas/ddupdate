@@ -237,8 +237,8 @@ def load_plugins(path, log):
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
     sys.path.pop(0)
-    log.debug("Loaded %d address and %d service plugins",
-              len(getters), len(setters))
+    log.debug("Loaded %d address and %d service plugins from %s",
+              len(getters), len(setters), path)
     return getters_by_name, setters_by_name
 
 
