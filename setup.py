@@ -5,6 +5,8 @@ from glob import glob
 from setuptools import setup
 
 # pylint: disable=bad-continuation
+ROOT = os.path.dirname(__file__)
+ROOT = ROOT if ROOT else '.'
 
 if 'USER_INSTALL_FIX' in os.environ:
     USER_SHARE = os.path.expanduser('~/.local/share/')
@@ -20,14 +22,15 @@ else:
         ('/lib/systemd/system', glob('systemd/*')),
         ('share/man/man8', ['ddupdate.8']),
         ('share/doc/ddupdate',
-            ['README.md', 'LICENSE.txt', 'ddupdate.8.html']),
+            ['README.rst', 'LICENSE.txt', 'ddupdate.8.html']),
         ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
     ]
 
 setup(
     name='ddupdate',
-    version='0.0.3',
+    version='0.0.4',
     description='Update dns data for dynamic ip addresses',
+    long_description=open(ROOT + '/README.rst').read(),
     license='MIT',
     url='http://github.com/leamas/ddupdate',
     author='Alec Leamas',
