@@ -21,4 +21,10 @@ ddupdate.8.html: ddupdate.8
 README.rst: README.md
 	cp $? $@
 
+dist: README.rst
+	python3 setup.py sdist
+
+clean: .phony
+	rm -rf install dist build *.egg-info
+
 .phony:
