@@ -22,8 +22,8 @@ class DtdnsPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'dtdns'
-    _oneliner = 'Updates DNS data on dtdns.com'
+    _name = 'dtdns.com'
+    _oneliner = 'Updates on https://www.dtdns.com'
     _url = "https://www.dtdns.com/api/autodns.cfm?id={0}&pw={1}"
 
     # pylint: disable=unused-variable

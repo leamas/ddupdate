@@ -23,8 +23,8 @@ class DuckdnsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'duckdns'
-    _oneliner = 'Updates DNS data on duckdns.org'
+    _name = 'duckdns.org'
+    _oneliner = 'Updates on http://duckdns.org/'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
     # pylint: disable=unused-variable

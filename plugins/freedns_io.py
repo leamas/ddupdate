@@ -24,7 +24,7 @@ class FreednsIoPlugin(UpdatePlugin):
         None
     '''
     _name = 'freedns.io'
-    _oneliner = 'Updates DNS data on freedns.io'
+    _oneliner = 'Updates on https://freedns.io'
     _url = 'https://freedns.io/request'
 
     def run(self, config, log, ip=None):

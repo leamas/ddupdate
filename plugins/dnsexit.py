@@ -29,8 +29,8 @@ class DnsexitPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'dnsexit'
-    _oneliner = 'Updates DNS data on www.dnsexit.com'
+    _name = 'dnsexit.com'
+    _oneliner = 'Updates on https://www.dnsexit.com'
 
     _update_host = 'http://update.dnsexit.com'
     _url = '{0}/RemoteUpdate.sv?login={1}&password={2}&host={3}'

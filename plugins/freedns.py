@@ -25,8 +25,8 @@ class FreednsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'freedns.afraid'
-    _oneliner = 'Updates DNS data on freedns.afraid.org'
+    _name = 'freedns.afraid.org'
+    _oneliner = 'Updates on https://freedns.afraid.org'
     _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
     def run(self, config, log, ip=None):

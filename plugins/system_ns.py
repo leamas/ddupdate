@@ -25,8 +25,8 @@ class SystemNsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'system-ns'
-    _oneliner = 'Updates DNS data on system-ns.com'
+    _name = 'system-ns.com'
+    _oneliner = 'Updates on https://system-ns.com'
     _apihost = 'https://system-ns.com/api'
     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
 

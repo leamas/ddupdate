@@ -21,8 +21,8 @@ class DunyPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'dynu'
-    _oneliner = 'Updates DNS data on dynu.com'
+    _name = 'dynu.com'
+    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS'
     _url = "http://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 

@@ -54,8 +54,8 @@ class DuiadnsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'duiadns'
-    _oneliner = 'Updates DNS data on duiadns.com'
+    _name = 'duiadns.net'
+    _oneliner = 'Updates on https://www.duiadns.net'
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
 
     # pylint: disable=unused-variable

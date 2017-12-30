@@ -28,7 +28,7 @@ class NowDnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'now-dns'
-    _oneliner = 'Updates DNS data on now-dns.com'
+    _oneliner = 'Updates on http://now-dns.com'
     _url = 'https://now-dns.com/update?hostname={0}'
 
     def run(self, config, log, ip=None):

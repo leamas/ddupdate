@@ -19,8 +19,8 @@ class NoIpPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'no-ip'
-    _oneliner = 'Updates DNS data on no-ip.com'
+    _name = 'no-ip.com'
+    _oneliner = 'Updates on http://no-ip.com/'
     _url = "http://dynupdate.no-ip.com/nic/update?hostname={0}"
 
     def run(self, config, log, ip=None):
