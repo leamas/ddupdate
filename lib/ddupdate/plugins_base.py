@@ -148,7 +148,13 @@ class UpdatePlugin(AbstractPlugin):
 
     def run(self, config, log, ip=None):
         ''' Given configuration, address and log do the actual update.
-            Most (not all) services doesnt't need an address.
-            Raises UpdateError on errors.
+            Parameters:
+              - config: namespace with hostname (string) and options
+                (list of --options plugin options).
+              - log: standard python log instance
+              - ip: ip4 address (string) or None.  Most (not all) services
+                doesn't need an address.
+            Raises:
+              - UpdateError on errors.
         '''
         raise NotImplementedError("Attempt to invoke abstract run()")

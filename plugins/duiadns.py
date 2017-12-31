@@ -2,6 +2,7 @@
 ddupdate plugin updating data on duiadns.com.
 
 See: ddupdate(8)
+See: https://www.duiadns.net/duiadns-url-update
 
 '''
 from html.parser import HTMLParser

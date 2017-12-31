@@ -2,6 +2,7 @@
 ddupdate plugin updating data on system-ns.com.
 
 See: ddupdate(8)
+See: https://system-ns.com/services/dynamic
 
 '''
 import json

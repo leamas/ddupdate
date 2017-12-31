@@ -2,6 +2,8 @@
 ddupdate plugin updating data on changeip.com.
 
 See: ddupdate(8)
+See:
+ http://www.changeip.com/accounts/knowledgebase.php?action=displayarticle&id=34
 '''
 
 from ddupdate.plugins_base import UpdatePlugin, UpdateError

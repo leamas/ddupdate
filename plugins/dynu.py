@@ -2,6 +2,7 @@
 ddupdate plugin updating data on dynu.com.
 
 See: ddupdate(8)
+See: https://www.dynu.com/Resources/API/Documentation
 
 '''
 import hashlib

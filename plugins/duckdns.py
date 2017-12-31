@@ -2,6 +2,7 @@
 ddupdate plugin updating data on duckdns.org.
 
 See: ddupdate(8)
+See: https://www.duckdns.org/spec.jsp
 
 '''
 from ddupdate.plugins_base import UpdatePlugin, UpdateError

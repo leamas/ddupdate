@@ -2,6 +2,7 @@
 ddupdate plugin updating data on dnsexit.com.
 
 See: ddupdate(8)
+See: http://downloads.dnsexit.com/ipUpdateDev.doc
 '''
 
 from ddupdate.plugins_base import UpdatePlugin, UpdateError

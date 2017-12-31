@@ -1,8 +1,8 @@
 '''
-ddupdate plugin updating data on dtdns.com. As usual, any
-host updated ,ust first be defined in the web UI-
+ddupdate plugin updating data on dtdns.com.
 
 See: ddupdate(8)
+See: https://www.dtdns.com/dtsite/updatespec
 
 '''
 from ddupdate.plugins_base import UpdatePlugin, UpdateError

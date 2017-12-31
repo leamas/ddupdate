@@ -2,6 +2,7 @@
 ddupdate plugin updating data on now-dns.com.
 
 See: ddupdate(8)
+See: https://now-dns.com/?p=clients
 
 '''
 import base64

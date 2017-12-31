@@ -2,6 +2,7 @@
 ddupdate plugin updating data on no-ip.com.
 
 See: ddupdate(8)
+See: https://www.noip.com/integrate/request
 '''
 
 from ddupdate.plugins_base import UpdatePlugin

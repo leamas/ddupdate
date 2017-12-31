@@ -2,6 +2,7 @@
 ddupdate plugin updating data on freedns.afraid.org.
 
 See: ddupdate(8)
+See: https://linuxaria.com/howto/dynamic-dns-with-bash-afraid-org
 '''
 
 import hashlib
