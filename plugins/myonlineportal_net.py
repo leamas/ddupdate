@@ -29,7 +29,7 @@ class MyOnlinePortalPlugin(UpdatePlugin):
 
         url = self._url.format(config.hostname)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         http_basic_auth_setup(url, 'myonlineportal.net')
         html = get_response(log, url)
         log.info("Server reply: " + html)

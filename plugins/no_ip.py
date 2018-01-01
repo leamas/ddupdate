@@ -28,6 +28,6 @@ class NoIpPlugin(UpdatePlugin):
 
         url = self._url.format(config.hostname)
         if ip:
-            url += "&myip=" + ip
+            url += "&myip=" + ip.v4
         http_basic_auth_setup(url, 'dynupdate.no-ip.com')
         get_response(log, url)

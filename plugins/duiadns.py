@@ -66,7 +66,7 @@ class DuiadnsPlugin(UpdatePlugin):
         user, password = get_netrc_auth('ip.duiadns.net')
         url = self._url.format(config.hostname, password)
         if ip:
-            url += "&ip4=" + ip
+            url += "&ip4=" + ip.v4
         html = get_response(log, url)
         parser = DuiadnsParser()
         parser.feed(html)

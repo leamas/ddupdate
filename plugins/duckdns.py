@@ -36,7 +36,7 @@ class DuckdnsPlugin(UpdatePlugin):
         hostname = config.hostname.split('.duckdns.org')[0]
         url = self._url.format(hostname, password)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         html = get_response(log, url)
         if html.strip() != "OK":
             raise UpdateError("Update error, got: %s", html)

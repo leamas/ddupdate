@@ -69,6 +69,46 @@ def get_netrc_auth(machine):
     return auth[0], auth[2]
 
 
+class IpAddr(object):
+    ''' An (ip4, ipv6) collection. '''
+
+    def __init__(self, ipv4=None, ipv6=None):
+        self.v4 = ipv4
+        self.v6 = ipv6
+
+    def str(self):
+        ''' Standard str() returns a printable representation. '''
+        s1 = self.v4 if self.v4 else 'None'
+        s2 = self.v6 if self.v6 else 'None'
+        return '[%s, %s]' % (s1, s2)
+
+    def __eq__(self, obj):
+        if not isinstance(obj, IpAddr):
+            return False
+        return obj.v4 == self.v4 and obj.v6 == self.v6
+
+    def __hash__(self):
+        return hash(self.v4, self.v6)
+
+    def empty(self):
+        ''' Check if any address is set. '''
+        return self.v4 is None and self.v6 is None
+
+    def parse_ifconfig_output(self, text):
+        ''' Parse ifconfig <dev> or ip address show dev <dev> output. '''
+        use_next4 = False
+        use_next6 = False
+        for word in text.split():
+            if use_next4:
+                self.v4 = word.split('/')[0]
+            if use_next6:
+                self.v6 = word.split('/')[0]
+            use_next4 = word == 'inet'
+            use_next6 = word == 'inet6'
+        if self.empty():
+            raise IpLookupError("Cannot find address for %s, giving up", text)
+
+
 class IpLookupError(Exception):
     """ General error in IpPlugin """
 
@@ -130,7 +170,8 @@ class IpPlugin(AbstractPlugin):
     ''' An abstract plugin obtaining the ip address. '''
 
     def run(self, config, log, ip=None):
-        ''' Given a configuration namespace and a log, return ip address.
+        ''' Given a configuration namespace and a log, return
+            a (ip4, ipv6) addresses as strings tuple or None.
             Raises IpLookupError on errors.
         '''
         raise NotImplementedError("Attempt to invoke abstract run()")

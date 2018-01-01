@@ -29,7 +29,7 @@ class ChangeIpPlugin(UpdatePlugin):
 
         url = self._url.format(config.hostname)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         http_basic_auth_setup(url, 'nic.ChangeIP.com')
         html = get_response(log, url)
         if not'uccessful' in html:

@@ -45,7 +45,7 @@ class DnsexitPlugin(UpdatePlugin):
         url = self._url.format(
             self._update_host, user, password, config.hostname)
         if ip:
-            url += "&myip=" + ip
+            url += "&myip=" + ip.v4
         # if debugging:
         #     url += "&force=Y" # override 8 minutes server limit
         html = get_response(log, url).split('\n')

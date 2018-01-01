@@ -21,5 +21,6 @@ class DryRunPlugin(UpdatePlugin):
 
     def run(self, config, log, ip=None):
         ''' Run the actual module work. '''
-        print("dry-run: Using address %s and hostname %s"
-              % (ip, config.hostname))
+        print("dry-run: Using")
+        print("    v4 address: %s\n    v6 address: %s\n    hostname: %s"
+              % (ip.v4, ip.v6, config.hostname))

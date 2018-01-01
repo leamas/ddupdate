@@ -6,7 +6,7 @@ See: ddupdate(8)
 
 import subprocess
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError
+from ddupdate.plugins_base import IpPlugin, IpLookupError, IpAddr
 
 
 class DefaultIfPLugin(IpPlugin):
@@ -32,9 +32,7 @@ class DefaultIfPLugin(IpPlugin):
                 break
         if if_ is None:
             raise IpLookupError("Cannot find default interface, giving up")
-        use_next = False
-        for word in subprocess.getoutput('ip address show dev ' + if_).split():
-            if use_next:
-                return word.split('/')[0]
-            use_next = word == 'inet'
-        raise IpLookupError("Cannot find address for %s, giving up", if_)
+        address = IpAddr()
+        output = subprocess.getoutput('ip address show dev ' + if_)
+        address.parse_ifconfig_output(output)
+        return address

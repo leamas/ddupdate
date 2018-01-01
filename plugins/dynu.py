@@ -33,5 +33,5 @@ class DunyPlugin(UpdatePlugin):
         pw_hash = hashlib.md5(password.encode()).hexdigest()
         url = self._url.format(config.hostname, user, pw_hash)
         if ip:
-            url += "&myip=" + ip
+            url += "&myip=" + ip.v4
         get_response(log, url)

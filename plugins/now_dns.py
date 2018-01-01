@@ -36,7 +36,7 @@ class NowDnsPlugin(UpdatePlugin):
 
         url = self._url.format(config.hostname)
         if ip:
-            url += '&myip=' + ip
+            url += '&myip=' + ip.v4
         user, password = get_netrc_auth('now-dns.com')
         credentials = '%s:%s' % (user, password)
         encoded_credentials = base64.b64encode(credentials.encode('ascii'))

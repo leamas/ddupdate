@@ -38,7 +38,7 @@ class SystemNsPlugin(UpdatePlugin):
         user, password = get_netrc_auth('system-ns.com')
         url = self._url.format(self._apihost, config.hostname, password)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         html = get_response(log, url)
         reply = json.loads(html)
         if reply['code'] > 2:

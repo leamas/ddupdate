@@ -11,11 +11,11 @@ import subprocess
 from ddupdate.plugins_base import IpPlugin, IpLookupError, dict_of_opts
 
 
-class IpFromCmdPlugin(IpPlugin):
+class IpV4FromCmdPlugin(IpPlugin):
     '''
-    Use address obtained from a command. The command is invoked
+    Use ip4 address obtained from a command. The command is invoked
     without parameters, and should return a single ip address
-    on stdout. Anything which is not parsed as an address is treated
+    on stdout. Anything which is not parsed as an ipv4 address is treated
     as an error message.
 
     Note that when invoked in a systemd context, the environment
@@ -29,7 +29,7 @@ class IpFromCmdPlugin(IpPlugin):
     netrc:
         Nothing
     '''
-    _name = 'ip-from-command'
+    _name = 'ipv4-from-command'
     _oneliner = 'Obtain address from a command'
 
     def run(self, config, log, ip=None):

@@ -33,7 +33,7 @@ class DtdnsPlugin(UpdatePlugin):
         user, password = get_netrc_auth('www.dtdns.com')
         url = self._url.format(config.hostname, password)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         try:
             html = get_response(log, url)
         except TimeoutError:

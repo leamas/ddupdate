@@ -8,7 +8,7 @@ See: ddupdate(8)
 import subprocess
 import sys
 
-from ddupdate.plugins_base import IpPlugin, dict_of_opts
+from ddupdate.plugins_base import IpPlugin, IpAddr, dict_of_opts
 
 
 class HardcodedIfPlugin(IpPlugin):
@@ -26,10 +26,8 @@ class HardcodedIfPlugin(IpPlugin):
         if 'if' not in opts:
             log.error("Required option if= missing, giving up.")
             sys.exit(2)
-        iface = opts['if']
-        use_next = False
-        for word in subprocess.getoutput('ifconfig ' + iface).split():
-            if use_next:
-                return word
-            use_next = word == 'inet'
-        log.error("Cannot find address for %s, giving up", iface)
+        if_ = opts['if']
+        address = IpAddr()
+        output = subprocess.getoutput('ip address show dev ' + if_)
+        address.parse_ifconfig_output(output)
+        return address

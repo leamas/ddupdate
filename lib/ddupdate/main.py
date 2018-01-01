@@ -74,7 +74,7 @@ def ip_cache_set(opts, addr):
     path = ip_cache_setup(opts)
     addr = addr if addr else "0.0.0.0"
     with open(path, "w") as f:
-        f.write(addr.strip())
+        f.write(addr.str())
 
 
 def here(path):
@@ -313,11 +313,11 @@ def main():
     except IpLookupError as err:
         log.error("Cannot obtain ip address: %s", err)
         sys.exit(3)
-    if ip == "0.0.0.0":
+    if ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
     else:
-        log.info("Using ip address: " + ip)
+        log.info("Using ip address: %s, %s", ip.v4, ip.v6)
     if opts.force:
         ip_cache_clear(opts, log)
     addr, age = ip_cache_data(opts)

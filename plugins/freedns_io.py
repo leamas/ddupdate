@@ -39,6 +39,6 @@ class FreednsIoPlugin(UpdatePlugin):
             'record': 'A'
         }
         if ip:
-            data['value'] = ip
+            data['value'] = ip.v4
         html = get_response(log, self._url, data)
         log.info("Server reply: " + html)
