@@ -14,15 +14,16 @@ DATA = [
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8']),
     ('share/doc/ddupdate',
-        ['README.rst', 'LICENSE.txt', 'ddupdate.8.html']),
+        ['README.rst', 'LICENSE.txt', 'ddupdate.8.html', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
 setup(
     name='ddupdate',
-    version='0.0.4',
+    version='0.0.5',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.rst').read(),
+    include_package_data=True,
     license='MIT',
     url='http://github.com/leamas/ddupdate',
     author='Alec Leamas',
