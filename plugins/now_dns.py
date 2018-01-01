@@ -18,6 +18,8 @@ class NowDnsPlugin(UpdatePlugin):
     first be defined in the web UI. Providing an ip address is optional
     but supported; the ip-disabled plugin can be used.
 
+    Ipv6 address are supported by the site, but not bu this plugin.
+
     now-dns uses an odd authentication without challenge. Using wget,
     the --auth-no-challenge  is required. This code copes with this
     mess.

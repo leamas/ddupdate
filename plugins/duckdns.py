@@ -25,18 +25,18 @@ class DuckdnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'duckdns.org'
-    _oneliner = 'Updates on http://duckdns.org/'
+    _oneliner = 'Updates on http://duckdns.org [ipv6]'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
-
-    # pylint: disable=unused-variable
 
     def register(self, log, hostname, ip, options):
 
-        user, password = get_netrc_auth('www.duckdns.org')
+        password = get_netrc_auth('www.duckdns.org')[1]
         host = hostname.split('.duckdns.org')[0]
         url = self._url.format(host, password)
-        if ip:
+        if ip and ip.v4:
             url += "&ip=" + ip.v4
+        if ip and ip.v6:
+            url += "&ipv6=" + ip.v6
         html = get_response(log, url)
         if html.strip() != "OK":
             raise UpdateError("Update error, got: %s", html)

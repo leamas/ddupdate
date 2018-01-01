@@ -22,14 +22,16 @@ class MyOnlinePortalPlugin(UpdatePlugin):
         None
     '''
     _name = 'myonlineportal.net'
-    _oneliner = 'Updates on http://myonlineportal.net/'
+    _oneliner = 'Updates on http://myonlineportal.net/ [ipv6]'
     _url = 'https://myonlineportal.net/updateddns?hostname={0}'
 
     def register(self, log, hostname, ip, options):
 
         url = self._url.format(hostname)
-        if ip:
+        if ip and ip.v4:
             url += "&ip=" + ip.v4
+        if ip and ip.v6:
+            url += "&ip6=" + ip.v6
         http_basic_auth_setup(url, 'myonlineportal.net')
         html = get_response(log, url)
         log.info("Server reply: " + html)

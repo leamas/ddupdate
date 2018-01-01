@@ -9,7 +9,7 @@ import hashlib
 from ddupdate.plugins_base import UpdatePlugin, get_response, get_netrc_auth
 
 
-class DunyPlugin(UpdatePlugin):
+class DynuPlugin(UpdatePlugin):
     '''
     Update a dns entry on dynu.com
 
@@ -23,7 +23,7 @@ class DunyPlugin(UpdatePlugin):
         none
     '''
     _name = 'dynu.com'
-    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS'
+    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS [ipv6]'
     _url = "http://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 
@@ -32,6 +32,8 @@ class DunyPlugin(UpdatePlugin):
         user, password = get_netrc_auth('api.dynu.com')
         pw_hash = hashlib.md5(password.encode()).hexdigest()
         url = self._url.format(hostname, user, pw_hash)
-        if ip:
+        if ip and ip.v4:
             url += "&myip=" + ip.v4
+        if ip and ip.v6:
+            url += "&myipv6=" + ip.v6
         get_response(log, url)

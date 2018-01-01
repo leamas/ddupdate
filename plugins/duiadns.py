@@ -34,8 +34,9 @@ class DuiadnsParser(HTMLParser):
 class DuiadnsPlugin(UpdatePlugin):
     '''
     Update a dns entry on duiadnscom. As usual, any host updated must
-    first be defined in the web UI. Providing an ip address is optional
-    but supported; the ip-disabled plugin can be used.
+    first be defined in the web UI. Although the server supports auto-
+    detection of addresses this plugin does not; the ip-disabled plugin
+    cannot be used.
 
     Access to the service requires an API token. This is available in the
     website account.
@@ -56,17 +57,19 @@ class DuiadnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'duiadns.net'
-    _oneliner = 'Updates on https://www.duiadns.net'
+    _oneliner = 'Updates on https://www.duiadns.net [ipv6]'
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
-
-    # pylint: disable=unused-variable
 
     def register(self, log, hostname, ip, options):
 
-        user, password = get_netrc_auth('ip.duiadns.net')
+        password = get_netrc_auth('ip.duiadns.net')[1]
         url = self._url.format(hostname, password)
-        if ip:
+        if not ip:
+            log.warn("This plugin requires an ip address.")
+        if ip and ip.v4:
             url += "&ip4=" + ip.v4
+        if ip and ip.v6:
+            url += "&ip6=" + ip.v6
         html = get_response(log, url)
         parser = DuiadnsParser()
         parser.feed(html)

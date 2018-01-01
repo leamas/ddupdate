@@ -3,6 +3,8 @@ ddupdate plugin updating data on freedns.io
 
 See: ddupdate(8)
 See: https://freedns.io/api
+
+FIXME: Add ipv6 support
 '''
 
 from ddupdate.plugins_base import UpdatePlugin, get_netrc_auth, get_response
