@@ -32,8 +32,8 @@ class IpV4FromCmdPlugin(IpPlugin):
     _name = 'ipv4-from-command'
     _oneliner = 'Obtain address from a command'
 
-    def run(self, config, log, ip=None):
-        opts = dict_of_opts(config.options)
+    def get_ip(self, log, options):
+        opts = dict_of_opts(options)
         if 'cmd' not in opts:
             raise IpLookupError("Required option cmd= missing, giving up.")
         cmd = opts['cmd']

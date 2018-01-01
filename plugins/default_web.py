@@ -19,7 +19,7 @@ class DefaultWebPlugin(IpPlugin):
     _name = 'default-web-ip'
     _oneliner = 'Obtain external address as seen from the net'
 
-    def run(self, config, log, ip=None):
+    def get_ip(self, log, options):
 
         def check_url(url):
             ''' Get reply from host and decode '''

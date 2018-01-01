@@ -309,11 +309,11 @@ def main():
         log.error("No such ip plugin: %s", opts.ip_plugin)
         sys.exit(2)
     try:
-        ip = ip_plugins[opts.ip_plugin].run(opts, log)
+        ip = ip_plugins[opts.ip_plugin].get_ip(log, opts.options)
     except IpLookupError as err:
         log.error("Cannot obtain ip address: %s", err)
         sys.exit(3)
-    if ip.empty():
+    if not ip or ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
     else:

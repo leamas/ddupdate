@@ -21,8 +21,8 @@ class HardcodedIfPlugin(IpPlugin):
     _name = 'hardcoded-if'
     _oneliner = 'Get address from a configuration option'
 
-    def run(self, config, log, ip=None):
-        opts = dict_of_opts(config.options)
+    def get_ip(self, log, options):
+        opts = dict_of_opts(options)
         if 'if' not in opts:
             log.error("Required option if= missing, giving up.")
             sys.exit(2)

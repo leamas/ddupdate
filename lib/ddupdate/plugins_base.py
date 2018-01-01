@@ -165,12 +165,11 @@ class AbstractPlugin(object):
 class IpPlugin(AbstractPlugin):
     ''' An abstract plugin obtaining the ip address. '''
 
-    def run(self, config, log, ip=None):
-        ''' Given a configuration namespace and a log, return
-            a (ip4, ipv6) addresses as strings tuple or None.
-            Raises IpLookupError on errors.
+    def get_ip(self, log, options):
+        ''' Given the list of --option options and a log, return
+            an IpAddr or None. Raises IpLookupError on errors.
         '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
+        raise NotImplementedError("Attempt to invoke abstract get_ip()")
 
 
 class UpdatePlugin(AbstractPlugin):
@@ -193,4 +192,4 @@ class UpdatePlugin(AbstractPlugin):
             Raises:
               - UpdateError on errors.
         '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
+        raise NotImplementedError("Attempt to invoke abstract register()")
