@@ -31,6 +31,7 @@ DEFAULTS = {
     'force': False
 }
 
+
 def envvar_default(var, default=None):
     ''' Return var if found in environment, else default. '''
     return os.environ[var] if var in os.environ else default
@@ -73,7 +74,7 @@ def ip_cache_set(opts, addr):
     path = ip_cache_setup(opts)
     addr = addr if addr else "0.0.0.0"
     with open(path, "w") as f:
-        f.write(addr.strip())
+        f.write(addr.str())
 
 
 def here(path):
@@ -147,7 +148,7 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [' + envvar_default('XDG_CONFIG_HOME',' ~/.cache/ddupdate.conf')
+        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.cache/ddupdate.conf')
         + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
@@ -192,7 +193,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.0.4"
+    parser.version = "0.0.5"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -236,8 +237,8 @@ def load_plugins(path, log):
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
     sys.path.pop(0)
-    log.debug("Loaded %d address and %d service plugins",
-              len(getters), len(setters))
+    log.debug("Loaded %d address and %d service plugins from %s",
+              len(getters), len(setters), path)
     return getters_by_name, setters_by_name
 
 
@@ -308,15 +309,15 @@ def main():
         log.error("No such ip plugin: %s", opts.ip_plugin)
         sys.exit(2)
     try:
-        ip = ip_plugins[opts.ip_plugin].run(opts, log)
+        ip = ip_plugins[opts.ip_plugin].get_ip(log, opts.options)
     except IpLookupError as err:
         log.error("Cannot obtain ip address: %s", err)
         sys.exit(3)
-    if ip == "0.0.0.0":
+    if not ip or ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
     else:
-        log.info("Using ip address: " + ip)
+        log.info("Using ip address: %s, %s", ip.v4, ip.v6)
     if opts.force:
         ip_cache_clear(opts, log)
     addr, age = ip_cache_data(opts)
@@ -328,7 +329,7 @@ def main():
         log.info("Update inhibited, cache is fresh (%d min)", age)
         sys.exit(0)
     try:
-        service_plugin.run(opts, log, ip)
+        service_plugin.register(log, opts.hostname, ip, opts.options)
     except UpdateError as err:
         log.error("Cannot update DNS data: %s", err)
     else:

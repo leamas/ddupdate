@@ -5,7 +5,7 @@ See: ddupdate(8)
 
 '''
 
-from ddupdate.plugins_base import IpPlugin
+from ddupdate.plugins_base import IpPlugin, IpAddr
 
 
 class IpDisabledPlugin(IpPlugin):
@@ -21,5 +21,5 @@ class IpDisabledPlugin(IpPlugin):
     _name = 'ip-disabled'
     _oneliner = 'Force update service to provide ip address'
 
-    def run(self, config, log, ip=None):
-        return "0.0.0.0"
+    def get_ip(self, log, options):
+        return IpAddr()

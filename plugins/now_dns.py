@@ -2,6 +2,7 @@
 ddupdate plugin updating data on now-dns.com.
 
 See: ddupdate(8)
+See: https://now-dns.com/?p=clients
 
 '''
 import base64
@@ -17,6 +18,8 @@ class NowDnsPlugin(UpdatePlugin):
     first be defined in the web UI. Providing an ip address is optional
     but supported; the ip-disabled plugin can be used.
 
+    Ipv6 address are supported by the site, but not bu this plugin.
+
     now-dns uses an odd authentication without challenge. Using wget,
     the --auth-no-challenge  is required. This code copes with this
     mess.
@@ -28,14 +31,14 @@ class NowDnsPlugin(UpdatePlugin):
         None
     '''
     _name = 'now-dns'
-    _oneliner = 'Updates DNS data on now-dns.com'
+    _oneliner = 'Updates on http://now-dns.com'
     _url = 'https://now-dns.com/update?hostname={0}'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        url = self._url.format(config.hostname)
+        url = self._url.format(hostname)
         if ip:
-            url += '&myip=' + ip
+            url += '&myip=' + ip.v4
         user, password = get_netrc_auth('now-dns.com')
         credentials = '%s:%s' % (user, password)
         encoded_credentials = base64.b64encode(credentials.encode('ascii'))

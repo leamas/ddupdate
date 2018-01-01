@@ -7,7 +7,7 @@ See: ddupdate(8)
 import urllib.request
 import re
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError
+from ddupdate.plugins_base import IpPlugin, IpLookupError, IpAddr
 
 
 class DefaultWebPlugin(IpPlugin):
@@ -19,7 +19,7 @@ class DefaultWebPlugin(IpPlugin):
     _name = 'default-web-ip'
     _oneliner = 'Obtain external address as seen from the net'
 
-    def run(self, config, log, ip=None):
+    def get_ip(self, log, options):
 
         def check_url(url):
             ''' Get reply from host and decode '''
@@ -39,15 +39,15 @@ class DefaultWebPlugin(IpPlugin):
 
         ip = check_url('http://checkip.dyndns.org/')
         if ip:
-            return ip
+            return IpAddr(ip)
         log.info("Falling back to ipify.org")
         ip = check_url('https://api.ipify.org?format=json')
         if ip:
-            return ip
+            return IpAddr(ip)
         log.info("Falling back to ifconfig.co")
         ip = check_url('https://ifconfig.co')
         if ip:
-            return ip
+            return IpAddr(ip)
         raise IpLookupError(
             "Cannot obtain ip address (%s, %s and %s tried)" %
             ('checkip.dyndns.org', 'ipify.org', 'ifconfig.co'))

@@ -2,6 +2,9 @@
 ddupdate plugin updating data on freedns.io
 
 See: ddupdate(8)
+See: https://freedns.io/api
+
+FIXME: Add ipv6 support
 '''
 
 from ddupdate.plugins_base import UpdatePlugin, get_netrc_auth, get_response
@@ -24,20 +27,20 @@ class FreednsIoPlugin(UpdatePlugin):
         None
     '''
     _name = 'freedns.io'
-    _oneliner = 'Updates DNS data on freedns.io'
+    _oneliner = 'Updates on https://freedns.io'
     _url = 'https://freedns.io/request'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('freedns.io')
 
         data = {
             'username': user,
             'password': password,
-            'host': config.hostname.split('.freedns.io')[0],
+            'host': hostname.split('.freedns.io')[0],
             'record': 'A'
         }
         if ip:
-            data['value'] = ip
+            data['value'] = ip.v4
         html = get_response(log, self._url, data)
         log.info("Server reply: " + html)

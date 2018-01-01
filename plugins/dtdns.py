@@ -1,8 +1,8 @@
 '''
-ddupdate plugin updating data on dtdns.com. As usual, any
-host updated ,ust first be defined in the web UI-
+ddupdate plugin updating data on dtdns.com.
 
 See: ddupdate(8)
+See: https://www.dtdns.com/dtsite/updatespec
 
 '''
 from ddupdate.plugins_base import UpdatePlugin, UpdateError
@@ -22,18 +22,18 @@ class DtdnsPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'dtdns'
-    _oneliner = 'Updates DNS data on dtdns.com'
+    _name = 'dtdns.com'
+    _oneliner = 'Updates on https://www.dtdns.com'
     _url = "https://www.dtdns.com/api/autodns.cfm?id={0}&pw={1}"
 
     # pylint: disable=unused-variable
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('www.dtdns.com')
-        url = self._url.format(config.hostname, password)
+        url = self._url.format(hostname, password)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         try:
             html = get_response(log, url)
         except TimeoutError:
