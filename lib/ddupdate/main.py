@@ -329,7 +329,7 @@ def main():
         log.info("Update inhibited, cache is fresh (%d min)", age)
         sys.exit(0)
     try:
-        service_plugin.run(opts, log, ip)
+        service_plugin.register(log, opts.hostname, ip, opts.options)
     except UpdateError as err:
         log.error("Cannot update DNS data: %s", err)
     else:

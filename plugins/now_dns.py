@@ -32,9 +32,9 @@ class NowDnsPlugin(UpdatePlugin):
     _oneliner = 'Updates on http://now-dns.com'
     _url = 'https://now-dns.com/update?hostname={0}'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        url = self._url.format(config.hostname)
+        url = self._url.format(hostname)
         if ip:
             url += '&myip=' + ip.v4
         user, password = get_netrc_auth('now-dns.com')

@@ -30,11 +30,11 @@ class DuckdnsPlugin(UpdatePlugin):
 
     # pylint: disable=unused-variable
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('www.duckdns.org')
-        hostname = config.hostname.split('.duckdns.org')[0]
-        url = self._url.format(hostname, password)
+        host = hostname.split('.duckdns.org')[0]
+        url = self._url.format(host, password)
         if ip:
             url += "&ip=" + ip.v4
         html = get_response(log, url)

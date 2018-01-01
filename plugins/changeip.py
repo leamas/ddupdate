@@ -25,9 +25,9 @@ class ChangeIpPlugin(UpdatePlugin):
     _oneliner = 'Updates on http://changeip.com/'
     _url = "https://nic.ChangeIP.com/nic/update?&hostname={0}"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        url = self._url.format(config.hostname)
+        url = self._url.format(hostname)
         if ip:
             url += "&ip=" + ip.v4
         http_basic_auth_setup(url, 'nic.ChangeIP.com')

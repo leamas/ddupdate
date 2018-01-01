@@ -161,10 +161,6 @@ class AbstractPlugin(object):
         ''' Return module sourcefile. '''
         return __file__
 
-    def run(self, config, log, ip=None):
-        ''' Run the actual module work. '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
-
 
 class IpPlugin(AbstractPlugin):
     ''' An abstract plugin obtaining the ip address. '''
@@ -187,14 +183,13 @@ class UpdatePlugin(AbstractPlugin):
         '''
         return self._ip_cache_ttl
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         ''' Given configuration, address and log do the actual update.
             Parameters:
-              - config: namespace with hostname (string) and options
-                (list of --options plugin options).
               - log: standard python log instance
-              - ip: ip4 address (string) or None.  Most (not all) services
-                doesn't need an address.
+              - hostname - string, the DNS name to register
+              - ip: Address to register
+              - opts: list of --option values.
             Raises:
               - UpdateError on errors.
         '''

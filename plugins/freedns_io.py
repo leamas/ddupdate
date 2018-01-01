@@ -28,14 +28,14 @@ class FreednsIoPlugin(UpdatePlugin):
     _oneliner = 'Updates on https://freedns.io'
     _url = 'https://freedns.io/request'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('freedns.io')
 
         data = {
             'username': user,
             'password': password,
-            'host': config.hostname.split('.freedns.io')[0],
+            'host': hostname.split('.freedns.io')[0],
             'record': 'A'
         }
         if ip:

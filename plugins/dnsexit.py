@@ -38,12 +38,12 @@ class DnsexitPlugin(UpdatePlugin):
     _ip_warning = \
         "service is not known to provide an address, use another ip plugin"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         if not ip:
             log.warn(self._ip_warning)
         user, password = get_netrc_auth('update.dnsexit.com')
         url = self._url.format(
-            self._update_host, user, password, config.hostname)
+            self._update_host, user, password, hostname)
         if ip:
             url += "&myip=" + ip.v4
         # if debugging:

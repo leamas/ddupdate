@@ -33,10 +33,10 @@ class SystemNsPlugin(UpdatePlugin):
 
     # pylint: disable=unused-variable
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('system-ns.com')
-        url = self._url.format(self._apihost, config.hostname, password)
+        url = self._url.format(self._apihost, hostname, password)
         if ip:
             url += "&ip=" + ip.v4
         html = get_response(log, url)

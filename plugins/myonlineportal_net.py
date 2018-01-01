@@ -25,9 +25,9 @@ class MyOnlinePortalPlugin(UpdatePlugin):
     _oneliner = 'Updates on http://myonlineportal.net/'
     _url = 'https://myonlineportal.net/updateddns?hostname={0}'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        url = self._url.format(config.hostname)
+        url = self._url.format(hostname)
         if ip:
             url += "&ip=" + ip.v4
         http_basic_auth_setup(url, 'myonlineportal.net')

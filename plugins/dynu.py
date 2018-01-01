@@ -27,11 +27,11 @@ class DunyPlugin(UpdatePlugin):
     _url = "http://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('api.dynu.com')
         pw_hash = hashlib.md5(password.encode()).hexdigest()
-        url = self._url.format(config.hostname, user, pw_hash)
+        url = self._url.format(hostname, user, pw_hash)
         if ip:
             url += "&myip=" + ip.v4
         get_response(log, url)

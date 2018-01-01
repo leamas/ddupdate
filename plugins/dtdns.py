@@ -28,10 +28,10 @@ class DtdnsPlugin(UpdatePlugin):
 
     # pylint: disable=unused-variable
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
         user, password = get_netrc_auth('www.dtdns.com')
-        url = self._url.format(config.hostname, password)
+        url = self._url.format(hostname, password)
         if ip:
             url += "&ip=" + ip.v4
         try:
