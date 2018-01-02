@@ -22,7 +22,7 @@ setup(
     name='ddupdate',
     version='0.0.5',
     description='Update dns data for dynamic ip addresses',
-    long_description=open(ROOT + '/README.rst').read(),
+    long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
     license='MIT',
     url='http://github.com/leamas/ddupdate',
