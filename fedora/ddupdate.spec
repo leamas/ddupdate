@@ -29,7 +29,7 @@ Requires:       /usr/sbin/ip
 %description
 
 A tool to update dynamic IP addresses typically obtained using DHCP
-at dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
+at dynamic DNS services such as changeip.com, duckdns.org or no-ip.com.
 The goal is that it should be possible to access a machine with a fixed
 name like myhost.duckdns.org even if the ip address changes. ddupdate
 caches the address, and only attempts the update if the address actu‐
@@ -38,7 +38,7 @@ ally is changed.
 The tool has a plugin structure with plugins for obtaining the actual
 address (typically hardware-dependent) and to update it (service depen‐
 dent). For supported services, it's a linux-centric, user-friendly and
-flexible alternative to the uiquotious ddclient.
+flexible alternative to the ubiquotious ddclient.
 
 ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
