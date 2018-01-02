@@ -14,7 +14,7 @@ DATA = [
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8']),
     ('share/doc/ddupdate',
-        ['README.rst', 'LICENSE.txt', 'ddupdate.8.html', 'NEWS']),
+        ['README.md', 'LICENSE.txt', 'ddupdate.8.html', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
