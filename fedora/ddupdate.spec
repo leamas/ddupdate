@@ -1,12 +1,12 @@
 %global debug_package %{nil}
-%global gittag 0.0.5rc1
+%global gittag 0.0.5rc2
 
 %global commit 0489e0280b58a868d73a3ddd451d239b3c035d7b
 #global shortcommit %%(c=%%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
-Version:        0.0.5rc1
-Release:        0.3%{?shortcommit:.}%{?shortcommit}%{?dist}
+Version:        0.0.5rc2
+Release:        0.4%{?shortcommit:.}%{?shortcommit}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -90,6 +90,9 @@ test -d /var/lib/ddupdate || {
 
 
 %changelog
+* Tue Jan 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5rc2-0.4
+- New upstream release
+
 * Tue Jan 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5rc1-0.1
 - New upstream release
 
