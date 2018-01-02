@@ -30,7 +30,7 @@ class NowDnsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'now-dns'
+    _name = 'now-dns.com'
     _oneliner = 'Updates on http://now-dns.com'
     _url = 'https://now-dns.com/update?hostname={0}'
 

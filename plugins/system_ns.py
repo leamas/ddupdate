@@ -31,11 +31,9 @@ class SystemNsPlugin(UpdatePlugin):
     _apihost = 'https://system-ns.com/api'
     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
 
-    # pylint: disable=unused-variable
-
     def register(self, log, hostname, ip, options):
 
-        user, password = get_netrc_auth('system-ns.com')
+        password = get_netrc_auth('system-ns.com')[1]
         url = self._url.format(self._apihost, hostname, password)
         if ip:
             url += "&ip=" + ip.v4

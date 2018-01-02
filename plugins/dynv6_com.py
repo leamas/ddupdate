@@ -9,7 +9,7 @@ from ddupdate.plugins_base import UpdatePlugin, UpdateError
 from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
-class DuckdnsPlugin(UpdatePlugin):
+class Dynv6Plugin(UpdatePlugin):
     '''
     Update a dns entry on dynv6.com. As usual, any host updated must
     first be defined in the web UI. Providing an ip address is optional

@@ -34,8 +34,7 @@ class MyOnlinePortalPlugin(UpdatePlugin):
             url += "&ip6=" + ip.v6
         http_basic_auth_setup(url, 'myonlineportal.net')
         html = get_response(log, url)
-        log.info("Server reply: " + html)
         key = html.split()[0]
-        if key not in ['OK', 'nochg']:
+        if key not in ['OK', 'good', 'nochg']:
             raise UpdateError("Bad server reply: " + html)
-        log.info("server reply: " + html)
+        log.info("Server reply: " + html)
