@@ -147,7 +147,7 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.cache/ddupdate.conf')
+        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
         + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
