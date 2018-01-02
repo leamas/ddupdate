@@ -1,6 +1,7 @@
 ''' ddclient plugin base classes and common code. '''
 
 import inspect
+import os.path
 import urllib.request
 
 from urllib.parse import urlencode
@@ -10,13 +11,9 @@ from netrc import netrc
 
 def http_basic_auth_setup(url, host):
     ''' Setup urllib to provide user/pw from netrc on url. '''
-    credentials = netrc()
-    auth = credentials.authenticators(host)
-    if auth is None:
-        raise UpdateError(
-            "No username/password for %s in .netrc" % host)
+    user, password = get_netrc_auth(host)
     pwmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-    pwmgr.add_password(None, url, auth[0], auth[2])
+    pwmgr.add_password(None, url, user, password)
     auth_handler = urllib.request.HTTPBasicAuthHandler(pwmgr)
     opener = urllib.request.build_opener(auth_handler)
     urllib.request.install_opener(opener)
@@ -60,6 +57,58 @@ def get_response(log, url, data=None):
     return html
 
 
+def get_netrc_auth(machine):
+    ''' Return a (user, password) tuple based on ~/-netrc or /etc/netrc. '''
+    if os.path.exists(os.path.expanduser('~/.netrc')):
+        path = os.path.expanduser('~/.netrc')
+    elif os.path.exists('/etc/netrc'):
+        path = '/etc/netrc'
+    auth = netrc(path).authenticators(machine)
+    if not auth[2]:
+        raise UpdateError("No password found for " + machine)
+    return auth[0], auth[2]
+
+
+class IpAddr(object):
+    ''' An (ip4, ipv6) collection. '''
+
+    def __init__(self, ipv4=None, ipv6=None):
+        self.v4 = ipv4
+        self.v6 = ipv6
+
+    def str(self):
+        ''' Standard str() returns a printable representation. '''
+        s1 = self.v4 if self.v4 else 'None'
+        s2 = self.v6 if self.v6 else 'None'
+        return '[%s, %s]' % (s1, s2)
+
+    def __eq__(self, obj):
+        if not isinstance(obj, IpAddr):
+            return False
+        return obj.v4 == self.v4 and obj.v6 == self.v6
+
+    def __hash__(self):
+        return hash(self.v4, self.v6)
+
+    def empty(self):
+        ''' Check if any address is set. '''
+        return self.v4 is None and self.v6 is None
+
+    def parse_ifconfig_output(self, text):
+        ''' Parse ifconfig <dev> or ip address show dev <dev> output. '''
+        use_next4 = False
+        use_next6 = False
+        for word in text.split():
+            if use_next4:
+                self.v4 = word.split('/')[0]
+            if use_next6:
+                self.v6 = word.split('/')[0]
+            use_next4 = word == 'inet'
+            use_next6 = word == 'inet6'
+        if self.empty():
+            raise IpLookupError("Cannot find address for %s, giving up", text)
+
+
 class IpLookupError(Exception):
     """ General error in IpPlugin """
 
@@ -85,7 +134,7 @@ class AbstractPlugin(object):
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.0.2'
+    __version__ = '0.0.5'
 
     def oneliner(self):
         ''' Return oneliner describing the plugin. '''
@@ -112,19 +161,15 @@ class AbstractPlugin(object):
         ''' Return module sourcefile. '''
         return __file__
 
-    def run(self, config, log, ip=None):
-        ''' Run the actual module work. '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
-
 
 class IpPlugin(AbstractPlugin):
     ''' An abstract plugin obtaining the ip address. '''
 
-    def run(self, config, log, ip=None):
-        ''' Given a configuration namespace and a log, return ip address.
-            Raises IpLookupError on errors.
+    def get_ip(self, log, options):
+        ''' Given the list of --option options and a log, return
+            an IpAddr or None. Raises IpLookupError on errors.
         '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
+        raise NotImplementedError("Attempt to invoke abstract get_ip()")
 
 
 class UpdatePlugin(AbstractPlugin):
@@ -137,9 +182,14 @@ class UpdatePlugin(AbstractPlugin):
         '''
         return self._ip_cache_ttl
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         ''' Given configuration, address and log do the actual update.
-            Most (not all) services doesnt't need an address.
-            Raises UpdateError on errors.
+            Parameters:
+              - log: standard python log instance
+              - hostname - string, the DNS name to register
+              - ip: Address to register
+              - opts: list of --option values.
+            Raises:
+              - UpdateError on errors.
         '''
-        raise NotImplementedError("Attempt to invoke abstract run()")
+        raise NotImplementedError("Attempt to invoke abstract register()")

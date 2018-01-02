@@ -2,12 +2,13 @@
 ddupdate plugin updating data on system-ns.com.
 
 See: ddupdate(8)
+See: https://system-ns.com/services/dynamic
 
 '''
 import json
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class SystemNsPlugin(UpdatePlugin):
@@ -25,20 +26,19 @@ class SystemNsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'system-ns'
-    _oneliner = 'Updates DNS data on system-ns.com'
+    _name = 'system-ns.com'
+    _oneliner = 'Updates on https://system-ns.com'
     _apihost = 'https://system-ns.com/api'
     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
 
-    def run(self, config, log, ip=None):
+    # pylint: disable=unused-variable
 
-        auth = netrc().authenticators('system-ns.com')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password token for system-ns found in .netrc")
-        url = self._url.format(self._apihost, config.hostname, auth[2])
+    def register(self, log, hostname, ip, options):
+
+        user, password = get_netrc_auth('system-ns.com')
+        url = self._url.format(self._apihost, hostname, password)
         if ip:
-            url += "&ip=" + ip
+            url += "&ip=" + ip.v4
         html = get_response(log, url)
         reply = json.loads(html)
         if reply['code'] > 2:

@@ -2,12 +2,13 @@
 ddupdate plugin updating data on freedns.afraid.org.
 
 See: ddupdate(8)
+See: https://linuxaria.com/howto/dynamic-dns-with-bash-afraid-org
 '''
 
 import hashlib
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class FreednsPlugin(UpdatePlugin):
@@ -25,11 +26,11 @@ class FreednsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'freedns.afraid'
-    _oneliner = 'Updates DNS data on freedns.afraid.org'
+    _name = 'freedns.afraid.org'
+    _oneliner = 'Updates on https://freedns.afraid.org'
     _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         '''
         Based on http://freedns.afraid.org/api/, needs _url below  to update.
         The sha parameter is sha1sum of login|password.  This returns a list
@@ -38,11 +39,8 @@ class FreednsPlugin(UpdatePlugin):
         '''
         def build_shasum():
             ''' Compute sha1sum('user|password') used in url. '''
-            auth = netrc().authenticators('freedns.afraid.org')
-            if auth is None:
-                raise UpdateError(
-                    "No username/password for freedns.afraid.org in .netrc")
-            token = "{0}|{1}".format(auth[0], auth[2])
+            user, password = get_netrc_auth('freedns.afraid.org')
+            token = "{0}|{1}".format(user, password)
             return hashlib.sha1(token.encode()).hexdigest()
 
         if ip:
@@ -55,11 +53,11 @@ class FreednsPlugin(UpdatePlugin):
         for line in html.split("\n"):
             log.debug("Got line: " + line)
             tokens = line.split("|")
-            if tokens[0] == config.hostname:
+            if tokens[0] == hostname:
                 update_url = tokens[2]
                 break
         if not update_url:
             raise UpdateError(
-                "Cannot see %s being set up at this account" % config.hostname)
+                "Cannot see %s being set up at this account" % hostname)
         log.debug("Contacting freedns for update on %s", update_url)
         get_response(log, update_url)

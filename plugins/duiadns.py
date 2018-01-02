@@ -2,12 +2,13 @@
 ddupdate plugin updating data on duiadns.com.
 
 See: ddupdate(8)
+See: https://www.duiadns.net/duiadns-url-update
 
 '''
-from netrc import netrc
 from html.parser import HTMLParser
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DuiadnsParser(HTMLParser):
@@ -33,8 +34,9 @@ class DuiadnsParser(HTMLParser):
 class DuiadnsPlugin(UpdatePlugin):
     '''
     Update a dns entry on duiadnscom. As usual, any host updated must
-    first be defined in the web UI. Providing an ip address is optional
-    but supported; the ip-disabled plugin can be used.
+    first be defined in the web UI. Although the server supports auto-
+    detection of addresses this plugin does not; the ip-disabled plugin
+    cannot be used.
 
     Access to the service requires an API token. This is available in the
     website account.
@@ -54,19 +56,20 @@ class DuiadnsPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'duiadns'
-    _oneliner = 'Updates DNS data on duiadns.com'
+    _name = 'duiadns.net'
+    _oneliner = 'Updates on https://www.duiadns.net [ipv6]'
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        auth = netrc().authenticators('ip.duiadns.net')
-        if not auth or not auth[2]:
-            raise UpdateError(
-                "No password/token for ip.duiadns.net found in .netrc")
-        url = self._url.format(config.hostname, auth[2])
-        if ip:
-            url += "&ip4=" + ip
+        password = get_netrc_auth('ip.duiadns.net')[1]
+        url = self._url.format(hostname, password)
+        if not ip:
+            log.warn("This plugin requires an ip address.")
+        if ip and ip.v4:
+            url += "&ip4=" + ip.v4
+        if ip and ip.v6:
+            url += "&ip6=" + ip.v6
         html = get_response(log, url)
         parser = DuiadnsParser()
         parser.feed(html)

@@ -2,15 +2,14 @@
 ddupdate plugin updating data on dynu.com.
 
 See: ddupdate(8)
+See: https://www.dynu.com/Resources/API/Documentation
 
 '''
 import hashlib
-from netrc import netrc
-
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, get_response, get_netrc_auth
 
 
-class DunyPlugin(UpdatePlugin):
+class DynuPlugin(UpdatePlugin):
     '''
     Update a dns entry on dynu.com
 
@@ -23,18 +22,18 @@ class DunyPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'dynu'
-    _oneliner = 'Updates DNS data on dynu.com'
+    _name = 'dynu.com'
+    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS [ipv6]'
     _url = "http://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        auth = netrc().authenticators('api.dynu.com')
-        if not auth:
-            raise UpdateError("No password for api.duny.com found in .netrc")
-        pw_hash = hashlib.md5(auth[2].encode()).hexdigest()
-        url = self._url.format(config.hostname, auth[0], pw_hash)
-        if ip:
-            url += "&myip=" + ip
+        user, password = get_netrc_auth('api.dynu.com')
+        pw_hash = hashlib.md5(password.encode()).hexdigest()
+        url = self._url.format(hostname, user, pw_hash)
+        if ip and ip.v4:
+            url += "&myip=" + ip.v4
+        if ip and ip.v6:
+            url += "&myipv6=" + ip.v6
         get_response(log, url)

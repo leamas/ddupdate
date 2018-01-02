@@ -2,6 +2,7 @@
 ddupdate plugin updating data on no-ip.com.
 
 See: ddupdate(8)
+See: https://www.noip.com/integrate/request
 '''
 
 from ddupdate.plugins_base import UpdatePlugin
@@ -19,14 +20,14 @@ class NoIpPlugin(UpdatePlugin):
     Options:
         none
     '''
-    _name = 'no-ip'
-    _oneliner = 'Updates DNS data on no-ip.com'
+    _name = 'no-ip.com'
+    _oneliner = 'Updates on http://no-ip.com/'
     _url = "http://dynupdate.no-ip.com/nic/update?hostname={0}"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
 
-        url = self._url.format(config.hostname)
+        url = self._url.format(hostname)
         if ip:
-            url += "&myip=" + ip
+            url += "&myip=" + ip.v4
         http_basic_auth_setup(url, 'dynupdate.no-ip.com')
         get_response(log, url)

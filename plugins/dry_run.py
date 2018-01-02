@@ -19,7 +19,8 @@ class DryRunPlugin(UpdatePlugin):
     _oneliner = 'Debug dummy update plugin'
     _ip_cache_ttl = 1    # we do not cache these runs, right?
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         ''' Run the actual module work. '''
-        print("dry-run: Using address %s and hostname %s"
-              % (ip, config.hostname))
+        print("dry-run: Using")
+        print("    v4 address: %s\n    v6 address: %s\n    hostname: %s"
+              % (ip.v4, ip.v6, hostname))

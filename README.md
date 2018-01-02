@@ -1,19 +1,18 @@
-# ddupdate - update dns data for dynamic ip addresses.
+ddupdate - update dns data for dynamic ip addresses.
+====================================================
 
-## General
+General
+-------
 
 ddupdate is a tool for automatically updating dns data for a system using
-e. g., DHCP. The goal is it should be possible to access a system with a
-fixed dns name such as myhost.somewhere.net even if the IP address is
-changed.
+for example  DHCP. The goal is it should be possible to access a system with
+a fixed dns name such as myhost.somewhere.net even if the IP address is
+changed. Another goal is tp provide a flexible, user-friendly, maintainable
+and linux-centric alternative to the ubiquitous ddclient.
 
-From another perspective, ddupdate is a tool replicating part of the
-existing ddclient functionality, but with a better overall design and user
-interaction. In particular, it has better help, logging and documentation.
-Thanks to the plugin design, it's also much easier to provide support for
-new services and address detection strategies.
 
-## Status
+Status
+------
 
 Like... well, alpha. Fresh code, here is probably bugs lurking around.
 That said, it supports more than 10 services including  duckdns,
@@ -22,45 +21,54 @@ retrieved in a multitude of ways from none at all (trusting the service
 provider) to the generic 'cmd' plugin which can use the output from a
 command.
 
-## Dependencies
+Dependencies
+------------
 
 Just a few:
-   - python3
+   - python3 (tested on 3.6)
    - python3-straight-plugin
    - python3-setuptools
    - The /usr/bin/ip command is used in some plugins.
 
-## Installation
+Installation
+------------
 
-ddupdate can be run as a regular user straight off the cloned git directory.
-To make a test version possible to run from anywhere make a symlink:
+**ddupdate** can be run as a regular user straight off the cloned git
+directory. To make a test version possible to run from anywhere make a
+symlink::
 
     $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
 
-It's also possible to make a user installation, using a horrible cludge:
-
-    $ USER_INSTALL_FIX=1 python3 setup.py install --user
-
-To make a local site installation in /usr/local run something like
+User installations are not supported. To make a local site installation
+in /usr/local run something like::
 
     $ sudo python3 setup.py --prefix=/usr/local
 
-## Configuration
+**ddupdate** can be installed in an virtualenv root by a regular user. To
+use the plugins in the venv in favor of the system ones add the proper
+path to XDG\_DATA\_DIRS using something like::
+
+    $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
+
+See Packaging below for building proper native packages for Debian and
+Fedora. This is the preferred installation method on these platforms.
+
+Configuration
+-------------
 
 Configuration is basically about selecting a plugin for a specific ddns
 service and possibly another plugin which provides the ip address to be
-registered. Some plugins needs specific options.
+registered. Some plugins needs specific plugin options.
 
 First question is what kind of ip address which should be registered. The
-most common case is to use the address as seen from the internet.
-This makes it possible for users on internet to access the machine.
+most common case is to use the address as seen from the internet to make
+it possible for users on internet to access the machine.
 
-On the other hand, it might be necessary to register another type of
-address for example when using DHCP addresses on an internal network behind
+Another case is when using DHCP addresses on an internal network behind
 a router and the machine should be reached by users on this network.
 In this case the machine's real address should be registered.
 
-First, list all plugins:
+In any case, begin with listing all plugins::
 
     $ ddupdate --list-plugins ip-plugins
     ip-disabled          Force update service to provide ip address
@@ -82,7 +90,7 @@ First, list all plugins:
     now-dns              Updates DNS data on now-dns.com
     system-ns            Updates DNS data on system-ns.com
 
-Next, pick an update plugin and check the help info, here dynu:
+Next, pick an update plugin and check the help info, here dynu::
 
     $ ddupdate --help dynu
     Name: dynu
@@ -100,23 +108,23 @@ Next, pick an update plugin and check the help info, here dynu:
         none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
-username and password. Create an entry in the ~/.netrc file like:
+username and password. Create an entry in the *~/.netrc*  file like::
 
     machine api.dynu.com login <username> password <secret>
 
 Note that this file must be protected for other users (otherwise no tools
-will accept it). Do:
+will accept it). Do::
 
     $ chmod 600 ~/.netrc
 
 Now, let's select the plugin which provides the ip address to register.
 For the default case, the default-web-ip plugin generates the address as
-seen from the network. This can be tested using:
+seen from the network. This can be tested using::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
     dry-run: Using address 90.224.208.212 and hostname host.nowhere.net
 
-All looks good. Now, let's try to actually update that hostname on dynu.com:
+All looks good. Now, let's try to actually update that hostname on dynu.com::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
       --hostname myhost.dynu.net -L info
@@ -128,7 +136,8 @@ All looks good. Now, let's try to actually update that hostname on dynu.com:
     INFO - Using ip address: 90.224.208.212
     INFO - Update OK
 
-Again fine. Update /etc/ddupdate.conf to something like
+Again fine. Update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
+something like::
 
     [update]
     address-plugin = web-default-ip
@@ -139,40 +148,46 @@ Again fine. Update /etc/ddupdate.conf to something like
 After which it should be possible to just invoke *ddupdate* without
 any options.
 
-## Configuring systemd
+Configuring systemd
+-------------------
 
 systemd is used to invoke ddupdate periodically. The safest bet is
-not to use the upstream systemd files. Do:
+not to use the upstream systemd files. Do::
 
     $ sudo cp /lib/systemd/system/ddupdate* /etc/systemd/system
 
-Check the two /etc/ files, in particular for paths. Test the service and
-the logged info:
+Check the two /etc files, in particular for paths. Test the service and
+the logged info::
 
     $ sudo systemctl daemon-reload
     $ sudo systemcl start ddupdate.service
     $ sudo journalctl -u ddupdate.service
 
-When all is fine make sure ddupdate is run hourly using:
+When all is fine make sure ddupdate is run hourly using::
 
     $ sudo systemctl start ddupdate.timer
     $ sudo systemctl enable ddupdate.timer
 
-## Configuring NetworkManager
+Configuring NetworkManager
+--------------------------
 
 NetworkManager can be configured to start/stop ddupdate when interfaces goes
 up or down. An example script to drop in /etc/NetworkManager/dispatcher.d
 is distributed in the package.
 
-## Packaging
+Packaging
+---------
 
-  - ddupdate is available as a pypi package from the master branch. It can
-    be installed using pip:
+ddupdate has a multitude of packaging:
 
-        $ pip install --user ddupdate
+  - ddupdate is available as a **pypi package** from the master branch. It
+    can be installed using pip::
 
-  - fedora is packaged in the *fedora* branch. Building requires the fedora
-    toolchain in the *rpmdevtools* and *rpm-build* packages. To build:
+        $ sudo pip install ddupdate --prefix=/usr
+
+  - **fedora** is packaged in the *fedora* branch. Building requires the
+    fedora toolchain in the *git*, *rpmdevtools* and *rpm-build* packages.
+    To build::
 
         $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
         $ cd ddupdate
@@ -181,26 +196,27 @@ is distributed in the package.
 
     This creates both a source and a binary rpm package underneath *rpmbuild*.
 
-  - The debian packaging is based on gbp and lives in the *debian* and
+  - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.0.2 do:
+    and *git*  are required to build. To build current version 0.0.5 do::
 
         $ git clone -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
-        $ gbp buildpackage --git-upstream-tag=0.0.2.
+        $ gbp buildpackage --git-upstream-tag=0.0.5.
         $ git clean -fd    # To be able to rebuild
 
-## Writing plugins
+Writing plugins
+---------------
 
 Writing plugins is not hard. Most plugins are about 10-20 lines of code +
-docs, most of which is boilerplate stuff. The best way is to look at
-the existing plugins and pick solutions from them. Some hints:
+docs, most of which boilerplate stuff. The best way is to look at the
+existing plugins and pick solutions from them. Some hints:
 
   - Before writing the plugin, make tests with wget or curl to make
     sure how the api works. Essential step, this one.
 
   - Each plugin must contain a main class derived from IpPlugin or
-    ServicePlugin. The class docstring is the *help <plugin>* documentation.
+    UpdatePlugin. The class docstring is the *help <plugin>* documentation.
 
   - The class \_name property is the official name of the plugin, must be
     unique. \_oneliner is indeed the short summary displayed by
@@ -213,6 +229,8 @@ the existing plugins and pick solutions from them. Some hints:
       - Other uses hashed passwords, e. g., dynu.py
       - API tokens are handled in e. g., duckdns.py
       - Some have broken basic authentication, see now_dns.py
+  - Most services uses a http GET request to set the data. See
+    freedns\_io.py for a http POST example.
   - Reply decoding:
       - Most sites just returns some text, simple enough
       - json: example in system_ns.py

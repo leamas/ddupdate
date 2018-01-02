@@ -2,10 +2,11 @@
 ddupdate plugin updating data on dnsexit.com.
 
 See: ddupdate(8)
+See: http://downloads.dnsexit.com/ipUpdateDev.doc
 '''
-from netrc import netrc
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, get_response
+from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.plugins_base import get_response, get_netrc_auth
 
 
 class DnsexitPlugin(UpdatePlugin):
@@ -29,25 +30,22 @@ class DnsexitPlugin(UpdatePlugin):
     Options:
         None
     '''
-    _name = 'dnsexit'
-    _oneliner = 'Updates DNS data on www.dnsexit.com'
+    _name = 'dnsexit.com'
+    _oneliner = 'Updates on https://www.dnsexit.com'
 
     _update_host = 'http://update.dnsexit.com'
     _url = '{0}/RemoteUpdate.sv?login={1}&password={2}&host={3}'
     _ip_warning = \
         "service is not known to provide an address, use another ip plugin"
 
-    def run(self, config, log, ip=None):
+    def register(self, log, hostname, ip, options):
         if not ip:
             log.warn(self._ip_warning)
-        auth = netrc().authenticators('update.dnsexit.com')
-        if not auth:
-            raise UpdateError(
-                "No user/password for update.dnsexit.com found in .netrc")
+        user, password = get_netrc_auth('update.dnsexit.com')
         url = self._url.format(
-            self._update_host, auth[0], auth[2], config.hostname)
+            self._update_host, user, password, hostname)
         if ip:
-            url += "&myip=" + ip
+            url += "&myip=" + ip.v4
         # if debugging:
         #     url += "&force=Y" # override 8 minutes server limit
         html = get_response(log, url).split('\n')

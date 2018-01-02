@@ -1,0 +1,6 @@
+0.0.5:
+* Added a NEWS file
+* Revised and cleaned up plugin interface.
+* Added ipv6 support.
+* New plugins myonlineportal.com and dynv6.com
+* Fedora and debian packaging verified.
