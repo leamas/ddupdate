@@ -1,20 +1,20 @@
 %global debug_package %{nil}
-#global gittag 0.0.2
+%global gittag 0.0.5rc1
 
 %global commit 0489e0280b58a868d73a3ddd451d239b3c035d7b
-%global shortcommit %%(c=%%{commit}; echo ${c:0:7})
+#global shortcommit %%(c=%%{commit}; echo ${c:0:7})
 
 Name:           ddupdate
-Version:        0.0.2
-Release:        0.2%{?shortcommit:.}%{?shortcommit}%{?dist}
+Version:        0.0.5rc1
+Release:        0.3%{?shortcommit:.}%{?shortcommit}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
 License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
-#Source0:       %%{url}/archive/%%{gittag}/%%{name}-%%{version}.tar.gz
-Source0:        %{url}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
+Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
+#Source0:       %%{url}/archive/%%{commit}/%%{name}-%%{shortcommit}.tar.gz
 
 %{?systemd_requires}
 
@@ -41,7 +41,7 @@ ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
-%autosetup -n %{name}-%{commit}
+%autosetup -n %{name}-%{version}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 cp README.md README.rst
@@ -80,7 +80,7 @@ test -d /var/lib/ddupdate || {
 
 %files
 %license LICENSE.txt
-%doc README.md README.rst
+%doc README.md README.rst NEWS
 %{_bindir}/ddupdate
 %config(noreplace) /etc/ddupdate.conf
 %{_unitdir}/ddupdate.*
@@ -90,6 +90,9 @@ test -d /var/lib/ddupdate || {
 
 
 %changelog
+* Tue Jan 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5rc1-0.1
+- New upstream release
+
 * Fri Dec 29 2017 Alec Leamas <leamas.alec@gmail.com> - 0.0.2-0.2
 - New upstream release, initial install testing done.
 
