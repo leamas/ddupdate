@@ -1,0 +1,25 @@
+From ab3d7f46078fe4ff0e72ed043d48467db5efdb9d Mon Sep 17 00:00:00 2001
+From: Alec Leamas <leamas.alec@gmail.com>
+Date: Tue, 2 Jan 2018 22:02:55 +0100
+Subject: [PATCH] README: remove non-utf-8 cruft
+
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 9a4e7e0..e372066 100644
+--- a/README.md
++++ b/README.md
+@@ -37,7 +37,7 @@ Installation
+ directory. To make a test version possible to run from anywhere make a
+ symlink::
+ 
+-    $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
++    $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
+ 
+ User installations are not supported. To make a local site installation
+ in /usr/local run something like::
+-- 
+2.13.6
+

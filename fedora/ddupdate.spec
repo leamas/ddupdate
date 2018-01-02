@@ -3,24 +3,27 @@
 
 %global commit 0489e0280b58a868d73a3ddd451d239b3c035d7b
 #global shortcommit %%(c=%%{commit}; echo ${c:0:7})
+%global shortcommit rc2
 
 Name:           ddupdate
-Version:        0.0.5rc2
-Release:        0.4%{?shortcommit:.}%{?shortcommit}%{?dist}
+Version:        0.0.5
+Release:        0.5%{?shortcommit:.}%{?shortcommit}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
 License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
-Source0:        %{url}/archive/%{gittag}/%{name}-%{version}.tar.gz
+Source0:        %{url}/archive/%{gittag}/%{name}-%{gittag}.tar.gz
 #Source0:       %%{url}/archive/%%{commit}/%%{name}-%%{shortcommit}.tar.gz
+Patch1:         0001-README-remove-non-utf-8-cruft.patch
 
 %{?systemd_requires}
 
-BuildRequires:  python3-devel
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-setuptools
+Requires:       python%{python3_pkgversion}-straight-plugin
 BuildRequires:  systemd
-Requires:       python3-straight-plugin
 Requires:       /usr/sbin/ip
 
 %description
@@ -41,7 +44,7 @@ ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup -n %{name}-%{version}%{?shortcommit}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 cp README.md README.rst
@@ -56,6 +59,8 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mv $RPM_BUILD_ROOT/lib/systemd/system/* $RPM_BUILD_ROOT/usr/lib/systemd/system
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/LICENSE.txt
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/ddupdate.8.html
+rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/NEWS
+rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/README.rst
 
 %pre
 getent group ddupdate >/dev/null || groupadd -r ddupdate
@@ -90,6 +95,11 @@ test -d /var/lib/ddupdate || {
 
 
 %changelog
+* Tue Jan 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5-0.5.rc2
+- Published on COPR.
+- Fix version-release
+- Fix python version references.
+
 * Tue Jan 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5rc2-0.4
 - New upstream release
 
