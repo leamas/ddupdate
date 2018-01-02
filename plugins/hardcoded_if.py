@@ -19,7 +19,7 @@ class HardcodedIfPlugin(IpPlugin):
         if=interface
     '''
     _name = 'hardcoded-if'
-    _oneliner = 'Get address from a configuration option'
+    _oneliner = 'Get address from an configuration option interface'
 
     def get_ip(self, log, options):
         opts = dict_of_opts(options)
