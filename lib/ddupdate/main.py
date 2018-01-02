@@ -84,9 +84,8 @@ def here(path):
 
 def parse_conffile(log):
     ' Parse config file path, returns verified path or None. '
-    path = envvar_default('XDG_CONFIG_HOME',
-                          os.path.expanduser('~/.config/ddupdate.conf'))
-    if not os.path.exists(path):
+    path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
         path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
