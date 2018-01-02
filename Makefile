@@ -25,6 +25,6 @@ dist: README.rst
 	python3 setup.py sdist
 
 clean: .phony
-	rm -rf install dist build *.egg-info
+	rm -rf install dist build *.egg-info lib/*.egg-info
 
 .phony:
