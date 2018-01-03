@@ -2,10 +2,11 @@
 
 import inspect
 import os.path
-import urllib.request
 
+import urllib.request
 from urllib.parse import urlencode
 
+from socket import timeout as timeoutError
 from netrc import netrc
 
 
@@ -33,22 +34,24 @@ def dict_of_opts(options):
     return result
 
 
-def get_response(log, url, data=None):
+def get_response(log, url, to=120, data=None):
     '''
     Read from url and return html. If data is not None, this makes
     a http post request wuth the data, a dict, as form data. Otherwise,
     it is a http get.
 
-    Raises UpdateError if return code is != 200.
+    Raises UpdateError if return code is != 200 or timeout.
     '''
     log.debug("Trying url: %s", url)
     form_data = urlencode(data).encode() if data else None
     if data:
         log.debug("Posting data: " + form_data.decode('ascii'))
     try:
-        with urllib.request.urlopen(url, form_data) as response:
+        with urllib.request.urlopen(url, form_data, timeout=to) as response:
             code = response.getcode()
             html = response.read().decode('ascii')
+    except timeoutError:
+        raise UpdateError("Timeout reading %s" % url)
     except urllib.error.HTTPError as err:
         raise UpdateError("Error reading %s :%s" % (url, err))
     log.debug("Got response (%d) : %s", code, html)
@@ -175,7 +178,11 @@ class IpPlugin(AbstractPlugin):
 class UpdatePlugin(AbstractPlugin):
     ''' An abstract plugin doing the actual update work using a service. '''
 
-    _ip_cache_ttl = 120     # 2 hours
+    _ip_cache_ttl = 120    # 2 hours, address cache timeout
+    _socket_to = 120       # 2 min, timeout reading host
+
+    def __init__(self):
+        AbstractPlugin.__init__(self)
 
     def ip_cache_ttl(self):
         ''' Return time when ip cache expires, in minutes from creation.

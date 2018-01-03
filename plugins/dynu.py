@@ -36,4 +36,4 @@ class DynuPlugin(UpdatePlugin):
             url += "&myip=" + ip.v4
         if ip and ip.v6:
             url += "&myipv6=" + ip.v6
-        get_response(log, url)
+        get_response(log, url, self._socket_to)

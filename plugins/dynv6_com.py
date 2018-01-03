@@ -37,6 +37,6 @@ class Dynv6Plugin(UpdatePlugin):
             url += "&ipv4=" + ip.v4
         if ip and ip.v6:
             url += "&ipv6=" + ip.v6
-        html = get_response(log, url)
+        html = get_response(log, url, self._socket_to)
         if not ('updated' in html or 'unchanged' in html):
             raise UpdateError("Update error, got: %s", html)

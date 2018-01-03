@@ -37,7 +37,7 @@ class SystemNsPlugin(UpdatePlugin):
         url = self._url.format(self._apihost, hostname, password)
         if ip:
             url += "&ip=" + ip.v4
-        html = get_response(log, url)
+        html = get_response(log, url, self._socket_to)
         reply = json.loads(html)
         if reply['code'] > 2:
             raise UpdateError('Bad reply code {0}, message: {1}'.format(

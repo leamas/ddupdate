@@ -35,7 +35,7 @@ class DtdnsPlugin(UpdatePlugin):
         if ip:
             url += "&ip=" + ip.v4
         try:
-            html = get_response(log, url)
+            html = get_response(log, url, self._socket_to)
         except TimeoutError:
             # one more try...
             html = get_response(log, url)

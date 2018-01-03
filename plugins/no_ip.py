@@ -30,4 +30,4 @@ class NoIpPlugin(UpdatePlugin):
         if ip:
             url += "&myip=" + ip.v4
         http_basic_auth_setup(url, 'dynupdate.no-ip.com')
-        get_response(log, url)
+        get_response(log, url, self._socket_to)
