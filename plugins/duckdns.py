@@ -37,6 +37,6 @@ class DuckdnsPlugin(UpdatePlugin):
             url += "&ip=" + ip.v4
         if ip and ip.v6:
             url += "&ipv6=" + ip.v6
-        html = get_response(log, url)
+        html = get_response(log, url, self._socket_to)
         if html.strip() != "OK":
             raise UpdateError("Update error, got: %s", html)

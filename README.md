@@ -25,10 +25,11 @@ Dependencies
 ------------
 
 Just a few:
+
    - python3 (tested on 3.6)
    - python3-straight-plugin
    - python3-setuptools
-   - The /usr/bin/ip command is used in some plugins.
+   - The /usr/sbin/ip command is used in some plugins.
 
 Installation
 ------------
@@ -37,7 +38,7 @@ Installation
 directory. To make a test version possible to run from anywhere make a
 symlink::
 
-    $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
+    $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
 
 User installations are not supported. To make a local site installation
 in /usr/local run something like::
@@ -45,7 +46,7 @@ in /usr/local run something like::
     $ sudo python3 setup.py --prefix=/usr/local
 
 **ddupdate** can be installed in an virtualenv root by a regular user. To
-use the plugins in the venv in favor of the system ones add the proper
+use the plugins in the venv in favor of the system ones prepend the proper
 path to XDG\_DATA\_DIRS using something like::
 
     $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
@@ -53,8 +54,41 @@ path to XDG\_DATA\_DIRS using something like::
 See Packaging below for building proper native packages for Debian and
 Fedora. This is the preferred installation method on these platforms.
 
-Configuration
--------------
+Fast Track Configuration
+------------------------
+This is the fast track. When running into troubles, look into next
+chapter Full Configuration.
+
+Start with running *ddupdate --list-plugins services*. Pick a supported
+service, check it using *ddupdate --help <service>* and register on
+the relevant site. This should end up with a hostname, a user and a
+secret password.
+
+Using the info in *ddupdate --help <service>* create an entry in the
+*~/.netrc* file, something like::
+
+    machine  <service host> login <user> password <secret password>
+
+Give it proper permissions::
+
+    sudo chmod 600 ~/.netrc
+
+Assuming using the ipv4 address as seen from the net, update
+*/etc/ddupdate.conf* to something like::
+
+    [update]
+    address-plugin = web-default-ip
+    service-plugin = <<your service plugin>
+    hostname = <your hostname>
+    loglevel = info
+
+Now run *ddupdate* and check for errors.
+
+That's the main configuration, look below for Configuring systemd
+
+
+Full Configuration
+------------------
 
 Configuration is basically about selecting a plugin for a specific ddns
 service and possibly another plugin which provides the ip address to be
@@ -90,7 +124,7 @@ In any case, begin with listing all plugins::
     now-dns              Updates DNS data on now-dns.com
     system-ns            Updates DNS data on system-ns.com
 
-Next, pick an update plugin and check the help info, here dynu::
+Next, pick a service plugin and check the help info, here dynu::
 
     $ ddupdate --help dynu
     Name: dynu
@@ -150,6 +184,13 @@ any options.
 
 Configuring systemd
 -------------------
+If using a packaged version: make your  *~/.netrc*  available for the
+user running the service by copying it to the ddupdate user's home and
+give it proper permissions::
+
+    sudo cp ~/.netrc /var/lib/ddupdate
+    sudo chmod 600 /var/lib/ddupdate/.netrc
+    sudo chown ddupdate /var/lib/ddupdate/.netrc
 
 systemd is used to invoke ddupdate periodically. The safest bet is
 not to use the upstream systemd files. Do::
@@ -172,7 +213,7 @@ Configuring NetworkManager
 --------------------------
 
 NetworkManager can be configured to start/stop ddupdate when interfaces goes
-up or down. An example script to drop in /etc/NetworkManager/dispatcher.d
+up or down. An example script to drop in */etc/NetworkManager/dispatcher.d*
 is distributed in the package.
 
 Packaging
@@ -180,30 +221,31 @@ Packaging
 
 ddupdate has a multitude of packaging:
 
-  - ddupdate is available as a **pypi package** from the master branch. It
-    can be installed using pip::
+   - ddupdate is available as a **pypi package** from the master branch. It
+     can be installed using pip::
 
-        $ sudo pip install ddupdate --prefix=/usr
+         $ sudo pip install ddupdate --prefix=/usr
 
-  - **fedora** is packaged in the *fedora* branch. Building requires the
-    fedora toolchain in the *git*, *rpmdevtools* and *rpm-build* packages.
-    To build::
+   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
+     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
+     requires the fedora toolchain in the *git*, *rpmdevtools* and
+     *rpm-build* packages.  To build::
 
-        $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
-        $ cd ddupdate
-        $ spectool -g ddupdate.spec
-        $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
+         $ git clone -b fedora https://github.com/leamas/ddupdate.git
+         $ cd ddupdate
+         $ spectool -g ddupdate.spec
+         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
 
-    This creates both a source and a binary rpm package underneath *rpmbuild*.
+     This creates both a source and a binary rpm package underneath *rpmbuild*.
 
-  - The **debian** packaging is based on gbp and lives in the *debian* and
-    *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.0.5 do::
+   - The **debian** packaging is based on gbp and lives in the *debian* and
+     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
+     and *git*  are required to build. To build current version 0.0.6 do::
 
-        $ git clone -b debian https://github.com/leamas/ddupdate.git
-        $ cd ddupdate
-        $ gbp buildpackage --git-upstream-tag=0.0.5.
-        $ git clean -fd    # To be able to rebuild
+         $ git clone -b debian https://github.com/leamas/ddupdate.git
+         $ cd ddupdate
+         $ gbp buildpackage --git-upstream-tag=0.0.6.
+         $ git clean -fd    # To be able to rebuild
 
 Writing plugins
 ---------------
@@ -218,20 +260,20 @@ existing plugins and pick solutions from them. Some hints:
   - Each plugin must contain a main class derived from IpPlugin or
     UpdatePlugin. The class docstring is the *help <plugin>* documentation.
 
-  - The class \_name property is the official name of the plugin, must be
-    unique. \_oneliner is indeed the short summary displayed by
-    --list-plugins.
+  - The class ```_name``` property is the official name of the plugin, must
+    be unique. ```_oneliner``` is indeed the short summary displayed by
+    *--list-plugins*.
 
   - Authentication:
       - Some sites uses standard basic authentication. This is handled
-        by *http_basic_auth_setup* e. g., no_ip.py
-      - Others uses username + password in the url e. g., dnsexit.py
-      - Other uses hashed passwords, e. g., dynu.py
-      - API tokens are handled in e. g., duckdns.py
-      - Some have broken basic authentication, see now_dns.py
+        by *http_basic_auth_setup* e. g., ```no_ip.py```
+      - Others uses username + password in the url e. g., ```dnsexit.py```
+      - Other uses hashed passwords, e. g., ```dynu.py```
+      - API tokens are handled in e. g., ```duckdns.py```
+      - Some have broken basic authentication, see ```now_dns.py```
   - Most services uses a http GET request to set the data. See
-    freedns\_io.py for a http POST example.
+    ```freedns_io.py``` for a http POST example.
   - Reply decoding:
       - Most sites just returns some text, simple enough
-      - json: example in system_ns.py
-      - html: example in duiadns.py
+      - json: example in ```system_ns.py```
+      - html: example in ```duiadns.py```

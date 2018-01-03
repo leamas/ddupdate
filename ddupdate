@@ -1,14 +1,12 @@
 #!/usr/bin/python3
 
-# pylint: disable=invalid-name, wrong-import-position
+''' ddupdate main script, invokes ddupdate.main.main(). '''
 
 import os.path
 import sys
 
-home = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-
-sys.path.insert(0, os.path.join(home, 'lib'))
-os.chdir(home)
+HOME = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(HOME, 'lib'))
 
 try:
     import lib.ddupdate.main as main

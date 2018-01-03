@@ -48,7 +48,7 @@ class FreednsPlugin(UpdatePlugin):
             log.info("Consider using the ip-disabled plugin with freedns")
         shasum = build_shasum()
         url = self._url.format(shasum)
-        html = get_response(log, url)
+        html = get_response(log, url, self._socket_to)
         update_url = None
         for line in html.split("\n"):
             log.debug("Got line: " + line)
@@ -60,4 +60,4 @@ class FreednsPlugin(UpdatePlugin):
             raise UpdateError(
                 "Cannot see %s being set up at this account" % hostname)
         log.debug("Contacting freedns for update on %s", update_url)
-        get_response(log, update_url)
+        get_response(log, update_url, self._socket_to)

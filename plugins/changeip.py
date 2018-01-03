@@ -31,6 +31,6 @@ class ChangeIpPlugin(UpdatePlugin):
         if ip:
             url += "&ip=" + ip.v4
         http_basic_auth_setup(url, 'nic.ChangeIP.com')
-        html = get_response(log, url)
+        html = get_response(log, url, self._socket_to)
         if not'uccessful' in html:
             raise UpdateError("Bad update reply: " + html)

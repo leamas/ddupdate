@@ -1,3 +1,14 @@
+0.0.6:
+* Fixed several bugs in plugin load paths.
+* Fixed a bug in config file path computation.
+* Removed the generated file ddupdate.8.html from distribution
+* Added timeout handling in plugin http handling.
+* New plugin hardcoded-ip
+* Minor bugfixes in both plugins and central code.
+* Added fast-track configuration to README.md, clean up.
+* Cleaned up and refactored code in main module
+* Fixed a bug when symlinking the ddupdate script.
+
 0.0.5:
 * Added a NEWS file
 * Revised and cleaned up plugin interface.
