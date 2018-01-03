@@ -1,0 +1,1742 @@
+Description: Follow upstream to 0.0.6
+
+--- ddupdate-0.0.5~rc2.orig/Makefile
++++ ddupdate-0.0.5~rc2/Makefile
+@@ -4,15 +4,18 @@ GIT_DATE        = $(shell git log -1 --p
+ GIT_REFS        = $(shell git log -1 --pretty=format:%d || echo UNKNOWN)
+ GIT_DATE_ISO    = $(shell git log -1 --pretty=format:%ci || date +"%F %T")
+ 
++PYTHON_SRC      =  plugins lib/ddupdate setup.py ddupdate
++
+ pylint_template  = {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+ 
+ pylint: .phony
+ 	-PYTHONPATH=$(CURDIR)/lib \
+-	python3-pylint --rcfile=pylint.conf \
+-	--msg-template='$(pylint_template)' plugins \
+-	    lib/ddupdate/main.py lib/ddupdate/plugins_base.py  setup.py
++	    python3-pylint \
++	        --rcfile=pylint.conf \
++	        --msg-template='$(pylint_template)' \
++	        $(PYTHON_SRC)
+ 
+-pep8: plugins ddupdate lib/ddupdate/main.py lib/ddupdate/plugins_base.py setup.py
++pep8: $(PYTHON_SRC)
+ 	-python3-pep8 --config=pep8.conf $?
+ 
+ ddupdate.8.html: ddupdate.8
+@@ -25,6 +28,6 @@ dist: README.rst
+ 	python3 setup.py sdist
+ 
+ clean: .phony
+-	rm -rf install dist build *.egg-info
++	rm -rf install dist build *.egg-info lib/*.egg-info
+ 
+ .phony:
+--- ddupdate-0.0.5~rc2.orig/NEWS
++++ ddupdate-0.0.5~rc2/NEWS
+@@ -1,3 +1,14 @@
++0.0.6:
++* Fixed several bugs in plugin load paths.
++* Fixed a bug in config file path computation.
++* Removed the generated file ddupdate.8.html from distribution
++* Added timeout handling in plugin http handling.
++* New plugin hardcoded-ip
++* Minor bugfixes in both plugins and central code.
++* Added fast-track configuration to README.md, clean up.
++* Cleaned up and refactored code in main module
++* Fixed a bug when symlinking the ddupdate script.
++
+ 0.0.5:
+ * Added a NEWS file
+ * Revised and cleaned up plugin interface.
+--- ddupdate-0.0.5~rc2.orig/README.md
++++ ddupdate-0.0.5~rc2/README.md
+@@ -25,10 +25,11 @@ Dependencies
+ ------------
+ 
+ Just a few:
++
+    - python3 (tested on 3.6)
+    - python3-straight-plugin
+    - python3-setuptools
+-   - The /usr/bin/ip command is used in some plugins.
++   - The /usr/sbin/ip command is used in some plugins.
+ 
+ Installation
+ ------------
+@@ -37,7 +38,7 @@ Installation
+ directory. To make a test version possible to run from anywhere make a
+ symlink::
+ 
+-    $ ln -s $PWD/src/ddupdate§i/ddupdate $HOME/bin/ddupdate
++    $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
+ 
+ User installations are not supported. To make a local site installation
+ in /usr/local run something like::
+@@ -45,7 +46,7 @@ in /usr/local run something like::
+     $ sudo python3 setup.py --prefix=/usr/local
+ 
+ **ddupdate** can be installed in an virtualenv root by a regular user. To
+-use the plugins in the venv in favor of the system ones add the proper
++use the plugins in the venv in favor of the system ones prepend the proper
+ path to XDG\_DATA\_DIRS using something like::
+ 
+     $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
+@@ -53,8 +54,41 @@ path to XDG\_DATA\_DIRS using something
+ See Packaging below for building proper native packages for Debian and
+ Fedora. This is the preferred installation method on these platforms.
+ 
+-Configuration
+--------------
++Fast Track Configuration
++------------------------
++This is the fast track. When running into troubles, look into next
++chapter Full Configuration.
++
++Start with running *ddupdate --list-plugins services*. Pick a supported
++service, check it using *ddupdate --help <service>* and register on
++the relevant site. This should end up with a hostname, a user and a
++secret password.
++
++Using the info in *ddupdate --help <service>* create an entry in the
++*~/.netrc* file, something like::
++
++    machine  <service host> login <user> password <secret password>
++
++Give it proper permissions::
++
++    sudo chmod 600 ~/.netrc
++
++Assuming using the ipv4 address as seen from the net, update
++*/etc/ddupdate.conf* to something like::
++
++    [update]
++    address-plugin = web-default-ip
++    service-plugin = <<your service plugin>
++    hostname = <your hostname>
++    loglevel = info
++
++Now run *ddupdate* and check for errors.
++
++That's the main configuration, look below for Configuring systemd
++
++
++Full Configuration
++------------------
+ 
+ Configuration is basically about selecting a plugin for a specific ddns
+ service and possibly another plugin which provides the ip address to be
+@@ -90,7 +124,7 @@ In any case, begin with listing all plug
+     now-dns              Updates DNS data on now-dns.com
+     system-ns            Updates DNS data on system-ns.com
+ 
+-Next, pick an update plugin and check the help info, here dynu::
++Next, pick a service plugin and check the help info, here dynu::
+ 
+     $ ddupdate --help dynu
+     Name: dynu
+@@ -150,6 +184,13 @@ any options.
+ 
+ Configuring systemd
+ -------------------
++If using a packaged version: make your  *~/.netrc*  available for the
++user running the service by copying it to the ddupdate user's home and
++give it proper permissions::
++
++    sudo cp ~/.netrc /var/lib/ddupdate
++    sudo chmod 600 /var/lib/ddupdate/.netrc
++    sudo chown ddupdate /var/lib/ddupdate/.netrc
+ 
+ systemd is used to invoke ddupdate periodically. The safest bet is
+ not to use the upstream systemd files. Do::
+@@ -172,7 +213,7 @@ Configuring NetworkManager
+ --------------------------
+ 
+ NetworkManager can be configured to start/stop ddupdate when interfaces goes
+-up or down. An example script to drop in /etc/NetworkManager/dispatcher.d
++up or down. An example script to drop in */etc/NetworkManager/dispatcher.d*
+ is distributed in the package.
+ 
+ Packaging
+@@ -180,30 +221,31 @@ Packaging
+ 
+ ddupdate has a multitude of packaging:
+ 
+-  - ddupdate is available as a **pypi package** from the master branch. It
+-    can be installed using pip::
++   - ddupdate is available as a **pypi package** from the master branch. It
++     can be installed using pip::
+ 
+-        $ sudo pip install ddupdate --prefix=/usr
++         $ sudo pip install ddupdate --prefix=/usr
+ 
+-  - **fedora** is packaged in the *fedora* branch. Building requires the
+-    fedora toolchain in the *git*, *rpmdevtools* and *rpm-build* packages.
+-    To build::
+-
+-        $ git clone -b fedora git clone https://github.com/leamas/ddupdate.git
+-        $ cd ddupdate
+-        $ spectool -g ddupdate.spec
+-        $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
+-
+-    This creates both a source and a binary rpm package underneath *rpmbuild*.
+-
+-  - The **debian** packaging is based on gbp and lives in the *debian* and
+-    *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
+-    and *git*  are required to build. To build current version 0.0.5 do::
+-
+-        $ git clone -b debian https://github.com/leamas/ddupdate.git
+-        $ cd ddupdate
+-        $ gbp buildpackage --git-upstream-tag=0.0.5.
+-        $ git clean -fd    # To be able to rebuild
++   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
++     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
++     requires the fedora toolchain in the *git*, *rpmdevtools* and
++     *rpm-build* packages.  To build::
++
++         $ git clone -b fedora https://github.com/leamas/ddupdate.git
++         $ cd ddupdate
++         $ spectool -g ddupdate.spec
++         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
++
++     This creates both a source and a binary rpm package underneath *rpmbuild*.
++
++   - The **debian** packaging is based on gbp and lives in the *debian* and
++     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
++     and *git*  are required to build. To build current version 0.0.6 do::
++
++         $ git clone -b debian https://github.com/leamas/ddupdate.git
++         $ cd ddupdate
++         $ gbp buildpackage --git-upstream-tag=0.0.6.
++         $ git clean -fd    # To be able to rebuild
+ 
+ Writing plugins
+ ---------------
+@@ -218,20 +260,20 @@ existing plugins and pick solutions from
+   - Each plugin must contain a main class derived from IpPlugin or
+     UpdatePlugin. The class docstring is the *help <plugin>* documentation.
+ 
+-  - The class \_name property is the official name of the plugin, must be
+-    unique. \_oneliner is indeed the short summary displayed by
+-    --list-plugins.
++  - The class ```_name``` property is the official name of the plugin, must
++    be unique. ```_oneliner``` is indeed the short summary displayed by
++    *--list-plugins*.
+ 
+   - Authentication:
+       - Some sites uses standard basic authentication. This is handled
+-        by *http_basic_auth_setup* e. g., no_ip.py
+-      - Others uses username + password in the url e. g., dnsexit.py
+-      - Other uses hashed passwords, e. g., dynu.py
+-      - API tokens are handled in e. g., duckdns.py
+-      - Some have broken basic authentication, see now_dns.py
++        by *http_basic_auth_setup* e. g., ```no_ip.py```
++      - Others uses username + password in the url e. g., ```dnsexit.py```
++      - Other uses hashed passwords, e. g., ```dynu.py```
++      - API tokens are handled in e. g., ```duckdns.py```
++      - Some have broken basic authentication, see ```now_dns.py```
+   - Most services uses a http GET request to set the data. See
+-    freedns\_io.py for a http POST example.
++    ```freedns_io.py``` for a http POST example.
+   - Reply decoding:
+       - Most sites just returns some text, simple enough
+-      - json: example in system_ns.py
+-      - html: example in duiadns.py
++      - json: example in ```system_ns.py```
++      - html: example in ```duiadns.py```
+--- /dev/null
++++ ddupdate-0.0.5~rc2/build/lib/ddupdate/__init__.py
+@@ -0,0 +1 @@
++# Empty placeholder
+--- /dev/null
++++ ddupdate-0.0.5~rc2/build/lib/ddupdate/main.py
+@@ -0,0 +1,366 @@
++
++''' Update DNS data for dynamically ip addresses  '''
++
++import argparse
++import configparser
++import logging
++import math
++import os
++import os.path
++import stat
++import sys
++import time
++
++from straight.plugin import load
++
++from ddupdate.plugins_base import IpPlugin, IpLookupError
++from ddupdate.plugins_base import UpdatePlugin, UpdateError
++
++if 'XDG_CACHE_HOME' in os.environ:
++    CACHE_DIR = os.environ['XDG_CACHE_HOME']
++else:
++    CACHE_DIR = os.path.expanduser('~/.cache')
++
++DEFAULTS = {
++    'hostname': 'host.nowhere.net',
++    'ip-plugin': 'default-if',
++    'service-plugin': 'dry-run',
++    'loglevel': 'info',
++    'options': None,
++    'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
++    'force': False
++}
++
++
++class _GoodbyeError(Exception):
++    """ General error, implies sys.exit() """
++
++    def __init__(self, msg="", exitcode=0):
++        Exception.__init__(self, msg)
++        self.exitcode = exitcode
++        self.msg = msg
++
++
++def envvar_default(var, default=None):
++    ''' Return var if found in environment, else default. '''
++    return os.environ[var] if var in os.environ else default
++
++
++def ip_cache_setup(opts):
++    ''' Ensure that our cache directory exists, return cache file path '''
++    if not os.path.exists(opts.ip_cache):
++        os.makedirs(opts.ip_cache)
++    return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
++
++
++def ip_cache_clear(opts, log):
++    ''' Remove the cache file for actual service plugin in opts. '''
++    path = ip_cache_setup(opts)
++    if not os.path.exists(path):
++        return
++    log.debug("Removing cache file: " + path)
++    os.unlink(path)
++
++
++def ip_cache_data(opts, default=("0.0.0.0", 100000)):
++    ''' Return  a (address, cache age in minute) tuples. If not existing,
++    the default value is returned.
++    '''
++    path = ip_cache_setup(opts)
++    if not os.path.exists(path):
++        return default
++    mtime = os.stat(path)[stat.ST_MTIME]
++    now = time.time()
++    delta = math.floor((now - mtime) / 60)
++    with open(path) as f:
++        addr = f.read().strip()
++    return addr, delta
++
++
++def ip_cache_set(opts, addr):
++    ''' Set the cached address to string addr. '''
++
++    path = ip_cache_setup(opts)
++    addr = addr if addr else "0.0.0.0"
++    with open(path, "w") as f:
++        f.write(addr.str())
++
++
++def here(path):
++    ' Return path added to current dir for __file__. '
++    return os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
++
++
++def parse_conffile(log):
++    ' Parse config file path, returns verified path or None. '
++    path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
++    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
++        path = '/etc/ddupdate.conf'
++    for i in range(len(sys.argv)):
++        arg = sys.argv[i]
++        if arg.startswith('-c') or arg.startswith('--conf'):
++            if arg.startswith('-c') and len(arg) > 2:
++                path = arg[2:]
++            elif '=' in arg:
++                path = arg.split('=')[1]
++            elif i < len(sys.argv) - 1:
++                path = sys.argv[i + 1]
++            else:
++                # Trust that the regular parsing handles the error.
++                return None
++    if not os.access(path, os.R_OK):
++        log.warning("Cannot open config file '%s' for read", path)
++        return None
++    return path
++
++
++def parse_config(path, log):
++    ' Parse config file, return fully populated dict of key-values '
++    results = {}
++    config = configparser.ConfigParser()
++    config.read(path)
++    if 'update' not in config:
++        log.warning(
++            'No [update] section found in %s, file ignored', path)
++        items = {}
++    else:
++        items = config['update']
++    for key in DEFAULTS:
++        if key not in items:
++            results[key] = DEFAULTS[key]
++        else:
++            results[key] = items[key]
++    return results
++
++
++def get_parser(conf):
++    ''' Construct the argparser. '''
++    parser = argparse.ArgumentParser(
++        prog='ddupdate',
++        add_help=False,
++        description="Tool to update DNS data for dynamic ip addresses")
++    normals = parser.add_argument_group()
++    normals.title = "Normal operation options"
++    normals.add_argument(
++        "-H", "--hostname", metavar="host",
++        help='Hostname to update [host.nowhere.net]',
++        default=conf['hostname'])
++    normals.add_argument(
++        "-s", "--service-plugin", metavar="plugin",
++        help='Service plugin used to actually update a dns hostname address',
++        default=conf['service-plugin'])
++    normals.add_argument(
++        "-i", "--ip-plugin", metavar="plugin",
++        help='Ip plugin used to obtain the ip address to use',
++        default=conf['ip-plugin'])
++    normals.add_argument(
++        "-c", "--config-file", metavar="path",
++        help='Config file with default values for all options'
++        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
++        + ':/etc/dupdate.conf]',
++        dest='config_file', default='/etc/ddupdate.conf')
++    normals.add_argument(
++        "-L", "--loglevel", metavar='level',
++        choices=['error', 'warning', 'info', 'debug'],
++        help='Amount of printed diagnostics [warning]',
++        default=conf['loglevel'])
++    normals.add_argument(
++        "-o", "--option", metavar="plugin option",
++        help='Plugin option (enter multiple times if required)',
++        dest='options', action='append')
++    others = parser.add_argument_group()
++    others.title = "Other options"
++    others.add_argument(
++        "-l", "--list-plugins", metavar="kind",
++        choices=['services', 'ip-plugins', 'all'],
++        help='List plugins of given kind: '
++        + 'ip-plugins, services or all  [all]',
++        const='all', nargs='?')
++    others.add_argument(
++        "-f", "--force",
++        help='Force run even if the cache is fresh',
++        default=False, action='store_true')
++    others.add_argument(
++        "-h", "--help", metavar="plugin",
++        help='Print overall help or help for given plugin',
++        nargs='?', const='-')
++    others.add_argument(
++        "-v", "--version",
++        help='Print ddupdate version and exit',
++        action='version')
++    return parser
++
++
++def parse_options(conf):
++    ''' Parse command line using conf as defaults, return namespace. '''
++    level_by_name = {
++        'error': logging.ERROR,
++        'warn': logging.WARNING,
++        'warning': logging.WARNING,
++        'info': logging.INFO,
++        'debug': logging.DEBUG,
++    }
++    parser = get_parser(conf)
++    parser.version = "0.0.5"
++    opts = parser.parse_args()
++    if opts.help == '-':
++        parser.print_help()
++        raise _GoodbyeError()
++    if not opts.options:
++        opts.options = conf['options']
++    opts.loglevel = level_by_name[opts.loglevel]
++    opts.ip_cache = conf['ip-cache']
++    return opts
++
++
++def log_setup():
++    ' Setup the module log. '
++    log = logging.getLogger('ddupdate')
++    log.setLevel(logging.DEBUG)
++    handler = logging.StreamHandler()
++    handler.setLevel(logging.INFO)
++    formatter = logging.Formatter("%(levelname)s - %(message)s")
++    handler.setFormatter(formatter)
++    log.addHandler(handler)
++    return log
++
++
++def log_options(log, args):
++    ' Print some info on seledted options. '
++    log.info("Loglevel: " + logging.getLevelName(args.loglevel))
++    log.info("Using hostname: " + args.hostname)
++    log.info("Using ip address plugin: " + args.ip_plugin)
++    log.info("Using service plugin: " + args.service_plugin)
++    log.info("Plugin options: "
++             + (' '.join(args.options) if args.options else ''))
++
++
++def load_plugins(path, log):
++    ''' Load ip and service plugins into dicts keyed by name. '''
++    sys.path.insert(0, path)
++    getters = load('plugins', subclasses=IpPlugin)
++    getters = getters.produce()
++    getters_by_name = {plug.name(): plug for plug in getters}
++    setters = load('plugins', UpdatePlugin)
++    setters = setters.produce()
++    setters_by_name = {plug.name(): plug for plug in setters}
++    sys.path.pop(0)
++    log.debug("Loaded %d address and %d service plugins from %s",
++              len(getters), len(setters), path)
++    return getters_by_name, setters_by_name
++
++
++def list_plugins(ip_plugins, service_plugins, kind):
++    ''' List all loaded plugins (noreturn). '''
++    if kind == 'all' or kind.startswith('i'):
++        for name, plugin in sorted(ip_plugins.items()):
++            print("%-20s %s" % (name, plugin.oneliner()))
++    if kind == 'all' or kind.startswith('s'):
++        for name, plugin in sorted(service_plugins.items()):
++            print("%-20s %s" % (name, plugin.oneliner()))
++
++
++def plugin_help(ip_plugins, service_plugins, plugid):
++    ''' print full help for given plugin (noreturn).'''
++    if plugid in ip_plugins:
++        plugin = ip_plugins[plugid]
++    elif plugid in service_plugins:
++        plugin = service_plugins[plugid]
++    else:
++        raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
++    print("Name: " + plugin.name())
++    print("Source: " + plugin.sourcefile() + "\n")
++    print(plugin.info())
++
++
++def build_load_path(log):
++    ''' Return list of paths to load plugins from. '''
++    paths = []
++    paths.append(envvar_default('XDG_DATA_HOME',
++                                os.path.expanduser('~/.local/share')))
++    syspaths = envvar_default('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
++    paths.extend(syspaths.split(':'))
++    paths = [os.path.join(p, 'ddupdate') for p in paths]
++    paths.insert(0, os.getcwd())
++    log.debug('paths :%s', ':'.join(paths))
++    return paths
++
++
++def setup():
++    ''' Return a standard log, arg_parser tuple. '''
++    log = log_setup()
++    conffile_path = parse_conffile(log)
++    conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
++    opts = parse_options(conf)
++    log.handlers[0].setLevel(opts.loglevel)
++    log.debug('Using config file: %s', conffile_path)
++    log_options(log, opts)
++    return log, opts
++
++
++def get_plugins(log, opts):
++    ''' Handle list_plugins, help <plugin> or return the ip and service
++    plugin.
++   .'''
++    ip_plugins = {}
++    service_plugins = {}
++    load_paths = build_load_path(log)
++    for path in load_paths:
++        getters, setters = load_plugins(path, log)
++        ip_plugins.update(getters)
++        service_plugins.update(setters)
++    if opts.list_plugins:
++        list_plugins(ip_plugins, service_plugins, opts.list_plugins)
++        raise _GoodbyeError()
++    elif opts.help and opts.help != '-':
++        plugin_help(ip_plugins, service_plugins, opts.help)
++        raise _GoodbyeError()
++    elif opts.ip_plugin not in ip_plugins:
++        raise _GoodbyeError('No such ip plugin: ' + opts.ip_plugin, 2)
++    elif opts.service_plugin not in service_plugins:
++        raise _GoodbyeError(
++            'No such service plugin: ' + opts.service_plugin, 2)
++    service_plugin = service_plugins[opts.service_plugin]
++    ip_plugin = ip_plugins[opts.ip_plugin]
++    return ip_plugin, service_plugin
++
++
++def main():
++    ''' Indeed: main function. '''
++    try:
++        log, opts = setup()
++        ip_plugin, service_plugin = get_plugins(log, opts)
++        try:
++            ip = ip_plugin.get_ip(log, opts.options)
++        except IpLookupError as err:
++            raise _GoodbyeError("Cannot obtain ip address: " + err, 3)
++        if not ip or ip.empty():
++            log.info("Using ip address provided by update service")
++            ip = None
++        else:
++            log.info("Using ip address: %s", ip.str())
++        if opts.force:
++            ip_cache_clear(opts, log)
++        addr, age = ip_cache_data(opts)
++        if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
++            log.info("Update inhibited, cache is fresh (%d/%d min)",
++                     age, service_plugin.ip_cache_ttl)
++            raise _GoodbyeError()
++    except _GoodbyeError as err:
++        if err.exitcode != 0:
++            log.error(err.msg)
++        sys.exit(err.exitcode)
++    try:
++        service_plugin.register(log, opts.hostname, ip, opts.options)
++    except UpdateError as err:
++        log.error("Cannot update DNS data: %s", err)
++    else:
++        ip_cache_set(opts, ip)
++        log.info("Update OK")
++
++
++if __name__ == '__main__':
++    main()
++
++
++# vim: set expandtab ts=4 sw=4:
+--- /dev/null
++++ ddupdate-0.0.5~rc2/build/lib/ddupdate/plugins_base.py
+@@ -0,0 +1,202 @@
++''' ddclient plugin base classes and common code. '''
++
++import inspect
++import os.path
++
++import urllib.request
++from urllib.parse import urlencode
++
++from socket import timeout as timeoutError
++from netrc import netrc
++
++
++def http_basic_auth_setup(url, host):
++    ''' Setup urllib to provide user/pw from netrc on url. '''
++    user, password = get_netrc_auth(host)
++    pwmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
++    pwmgr.add_password(None, url, user, password)
++    auth_handler = urllib.request.HTTPBasicAuthHandler(pwmgr)
++    opener = urllib.request.build_opener(auth_handler)
++    urllib.request.install_opener(opener)
++
++
++def dict_of_opts(options):
++    ''' Convert list of options to a dict. '''
++    if not options:
++        return {}
++    result = {}
++    for opt in options:
++        if '=' in opt:
++            key, value = opt.split('=')
++            result[key] = value
++        else:
++            result[opt] = True
++    return result
++
++
++def get_response(log, url, to=120, data=None):
++    '''
++    Read from url and return html. If data is not None, this makes
++    a http post request wuth the data, a dict, as form data. Otherwise,
++    it is a http get.
++
++    Raises UpdateError if return code is != 200 or timeout.
++    '''
++    log.debug("Trying url: %s", url)
++    form_data = urlencode(data).encode() if data else None
++    if data:
++        log.debug("Posting data: " + form_data.decode('ascii'))
++    try:
++        with urllib.request.urlopen(url, form_data, timeout=to) as response:
++            code = response.getcode()
++            html = response.read().decode('ascii')
++    except timeoutError:
++        raise UpdateError("Timeout reading %s" % url)
++    except urllib.error.HTTPError as err:
++        raise UpdateError("Error reading %s :%s" % (url, err))
++    log.debug("Got response (%d) : %s", code, html)
++    if code != 200:
++        raise UpdateError("Cannot update, response code: %d", code)
++    return html
++
++
++def get_netrc_auth(machine):
++    ''' Return a (user, password) tuple based on ~/-netrc or /etc/netrc. '''
++    if os.path.exists(os.path.expanduser('~/.netrc')):
++        path = os.path.expanduser('~/.netrc')
++    elif os.path.exists('/etc/netrc'):
++        path = '/etc/netrc'
++    auth = netrc(path).authenticators(machine)
++    if not auth[2]:
++        raise UpdateError("No password found for " + machine)
++    return auth[0], auth[2]
++
++
++class IpAddr(object):
++    ''' An (ip4, ipv6) collection. '''
++
++    def __init__(self, ipv4=None, ipv6=None):
++        self.v4 = ipv4
++        self.v6 = ipv6
++
++    def str(self):
++        ''' Standard str() returns a printable representation. '''
++        s1 = self.v4 if self.v4 else 'None'
++        s2 = self.v6 if self.v6 else 'None'
++        return '[%s, %s]' % (s1, s2)
++
++    def __eq__(self, obj):
++        if not isinstance(obj, IpAddr):
++            return False
++        return obj.v4 == self.v4 and obj.v6 == self.v6
++
++    def __hash__(self):
++        return hash(self.v4, self.v6)
++
++    def empty(self):
++        ''' Check if any address is set. '''
++        return self.v4 is None and self.v6 is None
++
++    def parse_ifconfig_output(self, text):
++        ''' Parse ifconfig <dev> or ip address show dev <dev> output. '''
++        use_next4 = False
++        use_next6 = False
++        for word in text.split():
++            if use_next4:
++                self.v4 = word.split('/')[0]
++            if use_next6:
++                self.v6 = word.split('/')[0]
++            use_next4 = word == 'inet'
++            use_next6 = word == 'inet6'
++        if self.empty():
++            raise IpLookupError("Cannot find address for %s, giving up", text)
++
++
++class IpLookupError(Exception):
++    """ General error in IpPlugin """
++
++    def __init__(self, value, exitcode=1, silent=False):
++        Exception.__init__(self, value)
++        self.value = value
++        self.exitcode = exitcode
++        self.silent = silent
++        self.show_logs = True
++
++    def __str__(self):
++        """ Represent the error. """
++        return repr(self.value)
++
++
++class UpdateError(IpLookupError):
++    """ General error in UpdatePlugin """
++    pass
++
++
++class AbstractPlugin(object):
++    ''' Abstract base for all plugins. '''
++
++    _name = None
++    _oneliner = 'No info found'
++    __version__ = '0.0.5'
++
++    def oneliner(self):
++        ''' Return oneliner describing the plugin. '''
++        return self._oneliner
++
++    def info(self):
++        ''' Return full, formatted user info; in particular, options
++        used.
++        '''
++        return inspect.getdoc(self)
++
++    def name(self):
++        ''' Returns short name (no spaces). Returning None implies
++        not-a-plugin.
++        '''
++        return self._name
++
++    def version(self):
++        ''' Return plugin version. '''
++        return self.__version__
++
++    # pylint: disable=unused-argument,no-self-use
++    def sourcefile(self):
++        ''' Return module sourcefile. '''
++        return __file__
++
++
++class IpPlugin(AbstractPlugin):
++    ''' An abstract plugin obtaining the ip address. '''
++
++    def get_ip(self, log, options):
++        ''' Given the list of --option options and a log, return
++            an IpAddr or None. Raises IpLookupError on errors.
++        '''
++        raise NotImplementedError("Attempt to invoke abstract get_ip()")
++
++
++class UpdatePlugin(AbstractPlugin):
++    ''' An abstract plugin doing the actual update work using a service. '''
++
++    _ip_cache_ttl = 120    # 2 hours, address cache timeout
++    _socket_to = 120       # 2 min, timeout reading host
++
++    def __init__(self):
++        AbstractPlugin.__init__(self)
++
++    def ip_cache_ttl(self):
++        ''' Return time when ip cache expires, in minutes from creation.
++        '''
++        return self._ip_cache_ttl
++
++    def register(self, log, hostname, ip, options):
++        ''' Given configuration, address and log do the actual update.
++            Parameters:
++              - log: standard python log instance
++              - hostname - string, the DNS name to register
++              - ip: Address to register
++              - opts: list of --option values.
++            Raises:
++              - UpdateError on errors.
++        '''
++        raise NotImplementedError("Attempt to invoke abstract register()")
+--- /dev/null
++++ ddupdate-0.0.5~rc2/build/scripts-3.6/ddupdate
+@@ -0,0 +1,16 @@
++#!/usr/bin/python3
++
++''' ddupdate main script, invokes ddupdate.main.main(). '''
++
++import os.path
++import sys
++
++HOME = os.path.abspath(os.path.dirname(__file__))
++sys.path.insert(0, os.path.join(HOME, 'lib'))
++
++try:
++    import lib.ddupdate.main as main
++except ModuleNotFoundError:
++    import ddupdate.main as main
++
++main.main()
+--- ddupdate-0.0.5~rc2.orig/ddupdate
++++ ddupdate-0.0.5~rc2/ddupdate
+@@ -1,14 +1,12 @@
+ #!/usr/bin/python3
+ 
+-# pylint: disable=invalid-name, wrong-import-position
++''' ddupdate main script, invokes ddupdate.main.main(). '''
+ 
+ import os.path
+ import sys
+ 
+-home = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+-
+-sys.path.insert(0, os.path.join(home, 'lib'))
+-os.chdir(home)
++HOME = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
++sys.path.insert(0, os.path.join(HOME, 'lib'))
+ 
+ try:
+     import lib.ddupdate.main as main
+--- ddupdate-0.0.5~rc2.orig/ddupdate.8
++++ ddupdate-0.0.5~rc2/ddupdate.8
+@@ -6,9 +6,9 @@
+ .B ddupdate
+ [\fIoptions\fR]
+ .SH DESCRIPTION
+-A tool to update dynamic IP addresses typically obtaineor d using DHCP at
+-dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
+-The goal is that it should be possible to access a machine with a fixed
++A tool to update dynamic IP addresses typically obtained using DHCP with
++dynamic DNS service providers such as changeip.com, duckdns.org no-ip.com.
++It makes it possible to access a machine with a fixed
+ name like myhost.duckdns.org even if the ip address changes.
+ \fBddupdate\fR caches the address, and only attempts the update if the address
+ actually is changed.
+@@ -214,3 +214,9 @@ Cached address from last update with an
+ update service.
+ Setting the XDG_CACHE_HOME environment variable relocates these files to
+ $XDG_CACHE_HOME/ddupdate/*.
++
++.SH "SEE ALSO"
++.TP 4
++.B  https://github.com/leamas/ddupdate
++Project homesite and README
++
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate.egg-info/PKG-INFO
+@@ -0,0 +1,296 @@
++Metadata-Version: 1.1
++Name: ddupdate
++Version: 0.0.5
++Summary: Update dns data for dynamic ip addresses
++Home-page: http://github.com/leamas/ddupdate
++Author: Alec Leamas
++Author-email: alec.leamas@nowhere.net
++License: MIT
++Description-Content-Type: UNKNOWN
++Description: ddupdate - update dns data for dynamic ip addresses.
++        ====================================================
++        
++        General
++        -------
++        
++        ddupdate is a tool for automatically updating dns data for a system using
++        for example  DHCP. The goal is it should be possible to access a system with
++        a fixed dns name such as myhost.somewhere.net even if the IP address is
++        changed. Another goal is tp provide a flexible, user-friendly, maintainable
++        and linux-centric alternative to the ubiquitous ddclient.
++        
++        
++        Status
++        ------
++        
++        Like... well, alpha. Fresh code, here is probably bugs lurking around.
++        That said, it supports more than 10 services including  duckdns,
++        afraid.org, no-ip.com and dynu.com. Ip addresses to register can be
++        retrieved in a multitude of ways from none at all (trusting the service
++        provider) to the generic 'cmd' plugin which can use the output from a
++        command.
++        
++        Dependencies
++        ------------
++        
++        Just a few:
++        
++           - python3 (tested on 3.6)
++           - python3-straight-plugin
++           - python3-setuptools
++           - The /usr/sbin/ip command is used in some plugins.
++        
++        Installation
++        ------------
++        
++        **ddupdate** can be run as a regular user straight off the cloned git
++        directory. To make a test version possible to run from anywhere make a
++        symlink::
++        
++            $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
++        
++        User installations are not supported. To make a local site installation
++        in /usr/local run something like::
++        
++            $ sudo python3 setup.py --prefix=/usr/local
++        
++        **ddupdate** can be installed in an virtualenv root by a regular user. To
++        use the plugins in the venv in favor of the system ones prepend the proper
++        path to XDG\_DATA\_DIRS using something like::
++        
++            $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
++        
++        See Packaging below for building proper native packages for Debian and
++        Fedora. This is the preferred installation method on these platforms.
++        
++        Fast Track Configuration
++        ------------------------
++        This is the fast track. When running into troubles, look into next
++        chapter Full Configuration.
++        
++        Start with running *ddupdate --list-plugins services*. Pick a supported
++        service, check it using *ddupdate --help <service>* and register on
++        the relevant site. This should end up with a hostname, a user and a
++        secret password.
++        
++        Using the info in *ddupdate --help <service>* create an entry in the
++        *~/.netrc* file, something like::
++        
++            machine  <service host> login <user> password <secret password>
++        
++        Give it proper permissions::
++        
++            sudo chmod 600 ~/.netrc
++        
++        Assuming using the ipv4 address as seen from the net, update
++        */etc/ddupdate.conf* to something like::
++        
++            [update]
++            address-plugin = web-default-ip
++            service-plugin = <<your service plugin>
++            hostname = <your hostname>
++            loglevel = info
++        
++        Now run *ddupdate* and check for errors.
++        
++        That's the main configuration, look below for Configuring systemd
++        
++        
++        Full Configuration
++        ------------------
++        
++        Configuration is basically about selecting a plugin for a specific ddns
++        service and possibly another plugin which provides the ip address to be
++        registered. Some plugins needs specific plugin options.
++        
++        First question is what kind of ip address which should be registered. The
++        most common case is to use the address as seen from the internet to make
++        it possible for users on internet to access the machine.
++        
++        Another case is when using DHCP addresses on an internal network behind
++        a router and the machine should be reached by users on this network.
++        In this case the machine's real address should be registered.
++        
++        In any case, begin with listing all plugins::
++        
++            $ ddupdate --list-plugins ip-plugins
++            ip-disabled          Force update service to provide ip address
++            ip-from-command      Obtain address from a command
++            default-if           Get ip address from default interface (linux)
++            default-web-ip       Obtain external address as seen from the net
++            hardcoded-if         Get address from a configuration option
++            $ ddupdate --list-plugins services
++            changeip             Updates DNS data on changeip.com
++            dnsexit              Updates DNS data on www.dnsexit.com
++            dry-run              Debug dummy update plugin
++            dtdns                Updates DNS data on dtdns.com
++            duckdns              Updates DNS data on duckdns.org
++            duiadns              Updates DNS data on duiadns.com
++            dynu                 Updates DNS data on dynu.com
++            freedns.afraid       Updates DNS data on freedns.afraid.org
++            freedns.io           Updates DNS data on freedns.io
++            no-ip                Updates DNS data on no-ip.com
++            now-dns              Updates DNS data on now-dns.com
++            system-ns            Updates DNS data on system-ns.com
++        
++        Next, pick a service plugin and check the help info, here dynu::
++        
++            $ ddupdate --help dynu
++            Name: dynu
++            Source: /home/al/src/ddupdate/src/ddupdate/plugins/plugins_base.py
++        
++            Update a dns entry on dynu.com
++        
++            Supports ip address discovery and can thus work with the ip-disabled
++            plugin.
++        
++            .netrc: Use a line like:
++                machine api.dynu.com login <username> password <password>
++        
++            Options:
++                none
++        
++        If all looks good, register on dynu.com. This will end up in a hostname,
++        username and password. Create an entry in the *~/.netrc*  file like::
++        
++            machine api.dynu.com login <username> password <secret>
++        
++        Note that this file must be protected for other users (otherwise no tools
++        will accept it). Do::
++        
++            $ chmod 600 ~/.netrc
++        
++        Now, let's select the plugin which provides the ip address to register.
++        For the default case, the default-web-ip plugin generates the address as
++        seen from the network. This can be tested using::
++        
++            $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
++            dry-run: Using address 90.224.208.212 and hostname host.nowhere.net
++        
++        All looks good. Now, let's try to actually update that hostname on dynu.com::
++        
++            $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
++              --hostname myhost.dynu.net -L info
++            INFO - Loglevel: INFO
++            INFO - Using hostname: myhost.dynu.net
++            INFO - Using ip address plugin: default-web-ip
++            INFO - Using service plugin: dynu
++            INFO - Plugin options:
++            INFO - Using ip address: 90.224.208.212
++            INFO - Update OK
++        
++        Again fine. Update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
++        something like::
++        
++            [update]
++            address-plugin = web-default-ip
++            service-plugin = dynu
++            hostname = myhost.dynu.net
++            loglevel = info
++        
++        After which it should be possible to just invoke *ddupdate* without
++        any options.
++        
++        Configuring systemd
++        -------------------
++        If using a packaged version: make your  *~/.netrc*  available for the
++        user running the service by copying it to the ddupdate user's home and
++        give it proper permissions::
++        
++            sudo cp ~/.netrc /var/lib/ddupdate
++            sudo chmod 600 /var/lib/ddupdate/.netrc
++            sudo chown ddupdate /var/lib/ddupdate/.netrc
++        
++        systemd is used to invoke ddupdate periodically. The safest bet is
++        not to use the upstream systemd files. Do::
++        
++            $ sudo cp /lib/systemd/system/ddupdate* /etc/systemd/system
++        
++        Check the two /etc files, in particular for paths. Test the service and
++        the logged info::
++        
++            $ sudo systemctl daemon-reload
++            $ sudo systemcl start ddupdate.service
++            $ sudo journalctl -u ddupdate.service
++        
++        When all is fine make sure ddupdate is run hourly using::
++        
++            $ sudo systemctl start ddupdate.timer
++            $ sudo systemctl enable ddupdate.timer
++        
++        Configuring NetworkManager
++        --------------------------
++        
++        NetworkManager can be configured to start/stop ddupdate when interfaces goes
++        up or down. An example script to drop in */etc/NetworkManager/dispatcher.d*
++        is distributed in the package.
++        
++        Packaging
++        ---------
++        
++        ddupdate has a multitude of packaging:
++        
++           - ddupdate is available as a **pypi package** from the master branch. It
++             can be installed using pip::
++        
++                 $ sudo pip install ddupdate --prefix=/usr
++        
++           - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
++             at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
++             requires the fedora toolchain in the *git*, *rpmdevtools* and
++             *rpm-build* packages.  To build::
++        
++                 $ git clone -b fedora https://github.com/leamas/ddupdate.git
++                 $ cd ddupdate
++                 $ spectool -g ddupdate.spec
++                 $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
++        
++             This creates both a source and a binary rpm package underneath *rpmbuild*.
++        
++           - The **debian** packaging is based on gbp and lives in the *debian* and
++             *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
++             and *git*  are required to build. To build current version 0.0.5 do::
++        
++                 $ git clone -b debian https://github.com/leamas/ddupdate.git
++                 $ cd ddupdate
++                 $ gbp buildpackage --git-upstream-tag=0.0.5.
++                 $ git clean -fd    # To be able to rebuild
++        
++        Writing plugins
++        ---------------
++        
++        Writing plugins is not hard. Most plugins are about 10-20 lines of code +
++        docs, most of which boilerplate stuff. The best way is to look at the
++        existing plugins and pick solutions from them. Some hints:
++        
++          - Before writing the plugin, make tests with wget or curl to make
++            sure how the api works. Essential step, this one.
++        
++          - Each plugin must contain a main class derived from IpPlugin or
++            UpdatePlugin. The class docstring is the *help <plugin>* documentation.
++        
++          - The class ```_name``` property is the official name of the plugin, must
++            be unique. ```_oneliner``` is indeed the short summary displayed by
++            *--list-plugins*.
++        
++          - Authentication:
++              - Some sites uses standard basic authentication. This is handled
++                by *http_basic_auth_setup* e. g., ```no_ip.py```
++              - Others uses username + password in the url e. g., ```dnsexit.py```
++              - Other uses hashed passwords, e. g., ```dynu.py```
++              - API tokens are handled in e. g., ```duckdns.py```
++              - Some have broken basic authentication, see ```now_dns.py```
++          - Most services uses a http GET request to set the data. See
++            ```freedns_io.py``` for a http POST example.
++          - Reply decoding:
++              - Most sites just returns some text, simple enough
++              - json: example in ```system_ns.py```
++              - html: example in ```duiadns.py```
++        
++Keywords: dyndns,dhcp,dns
++Platform: UNKNOWN
++Classifier: Development Status :: 3 - Alpha
++Classifier: Intended Audience :: End Users/Desktop
++Classifier: Topic :: System :: Networking
++Classifier: License :: OSI Approved :: MIT License
++Classifier: Programming Language :: Python :: 3.4
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate.egg-info/SOURCES.txt
+@@ -0,0 +1,38 @@
++LICENSE.txt
++NEWS
++README.md
++ddupdate
++ddupdate.8
++ddupdate.conf
++setup.py
++dispatcher.d/50-ddupdate
++lib/ddupdate/__init__.py
++lib/ddupdate/main.py
++lib/ddupdate/plugins_base.py
++lib/ddupdate.egg-info/PKG-INFO
++lib/ddupdate.egg-info/SOURCES.txt
++lib/ddupdate.egg-info/dependency_links.txt
++lib/ddupdate.egg-info/requires.txt
++lib/ddupdate.egg-info/top_level.txt
++plugins/changeip.py
++plugins/default_if.py
++plugins/default_web.py
++plugins/dnsexit.py
++plugins/dry_run.py
++plugins/dtdns.py
++plugins/duckdns.py
++plugins/duiadns.py
++plugins/dynu.py
++plugins/dynv6_com.py
++plugins/freedns.py
++plugins/freedns_io.py
++plugins/hardcoded_if.py
++plugins/hardcoded_ip.py
++plugins/ip_disabled.py
++plugins/ip_from_cmd.py
++plugins/myonlineportal_net.py
++plugins/no_ip.py
++plugins/now_dns.py
++plugins/system_ns.py
++systemd/ddupdate.service
++systemd/ddupdate.timer
+\ No newline at end of file
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate.egg-info/dependency_links.txt
+@@ -0,0 +1 @@
++
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate.egg-info/requires.txt
+@@ -0,0 +1 @@
++straight.plugin
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate.egg-info/top_level.txt
+@@ -0,0 +1 @@
++ddupdate
+--- /dev/null
++++ ddupdate-0.0.5~rc2/lib/ddupdate/__init__.py
+@@ -0,0 +1 @@
++# Empty placeholder
+--- ddupdate-0.0.5~rc2.orig/lib/ddupdate/main.py
++++ ddupdate-0.0.5~rc2/lib/ddupdate/main.py
+@@ -32,6 +32,15 @@ DEFAULTS = {
+ }
+ 
+ 
++class _GoodbyeError(Exception):
++    """ General error, implies sys.exit() """
++
++    def __init__(self, msg="", exitcode=0):
++        Exception.__init__(self, msg)
++        self.exitcode = exitcode
++        self.msg = msg
++
++
+ def envvar_default(var, default=None):
+     ''' Return var if found in environment, else default. '''
+     return os.environ[var] if var in os.environ else default
+@@ -84,9 +93,8 @@ def here(path):
+ 
+ def parse_conffile(log):
+     ' Parse config file path, returns verified path or None. '
+-    path = envvar_default('XDG_CONFIG_HOME',
+-                          os.path.expanduser('~/.config/ddupdate.conf'))
+-    if not os.path.exists(path):
++    path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
++    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
+         path = '/etc/ddupdate.conf'
+     for i in range(len(sys.argv)):
+         arg = sys.argv[i]
+@@ -148,7 +156,7 @@ def get_parser(conf):
+     normals.add_argument(
+         "-c", "--config-file", metavar="path",
+         help='Config file with default values for all options'
+-        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.cache/ddupdate.conf')
++        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
+         + ':/etc/dupdate.conf]',
+         dest='config_file', default='/etc/ddupdate.conf')
+     normals.add_argument(
+@@ -193,11 +201,11 @@ def parse_options(conf):
+         'debug': logging.DEBUG,
+     }
+     parser = get_parser(conf)
+-    parser.version = "0.0.5"
++    parser.version = "0.0.6"
+     opts = parser.parse_args()
+     if opts.help == '-':
+         parser.print_help()
+-        sys.exit(0)
++        raise _GoodbyeError()
+     if not opts.options:
+         opts.options = conf['options']
+     opts.loglevel = level_by_name[opts.loglevel]
+@@ -250,7 +258,6 @@ def list_plugins(ip_plugins, service_plu
+     if kind == 'all' or kind.startswith('s'):
+         for name, plugin in sorted(service_plugins.items()):
+             print("%-20s %s" % (name, plugin.oneliner()))
+-    sys.exit(0)
+ 
+ 
+ def plugin_help(ip_plugins, service_plugins, plugid):
+@@ -260,25 +267,18 @@ def plugin_help(ip_plugins, service_plug
+     elif plugid in service_plugins:
+         plugin = service_plugins[plugid]
+     else:
+-        print("No help available (nu such plugin?): " + plugid)
+-        sys.exit(2)
++        raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
+     print("Name: " + plugin.name())
+     print("Source: " + plugin.sourcefile() + "\n")
+     print(plugin.info())
+ 
+-    sys.exit(0)
+-
+ 
+ def build_load_path(log):
+     ''' Return list of paths to load plugins from. '''
+     paths = []
+-    path = os.path.expanduser('~/.local/share')
+-    if 'XDG_DATA_HOME' in os.environ:
+-        path = os.environ['XDG_DATA_HOME']
+-    paths.append(path)
+-    syspaths = "/usr/local/share:/usr/share"
+-    if 'XDG_DATA_DIRS' in os.environ:
+-        syspaths = os.environ['XDG_DATA_DIRS']
++    paths.append(envvar_default('XDG_DATA_HOME',
++                                os.path.expanduser('~/.local/share')))
++    syspaths = envvar_default('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
+     paths.extend(syspaths.split(':'))
+     paths = [os.path.join(p, 'ddupdate') for p in paths]
+     paths.insert(0, os.getcwd())
+@@ -286,48 +286,70 @@ def build_load_path(log):
+     return paths
+ 
+ 
+-def main():
+-    ''' Indeed: main function. '''
+-    ip_plugins = {}
+-    service_plugins = {}
++def setup():
++    ''' Return a standard log, arg_parser tuple. '''
+     log = log_setup()
+     conffile_path = parse_conffile(log)
+     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
+     opts = parse_options(conf)
+     log.handlers[0].setLevel(opts.loglevel)
++    log.debug('Using config file: %s', conffile_path)
+     log_options(log, opts)
++    return log, opts
++
++
++def get_plugins(log, opts):
++    ''' Handle list_plugins, help <plugin> or return the ip and service
++    plugin.
++   .'''
++    ip_plugins = {}
++    service_plugins = {}
+     load_paths = build_load_path(log)
+     for path in load_paths:
+         getters, setters = load_plugins(path, log)
+         ip_plugins.update(getters)
+         service_plugins.update(setters)
+-    if opts.help and opts.help != '-':
+-        plugin_help(ip_plugins, service_plugins, opts.help)
+     if opts.list_plugins:
+         list_plugins(ip_plugins, service_plugins, opts.list_plugins)
+-    if opts.ip_plugin not in ip_plugins:
+-        log.error("No such ip plugin: %s", opts.ip_plugin)
+-        sys.exit(2)
+-    try:
+-        ip = ip_plugins[opts.ip_plugin].get_ip(log, opts.options)
+-    except IpLookupError as err:
+-        log.error("Cannot obtain ip address: %s", err)
+-        sys.exit(3)
+-    if not ip or ip.empty():
+-        log.info("Using ip address provided by update service")
+-        ip = None
+-    else:
+-        log.info("Using ip address: %s, %s", ip.v4, ip.v6)
+-    if opts.force:
+-        ip_cache_clear(opts, log)
+-    addr, age = ip_cache_data(opts)
+-    if opts.service_plugin not in service_plugins:
+-        log.error("No such service plugin: %s", opts.service_plugin)
+-        sys.exit(2)
++        raise _GoodbyeError()
++    elif opts.help and opts.help != '-':
++        plugin_help(ip_plugins, service_plugins, opts.help)
++        raise _GoodbyeError()
++    elif opts.ip_plugin not in ip_plugins:
++        raise _GoodbyeError('No such ip plugin: ' + opts.ip_plugin, 2)
++    elif opts.service_plugin not in service_plugins:
++        raise _GoodbyeError(
++            'No such service plugin: ' + opts.service_plugin, 2)
+     service_plugin = service_plugins[opts.service_plugin]
+-    if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
+-        log.info("Update inhibited, cache is fresh (%d min)", age)
+-        sys.exit(0)
++    ip_plugin = ip_plugins[opts.ip_plugin]
++    return ip_plugin, service_plugin
++
++
++def main():
++    ''' Indeed: main function. '''
++    try:
++        log, opts = setup()
++        ip_plugin, service_plugin = get_plugins(log, opts)
++        try:
++            ip = ip_plugin.get_ip(log, opts.options)
++        except IpLookupError as err:
++            raise _GoodbyeError("Cannot obtain ip address: " + err, 3)
++        if not ip or ip.empty():
++            log.info("Using ip address provided by update service")
++            ip = None
++        else:
++            log.info("Using ip address: %s", ip.str())
++        if opts.force:
++            ip_cache_clear(opts, log)
++        addr, age = ip_cache_data(opts)
++        if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
++            log.info("Update inhibited, cache is fresh (%d/%d min)",
++                     age, service_plugin.ip_cache_ttl)
++            raise _GoodbyeError()
++    except _GoodbyeError as err:
++        if err.exitcode != 0:
++            log.error(err.msg)
++        sys.exit(err.exitcode)
+     try:
+         service_plugin.register(log, opts.hostname, ip, opts.options)
+     except UpdateError as err:
+--- ddupdate-0.0.5~rc2.orig/lib/ddupdate/plugins_base.py
++++ ddupdate-0.0.5~rc2/lib/ddupdate/plugins_base.py
+@@ -2,10 +2,11 @@
+ 
+ import inspect
+ import os.path
+-import urllib.request
+ 
++import urllib.request
+ from urllib.parse import urlencode
+ 
++from socket import timeout as timeoutError
+ from netrc import netrc
+ 
+ 
+@@ -33,22 +34,24 @@ def dict_of_opts(options):
+     return result
+ 
+ 
+-def get_response(log, url, data=None):
++def get_response(log, url, to=120, data=None):
+     '''
+     Read from url and return html. If data is not None, this makes
+     a http post request wuth the data, a dict, as form data. Otherwise,
+     it is a http get.
+ 
+-    Raises UpdateError if return code is != 200.
++    Raises UpdateError if return code is != 200 or timeout.
+     '''
+     log.debug("Trying url: %s", url)
+     form_data = urlencode(data).encode() if data else None
+     if data:
+         log.debug("Posting data: " + form_data.decode('ascii'))
+     try:
+-        with urllib.request.urlopen(url, form_data) as response:
++        with urllib.request.urlopen(url, form_data, timeout=to) as response:
+             code = response.getcode()
+             html = response.read().decode('ascii')
++    except timeoutError:
++        raise UpdateError("Timeout reading %s" % url)
+     except urllib.error.HTTPError as err:
+         raise UpdateError("Error reading %s :%s" % (url, err))
+     log.debug("Got response (%d) : %s", code, html)
+@@ -134,7 +137,7 @@ class AbstractPlugin(object):
+ 
+     _name = None
+     _oneliner = 'No info found'
+-    __version__ = '0.0.5'
++    __version__ = '0.0.6'
+ 
+     def oneliner(self):
+         ''' Return oneliner describing the plugin. '''
+@@ -175,7 +178,11 @@ class IpPlugin(AbstractPlugin):
+ class UpdatePlugin(AbstractPlugin):
+     ''' An abstract plugin doing the actual update work using a service. '''
+ 
+-    _ip_cache_ttl = 120     # 2 hours
++    _ip_cache_ttl = 120    # 2 hours, address cache timeout
++    _socket_to = 120       # 2 min, timeout reading host
++
++    def __init__(self):
++        AbstractPlugin.__init__(self)
+ 
+     def ip_cache_ttl(self):
+         ''' Return time when ip cache expires, in minutes from creation.
+--- ddupdate-0.0.5~rc2.orig/plugins/changeip.py
++++ ddupdate-0.0.5~rc2/plugins/changeip.py
+@@ -31,6 +31,6 @@ class ChangeIpPlugin(UpdatePlugin):
+         if ip:
+             url += "&ip=" + ip.v4
+         http_basic_auth_setup(url, 'nic.ChangeIP.com')
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         if not'uccessful' in html:
+             raise UpdateError("Bad update reply: " + html)
+--- ddupdate-0.0.5~rc2.orig/plugins/dnsexit.py
++++ ddupdate-0.0.5~rc2/plugins/dnsexit.py
+@@ -48,7 +48,7 @@ class DnsexitPlugin(UpdatePlugin):
+             url += "&myip=" + ip.v4
+         # if debugging:
+         #     url += "&force=Y" # override 8 minutes server limit
+-        html = get_response(log, url).split('\n')
++        html = get_response(log, url, self._socket_to).split('\n')
+         if '200' not in html[0]:
+             raise UpdateError("Bad HTML response: " + html)
+         code = html[1].split('=')[0]
+--- ddupdate-0.0.5~rc2.orig/plugins/dtdns.py
++++ ddupdate-0.0.5~rc2/plugins/dtdns.py
+@@ -35,7 +35,7 @@ class DtdnsPlugin(UpdatePlugin):
+         if ip:
+             url += "&ip=" + ip.v4
+         try:
+-            html = get_response(log, url)
++            html = get_response(log, url, self._socket_to)
+         except TimeoutError:
+             # one more try...
+             html = get_response(log, url)
+--- ddupdate-0.0.5~rc2.orig/plugins/duckdns.py
++++ ddupdate-0.0.5~rc2/plugins/duckdns.py
+@@ -37,6 +37,6 @@ class DuckdnsPlugin(UpdatePlugin):
+             url += "&ip=" + ip.v4
+         if ip and ip.v6:
+             url += "&ipv6=" + ip.v6
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         if html.strip() != "OK":
+             raise UpdateError("Update error, got: %s", html)
+--- ddupdate-0.0.5~rc2.orig/plugins/duiadns.py
++++ ddupdate-0.0.5~rc2/plugins/duiadns.py
+@@ -70,7 +70,7 @@ class DuiadnsPlugin(UpdatePlugin):
+             url += "&ip4=" + ip.v4
+         if ip and ip.v6:
+             url += "&ip6=" + ip.v6
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         parser = DuiadnsParser()
+         parser.feed(html)
+         if 'error' in parser.data or 'Ipv4' not in parser.data:
+--- ddupdate-0.0.5~rc2.orig/plugins/dynu.py
++++ ddupdate-0.0.5~rc2/plugins/dynu.py
+@@ -36,4 +36,4 @@ class DynuPlugin(UpdatePlugin):
+             url += "&myip=" + ip.v4
+         if ip and ip.v6:
+             url += "&myipv6=" + ip.v6
+-        get_response(log, url)
++        get_response(log, url, self._socket_to)
+--- ddupdate-0.0.5~rc2.orig/plugins/dynv6_com.py
++++ ddupdate-0.0.5~rc2/plugins/dynv6_com.py
+@@ -9,7 +9,7 @@ from ddupdate.plugins_base import Update
+ from ddupdate.plugins_base import get_response, get_netrc_auth
+ 
+ 
+-class DuckdnsPlugin(UpdatePlugin):
++class Dynv6Plugin(UpdatePlugin):
+     '''
+     Update a dns entry on dynv6.com. As usual, any host updated must
+     first be defined in the web UI. Providing an ip address is optional
+@@ -37,6 +37,6 @@ class DuckdnsPlugin(UpdatePlugin):
+             url += "&ipv4=" + ip.v4
+         if ip and ip.v6:
+             url += "&ipv6=" + ip.v6
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         if not ('updated' in html or 'unchanged' in html):
+             raise UpdateError("Update error, got: %s", html)
+--- ddupdate-0.0.5~rc2.orig/plugins/freedns.py
++++ ddupdate-0.0.5~rc2/plugins/freedns.py
+@@ -48,7 +48,7 @@ class FreednsPlugin(UpdatePlugin):
+             log.info("Consider using the ip-disabled plugin with freedns")
+         shasum = build_shasum()
+         url = self._url.format(shasum)
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         update_url = None
+         for line in html.split("\n"):
+             log.debug("Got line: " + line)
+@@ -60,4 +60,4 @@ class FreednsPlugin(UpdatePlugin):
+             raise UpdateError(
+                 "Cannot see %s being set up at this account" % hostname)
+         log.debug("Contacting freedns for update on %s", update_url)
+-        get_response(log, update_url)
++        get_response(log, update_url, self._socket_to)
+--- ddupdate-0.0.5~rc2.orig/plugins/freedns_io.py
++++ ddupdate-0.0.5~rc2/plugins/freedns_io.py
+@@ -42,5 +42,5 @@ class FreednsIoPlugin(UpdatePlugin):
+         }
+         if ip:
+             data['value'] = ip.v4
+-        html = get_response(log, self._url, data)
++        html = get_response(log, self._url, self._socket_to, data)
+         log.info("Server reply: " + html)
+--- ddupdate-0.0.5~rc2.orig/plugins/hardcoded_if.py
++++ ddupdate-0.0.5~rc2/plugins/hardcoded_if.py
+@@ -19,7 +19,7 @@ class HardcodedIfPlugin(IpPlugin):
+         if=interface
+     '''
+     _name = 'hardcoded-if'
+-    _oneliner = 'Get address from a configuration option'
++    _oneliner = 'Get address from an configuration option interface'
+ 
+     def get_ip(self, log, options):
+         opts = dict_of_opts(options)
+--- /dev/null
++++ ddupdate-0.0.5~rc2/plugins/hardcoded_ip.py
+@@ -0,0 +1,34 @@
++'''
++ddupdate plugin providing an ip address to use a
++from an interface option.
++
++See: ddupdate(8)
++'''
++
++import sys
++
++from ddupdate.plugins_base import IpPlugin, IpAddr, dict_of_opts
++
++
++class HardcodedIfPlugin(IpPlugin):
++    '''
++    Use address given in configuration options.
++
++    Options:
++        ip = ipv4 address
++        ip6 = ipv6 address
++    '''
++    _name = 'hardcoded-ip'
++    _oneliner = 'Get address from configuration options'
++
++    def get_ip(self, log, options):
++        addr = IpAddr()
++        opts = dict_of_opts(options)
++        if 'ip' not in opts and 'ip6' not in opts:
++            log.error("Required option ip= or ip6= missing, giving up.")
++            sys.exit(2)
++        if 'ip' in opts:
++            addr.v4 = opts['ip']
++        if 'ip6' in opts:
++            addr.v6 = opts['ip6']
++        return addr
+--- ddupdate-0.0.5~rc2.orig/plugins/myonlineportal_net.py
++++ ddupdate-0.0.5~rc2/plugins/myonlineportal_net.py
+@@ -33,9 +33,8 @@ class MyOnlinePortalPlugin(UpdatePlugin)
+         if ip and ip.v6:
+             url += "&ip6=" + ip.v6
+         http_basic_auth_setup(url, 'myonlineportal.net')
+-        html = get_response(log, url)
+-        log.info("Server reply: " + html)
++        html = get_response(log, url, self._socket_to)
+         key = html.split()[0]
+-        if key not in ['OK', 'nochg']:
++        if key not in ['OK', 'good', 'nochg']:
+             raise UpdateError("Bad server reply: " + html)
+-        log.info("server reply: " + html)
++        log.info("Server reply: " + html)
+--- ddupdate-0.0.5~rc2.orig/plugins/no_ip.py
++++ ddupdate-0.0.5~rc2/plugins/no_ip.py
+@@ -30,4 +30,4 @@ class NoIpPlugin(UpdatePlugin):
+         if ip:
+             url += "&myip=" + ip.v4
+         http_basic_auth_setup(url, 'dynupdate.no-ip.com')
+-        get_response(log, url)
++        get_response(log, url, self._socket_to)
+--- ddupdate-0.0.5~rc2.orig/plugins/now_dns.py
++++ ddupdate-0.0.5~rc2/plugins/now_dns.py
+@@ -30,7 +30,7 @@ class NowDnsPlugin(UpdatePlugin):
+     Options:
+         None
+     '''
+-    _name = 'now-dns'
++    _name = 'now-dns.com'
+     _oneliner = 'Updates on http://now-dns.com'
+     _url = 'https://now-dns.com/update?hostname={0}'
+ 
+--- ddupdate-0.0.5~rc2.orig/plugins/system_ns.py
++++ ddupdate-0.0.5~rc2/plugins/system_ns.py
+@@ -31,15 +31,13 @@ class SystemNsPlugin(UpdatePlugin):
+     _apihost = 'https://system-ns.com/api'
+     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
+ 
+-    # pylint: disable=unused-variable
+-
+     def register(self, log, hostname, ip, options):
+ 
+-        user, password = get_netrc_auth('system-ns.com')
++        password = get_netrc_auth('system-ns.com')[1]
+         url = self._url.format(self._apihost, hostname, password)
+         if ip:
+             url += "&ip=" + ip.v4
+-        html = get_response(log, url)
++        html = get_response(log, url, self._socket_to)
+         reply = json.loads(html)
+         if reply['code'] > 2:
+             raise UpdateError('Bad reply code {0}, message: {1}'.format(
+--- ddupdate-0.0.5~rc2.orig/setup.py
++++ ddupdate-0.0.5~rc2/setup.py
+@@ -13,16 +13,15 @@ DATA = [
+     ('/etc', ['ddupdate.conf']),
+     ('/lib/systemd/system', glob('systemd/*')),
+     ('share/man/man8', ['ddupdate.8']),
+-    ('share/doc/ddupdate',
+-        ['README.rst', 'LICENSE.txt', 'ddupdate.8.html', 'NEWS']),
++    ('share/doc/ddupdate', ['README.md', 'LICENSE.txt', 'NEWS']),
+     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
+ ]
+ 
+ setup(
+     name='ddupdate',
+-    version='0.0.5',
++    version='0.0.6',
+     description='Update dns data for dynamic ip addresses',
+-    long_description=open(ROOT + '/README.rst').read(),
++    long_description=open(ROOT + '/README.md').read(),
+     include_package_data=True,
+     license='MIT',
+     url='http://github.com/leamas/ddupdate',
+--- ddupdate-0.0.5~rc2.orig/systemd/ddupdate.service
++++ ddupdate-0.0.5~rc2/systemd/ddupdate.service
+@@ -6,7 +6,7 @@ After=network.target
+ # User=ddupdate
+ Type=oneshot
+ Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+-ExecStart=/usr/local/bin/ddupdate
++ExecStart=/usr/bin/ddupdate
+ 
+ [Install]
+ WantedBy=multi-user.target
