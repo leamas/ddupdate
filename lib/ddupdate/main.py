@@ -249,7 +249,6 @@ def list_plugins(ip_plugins, service_plugins, kind):
     if kind == 'all' or kind.startswith('s'):
         for name, plugin in sorted(service_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
-    sys.exit(0)
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
@@ -265,8 +264,6 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     print("Source: " + plugin.sourcefile() + "\n")
     print(plugin.info())
 
-    sys.exit(0)
-
 
 def build_load_path(log):
     ''' Return list of paths to load plugins from. '''
@@ -281,30 +278,51 @@ def build_load_path(log):
     return paths
 
 
-def main():
-    ''' Indeed: main function. '''
-    ip_plugins = {}
-    service_plugins = {}
+def setup():
+    ''' Return a standard log, arg_parser tuple. '''
     log = log_setup()
     conffile_path = parse_conffile(log)
     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
     opts = parse_options(conf)
     log.handlers[0].setLevel(opts.loglevel)
     log_options(log, opts)
+    return log, opts
+
+
+def get_plugins(log, opts):
+    ''' Handle list_plugins, help <plugin> or return the ip and service
+    plugin.
+   .'''
+    ip_plugins = {}
+    service_plugins = {}
     load_paths = build_load_path(log)
     for path in load_paths:
         getters, setters = load_plugins(path, log)
         ip_plugins.update(getters)
         service_plugins.update(setters)
-    if opts.help and opts.help != '-':
-        plugin_help(ip_plugins, service_plugins, opts.help)
     if opts.list_plugins:
         list_plugins(ip_plugins, service_plugins, opts.list_plugins)
-    if opts.ip_plugin not in ip_plugins:
+        sys.exit(0)
+    elif opts.help and opts.help != '-':
+        plugin_help(ip_plugins, service_plugins, opts.help)
+        sys.exit(0)
+    elif opts.ip_plugin not in ip_plugins:
         log.error("No such ip plugin: %s", opts.ip_plugin)
         sys.exit(2)
+    elif opts.service_plugin not in service_plugins:
+        log.error("No such service plugin: %s", opts.service_plugin)
+        sys.exit(2)
+    service_plugin = service_plugins[opts.service_plugin]
+    ip_plugin = ip_plugins[opts.ip_plugin]
+    return ip_plugin, service_plugin
+
+
+def main():
+    ''' Indeed: main function. '''
+    log, opts = setup()
+    ip_plugin, service_plugin = get_plugins(log, opts)
     try:
-        ip = ip_plugins[opts.ip_plugin].get_ip(log, opts.options)
+        ip = ip_plugin.get_ip(log, opts.options)
     except IpLookupError as err:
         log.error("Cannot obtain ip address: %s", err)
         sys.exit(3)
@@ -312,16 +330,13 @@ def main():
         log.info("Using ip address provided by update service")
         ip = None
     else:
-        log.info("Using ip address: %s, %s", ip.v4, ip.v6)
+        log.info("Using ip address: %s", ip.str())
     if opts.force:
         ip_cache_clear(opts, log)
     addr, age = ip_cache_data(opts)
-    if opts.service_plugin not in service_plugins:
-        log.error("No such service plugin: %s", opts.service_plugin)
-        sys.exit(2)
-    service_plugin = service_plugins[opts.service_plugin]
     if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
-        log.info("Update inhibited, cache is fresh (%d min)", age)
+        log.info("Update inhibited, cache is fresh (%d/%d min)",
+                 age, service_plugin.ip_cache_ttl)
         sys.exit(0)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.options)
