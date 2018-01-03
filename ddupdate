@@ -5,7 +5,7 @@
 import os.path
 import sys
 
-HOME = os.path.abspath(os.path.dirname(__file__))
+HOME = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(HOME, 'lib'))
 
 try:
