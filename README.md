@@ -240,11 +240,11 @@ ddupdate has a multitude of packaging:
 
    - The **debian** packaging is based on gbp and lives in the *debian* and
      *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-     and *git*  are required to build. To build current version 0.0.5 do::
+     and *git*  are required to build. To build current version 0.0.6 do::
 
          $ git clone -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
-         $ gbp buildpackage --git-upstream-tag=0.0.5.
+         $ gbp buildpackage --git-upstream-tag=0.0.6.
          $ git clean -fd    # To be able to rebuild
 
 Writing plugins
