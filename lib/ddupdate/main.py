@@ -271,13 +271,9 @@ def plugin_help(ip_plugins, service_plugins, plugid):
 def build_load_path(log):
     ''' Return list of paths to load plugins from. '''
     paths = []
-    path = os.path.expanduser('~/.local/share')
-    if 'XDG_DATA_HOME' in os.environ:
-        path = os.environ['XDG_DATA_HOME']
-    paths.append(path)
-    syspaths = "/usr/local/share:/usr/share"
-    if 'XDG_DATA_DIRS' in os.environ:
-        syspaths = os.environ['XDG_DATA_DIRS']
+    paths.append(envvar_default('XDG_DATA_HOME',
+                                os.path.expanduser('~/.local/share')))
+    syspaths = envvar_default('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
     paths.extend(syspaths.split(':'))
     paths = [os.path.join(p, 'ddupdate') for p in paths]
     paths.insert(0, os.getcwd())
