@@ -293,6 +293,7 @@ def setup():
     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
     opts = parse_options(conf)
     log.handlers[0].setLevel(opts.loglevel)
+    log.debug('Using config file: %s', conffile_path)
     log_options(log, opts)
     return log, opts
 
