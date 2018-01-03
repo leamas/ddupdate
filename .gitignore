@@ -5,6 +5,5 @@ build
 dist
 *.egg-info
 __pycache__
-README.rst
 fedora
-
+testing.txt
