@@ -1,15 +1,15 @@
 %global debug_package %{nil}
 
-#global gittag 0.0.5rc2
-%global commit eb302484417d85cbf497958ba2a651f738ad7420
+%global gittag 0.0.6
+#global commit eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
 %global srcspec %{?gittag}%{?shortcommit}
 %global dirspec %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.0.5
-Release:        0.6%{?shortcommit:.}%{?shortcommit}%{?dist}
+Version:        0.0.6
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -44,7 +44,7 @@ ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
-%autosetup -n %{name}-%{?gittag}%{?commit}
+%autosetup -n %{name}-%{dirspec}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 
@@ -87,6 +87,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Wed Jan 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-1
+- rebuilt
+
 * Wed Jan 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5-0.6.eb30248
 - rebuilt
 
