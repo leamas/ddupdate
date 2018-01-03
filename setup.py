@@ -13,8 +13,7 @@ DATA = [
     ('/etc', ['ddupdate.conf']),
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8']),
-    ('share/doc/ddupdate',
-        ['README.md', 'LICENSE.txt', 'ddupdate.8.html', 'NEWS']),
+    ('share/doc/ddupdate', ['README.md', 'LICENSE.txt', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
