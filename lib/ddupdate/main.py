@@ -32,6 +32,15 @@ DEFAULTS = {
 }
 
 
+class _GoodbyeError(Exception):
+    """ General error, implies sys.exit() """
+
+    def __init__(self, msg="", exitcode=0):
+        Exception.__init__(self, msg)
+        self.exitcode = exitcode
+        self.msg = msg
+
+
 def envvar_default(var, default=None):
     ''' Return var if found in environment, else default. '''
     return os.environ[var] if var in os.environ else default
@@ -196,7 +205,7 @@ def parse_options(conf):
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
-        sys.exit(0)
+        raise _GoodbyeError()
     if not opts.options:
         opts.options = conf['options']
     opts.loglevel = level_by_name[opts.loglevel]
@@ -258,8 +267,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     elif plugid in service_plugins:
         plugin = service_plugins[plugid]
     else:
-        print("No help available (nu such plugin?): " + plugid)
-        sys.exit(2)
+        raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
     print("Source: " + plugin.sourcefile() + "\n")
     print(plugin.info())
@@ -302,16 +310,15 @@ def get_plugins(log, opts):
         service_plugins.update(setters)
     if opts.list_plugins:
         list_plugins(ip_plugins, service_plugins, opts.list_plugins)
-        sys.exit(0)
+        raise _GoodbyeError()
     elif opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
-        sys.exit(0)
+        raise _GoodbyeError()
     elif opts.ip_plugin not in ip_plugins:
-        log.error("No such ip plugin: %s", opts.ip_plugin)
-        sys.exit(2)
+        raise _GoodbyeError('No such ip plugin: ' + opts.ip_plugin, 2)
     elif opts.service_plugin not in service_plugins:
-        log.error("No such service plugin: %s", opts.service_plugin)
-        sys.exit(2)
+        raise _GoodbyeError(
+            'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
     ip_plugin = ip_plugins[opts.ip_plugin]
     return ip_plugin, service_plugin
@@ -319,25 +326,29 @@ def get_plugins(log, opts):
 
 def main():
     ''' Indeed: main function. '''
-    log, opts = setup()
-    ip_plugin, service_plugin = get_plugins(log, opts)
     try:
-        ip = ip_plugin.get_ip(log, opts.options)
-    except IpLookupError as err:
-        log.error("Cannot obtain ip address: %s", err)
-        sys.exit(3)
-    if not ip or ip.empty():
-        log.info("Using ip address provided by update service")
-        ip = None
-    else:
-        log.info("Using ip address: %s", ip.str())
-    if opts.force:
-        ip_cache_clear(opts, log)
-    addr, age = ip_cache_data(opts)
-    if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
-        log.info("Update inhibited, cache is fresh (%d/%d min)",
-                 age, service_plugin.ip_cache_ttl)
-        sys.exit(0)
+        log, opts = setup()
+        ip_plugin, service_plugin = get_plugins(log, opts)
+        try:
+            ip = ip_plugin.get_ip(log, opts.options)
+        except IpLookupError as err:
+            raise _GoodbyeError("Cannot obtain ip address: " + err, 3)
+        if not ip or ip.empty():
+            log.info("Using ip address provided by update service")
+            ip = None
+        else:
+            log.info("Using ip address: %s", ip.str())
+        if opts.force:
+            ip_cache_clear(opts, log)
+        addr, age = ip_cache_data(opts)
+        if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
+            log.info("Update inhibited, cache is fresh (%d/%d min)",
+                     age, service_plugin.ip_cache_ttl)
+            raise _GoodbyeError()
+    except _GoodbyeError as err:
+        if err.exitcode != 0:
+            log.error(err.msg)
+        sys.exit(err.exitcode)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.options)
     except UpdateError as err:
