@@ -6,9 +6,9 @@
 .B ddupdate
 [\fIoptions\fR]
 .SH DESCRIPTION
-A tool to update dynamic IP addresses typically obtaineor d using DHCP at
-dynamic DNS services such as changeip.com, duckdns.org no-ip.com.
-The goal is that it should be possible to access a machine with a fixed
+A tool to update dynamic IP addresses typically obtained using DHCP with
+dynamic DNS service providers such as changeip.com, duckdns.org no-ip.com.
+It makes it possible to access a machine with a fixed
 name like myhost.duckdns.org even if the ip address changes.
 \fBddupdate\fR caches the address, and only attempts the update if the address
 actually is changed.
@@ -214,3 +214,9 @@ Cached address from last update with an actual change, one for each
 update service.
 Setting the XDG_CACHE_HOME environment variable relocates these files to
 $XDG_CACHE_HOME/ddupdate/*.
+
+.SH "SEE ALSO"
+.TP 4
+.B  https://github.com/leamas/ddupdate
+Project homesite and README
+
