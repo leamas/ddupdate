@@ -244,8 +244,8 @@ ddupdate has a multitude of packaging:
 
          $ git clone -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
-         $ gbp buildpackage --git-upstream-tag=0.0.6.
-         $ git clean -fd    # To be able to rebuild
+         $ gbp buildpackage --git-upstream-tag=0.0.6 -us -uc
+         $ git clean -fd; git checkout .    # To be able to rebuild
 
 Writing plugins
 ---------------
