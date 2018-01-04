@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.0.6
-Release:        2%{?commit:.%{shortcommit}}%{?dist}
+Release:        3%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,6 +17,7 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{dirspec}/%{name}-%{srcspec}.tar.gz
+Patch1:         0001-NetworkManager-support-bad-bugfix.patch
 
 %{?systemd_requires}
 
@@ -44,7 +45,7 @@ ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
 
 %prep
-%autosetup -n %{name}-%{dirspec}
+%autosetup -p1 -n %{name}-%{dirspec}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 
@@ -88,6 +89,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Thu Jan 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-3
+- NetworkManager support patch, from upstream
+
 * Thu Jan 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-2
 - Fix epel-7 build error
 
