@@ -1,3 +1,9 @@
+ddupdate (0.0.6-1) experimental; urgency=medium
+
+  *  Updating debian version  number to proper 0.0.6
+
+ -- Alec Leamas <leamas.alec@gmail.com>  Thu, 04 Jan 2018 12:58:38 +0100
+
 ddupdate (0.0.5~rc2-2) experimental; urgency=medium
 
   *  Added upstream  fix for NetworkManager support.
