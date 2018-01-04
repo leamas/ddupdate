@@ -245,6 +245,9 @@ def load_plugins(path, log):
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
     sys.path.pop(0)
+    plugins = list(setters_by_name.values()) + list(getters_by_name.values())
+    for plugin in plugins:
+        plugin.srcdir = path
     log.debug("Loaded %d address and %d service plugins from %s",
               len(getters), len(setters), path)
     return getters_by_name, setters_by_name
@@ -269,7 +272,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     else:
         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
-    print("Source: " + plugin.sourcefile() + "\n")
+    print("Source directory: " + plugin.srcdir + "\n")
     print(plugin.info())
 
 
@@ -281,7 +284,9 @@ def build_load_path(log):
     syspaths = envvar_default('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
     paths.extend(syspaths.split(':'))
     paths = [os.path.join(p, 'ddupdate') for p in paths]
-    paths.insert(0, os.getcwd())
+    home = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..')
+    paths.insert(0, os.path.abspath(home))
     log.debug('paths :%s', ':'.join(paths))
     return paths
 
@@ -307,8 +312,10 @@ def get_plugins(log, opts):
     load_paths = build_load_path(log)
     for path in load_paths:
         getters, setters = load_plugins(path, log)
-        ip_plugins.update(getters)
-        service_plugins.update(setters)
+        for name, plugin in getters.items():
+            ip_plugins.setdefault(name, plugin)
+        for name, plugin in setters.items():
+            service_plugins.setdefault(name, plugin)
     if opts.list_plugins:
         list_plugins(ip_plugins, service_plugins, opts.list_plugins)
         raise _GoodbyeError()

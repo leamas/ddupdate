@@ -157,11 +157,6 @@ class AbstractPlugin(object):
         ''' Return plugin version. '''
         return self.__version__
 
-    # pylint: disable=unused-argument,no-self-use
-    def sourcefile(self):
-        ''' Return module sourcefile. '''
-        return __file__
-
 
 class IpPlugin(AbstractPlugin):
     ''' An abstract plugin obtaining the ip address. '''
