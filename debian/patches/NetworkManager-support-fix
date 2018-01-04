@@ -1,0 +1,13 @@
+Description: Fix NetworkManager support, from upstream.
+
+--- ddupdate-0.0.5~rc2.orig/dispatcher.d/50-ddupdate
++++ ddupdate-0.0.5~rc2/dispatcher.d/50-ddupdate
+@@ -19,7 +19,7 @@ case "$2" in
+ 	then
+ 	    /usr/bin/logger \
+ 		"ddupdate: default interface up: starting timer" || :
+-            /usr/bin/systemctl start ddupdate.service || :
++            /usr/bin/systemctl start ddupdate.timer || :
+ 	fi
+ 	;;
+     *)
