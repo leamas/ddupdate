@@ -19,7 +19,7 @@ case "$2" in
 	then
 	    /usr/bin/logger \
 		"ddupdate: default interface up: starting timer" || :
-            /usr/bin/systemctl start ddupdate.service || :
+            /usr/bin/systemctl start ddupdate.timer || :
 	fi
 	;;
     *)
