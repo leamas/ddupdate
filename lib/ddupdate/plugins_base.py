@@ -115,12 +115,10 @@ class IpAddr(object):
 class IpLookupError(Exception):
     """ General error in IpPlugin """
 
-    def __init__(self, value, exitcode=1, silent=False):
+    def __init__(self, value, exitcode=1):
         Exception.__init__(self, value)
         self.value = value
         self.exitcode = exitcode
-        self.silent = silent
-        self.show_logs = True
 
     def __str__(self):
         """ Represent the error. """
