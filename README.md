@@ -5,10 +5,10 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-for example  DHCP. The goal is it should be possible to access a system with
+for example  DHCP. It makes it  possible to access a system with
 a fixed dns name such as myhost.somewhere.net even if the IP address is
-changed. Another goal is tp provide a flexible, user-friendly, maintainable
-and linux-centric alternative to the ubiquitous ddclient.
+changed. It is a flexible, user-friendly, maintainable and linux-centric
+alternative to the ubiquitous ddclient.
 
 
 Status
@@ -102,14 +102,8 @@ Another case is when using DHCP addresses on an internal network behind
 a router and the machine should be reached by users on this network.
 In this case the machine's real address should be registered.
 
-In any case, begin with listing all plugins::
+In any case, begin with listing all service plugins::
 
-    $ ddupdate --list-plugins ip-plugins
-    ip-disabled          Force update service to provide ip address
-    ip-from-command      Obtain address from a command
-    default-if           Get ip address from default interface (linux)
-    default-web-ip       Obtain external address as seen from the net
-    hardcoded-if         Get address from a configuration option
     $ ddupdate --list-plugins services
     changeip             Updates DNS data on changeip.com
     dnsexit              Updates DNS data on www.dnsexit.com
@@ -158,7 +152,8 @@ seen from the network. This can be tested using::
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
     dry-run: Using address 90.224.208.212 and hostname host.nowhere.net
 
-All looks good. Now, let's try to actually update that hostname on dynu.com::
+All looks good (if you want to use another address, look into *ddupdate list
+ip-plugins*). Let's try to actually update that hostname on dynu.com::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
       --hostname myhost.dynu.net -L info
@@ -221,31 +216,31 @@ Packaging
 
 ddupdate has a multitude of packaging:
 
-   - ddupdate is available as a **pypi package** from the master branch. It
-     can be installed using pip::
+  - ddupdate is available as a **pypi package** from the master branch. It
+    can be installed using pip::
 
-         $ sudo pip install ddupdate --prefix=/usr
+        $ sudo pip install ddupdate --prefix=/usr
 
-   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
-     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
-     requires the fedora toolchain in the *git*, *rpmdevtools* and
-     *rpm-build* packages.  To build::
+  - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
+    at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
+    requires the fedora toolchain in the *git*, *rpmdevtools* and
+    *rpm-build* packages.  To build::
 
-         $ git clone -b fedora https://github.com/leamas/ddupdate.git
-         $ cd ddupdate
-         $ spectool -g ddupdate.spec
-         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
+        $ git clone -b fedora https://github.com/leamas/ddupdate.git
+        $ cd ddupdate
+        $ spectool -g ddupdate.spec
+        $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
 
-     This creates both a source and a binary rpm package underneath *rpmbuild*.
+    This creates both a source and a binary rpm package underneath *rpmbuild*.
 
-   - The **debian** packaging is based on gbp and lives in the *debian* and
-     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-     and *git*  are required to build. To build current version 0.0.6 do::
+  - The **debian** packaging is based on gbp and lives in the *debian* and
+    *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
+    and *git*  are required to build. To build current version 0.0.6 do::
 
-         $ git clone -b debian https://github.com/leamas/ddupdate.git
-         $ cd ddupdate
-         $ gbp buildpackage --git-upstream-tag=0.0.6 -us -uc
-         $ git clean -fd; git checkout .    # To be able to rebuild
+        $ git clone -b debian https://github.com/leamas/ddupdate.git
+        $ cd ddupdate
+        $ gbp buildpackage --git-upstream-tag=0.0.6 -us -uc
+        $ git clean -fd; git checkout .    # To be able to rebuild
 
 Writing plugins
 ---------------
@@ -257,8 +252,9 @@ existing plugins and pick solutions from them. Some hints:
   - Before writing the plugin, make tests with wget or curl to make
     sure how the api works. Essential step, this one.
 
-  - Each plugin must contain a main class derived from IpPlugin or
-    UpdatePlugin. The class docstring is the *help <plugin>* documentation.
+  - Each plugin must live in a file with a unique name. It must contain a
+    main class derived from IpPlugin or UpdatePlugin. The class docstring
+    is the *help <plugin>* documentation.
 
   - The class ```_name``` property is the official name of the plugin, must
     be unique. ```_oneliner``` is indeed the short summary displayed by
@@ -266,9 +262,9 @@ existing plugins and pick solutions from them. Some hints:
 
   - Authentication:
       - Some sites uses standard basic authentication. This is handled
-        by *http_basic_auth_setup* e. g., ```no_ip.py```
+        by *http_basic_auth_setup* in e. g., ```no_ip.py```
       - Others uses username + password in the url e. g., ```dnsexit.py```
-      - Other uses hashed passwords, e. g., ```dynu.py```
+      - Hashed passwords are used in e. g., ```dynu.py```
       - API tokens are handled in e. g., ```duckdns.py```
       - Some have broken basic authentication, see ```now_dns.py```
   - Most services uses a http GET request to set the data. See
