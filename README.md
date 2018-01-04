@@ -277,3 +277,6 @@ existing plugins and pick solutions from them. Some hints:
       - Most sites just returns some text, simple enough
       - json: example in ```system_ns.py```
       - html: example in ```duiadns.py```
+
+  - The plugin API is defined in the plugins_base.py file. API docs can be
+    generated using *python3 -m pydoc lib/ddupdate/plugins_base.py* or so.

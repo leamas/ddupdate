@@ -1,4 +1,21 @@
-''' ddclient plugin base classes and common code. '''
+"""
+ddupdate plugin API.
+
+A plugin is either a service plugin or an ip plugin.
+
+Service plugins register the ip address with a dynamic dns service provider.
+They implement the UpdatePlugin abstract interface. Naming of these plugins
+is normally based on the website used to register since these are by
+definition unique
+
+Ip plugin determines the ip address to register. They implement the abstract
+IpPlugin interface.
+
+All plugins shares the AbstractPlugin interface. This handles general
+aspects like name and documentation. They also use functions defined in
+this module
+
+"""
 
 import inspect
 import os.path
@@ -11,7 +28,7 @@ from netrc import netrc
 
 
 def http_basic_auth_setup(url, host):
-    ''' Setup urllib to provide user/pw from netrc on url. '''
+    """Configure urllib to provide basic authentication from netrc on url."""
     user, password = get_netrc_auth(host)
     pwmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     pwmgr.add_password(None, url, user, password)
@@ -21,7 +38,13 @@ def http_basic_auth_setup(url, host):
 
 
 def dict_of_opts(options):
-    ''' Convert list of options to a dict. '''
+    """
+    Convert list of plugin options from the arg_parser to a dict.
+
+    Single keyword options are inserted as dict[keyword] = True,
+    key=val options are inserted as dict[key] = val.
+
+    """
     if not options:
         return {}
     result = {}
@@ -35,13 +58,21 @@ def dict_of_opts(options):
 
 
 def get_response(log, url, to=120, data=None):
-    '''
-    Read from url and return html. If data is not None, this makes
-    a http post request wuth the data, a dict, as form data. Otherwise,
-    it is a http get.
+    """
+    Get data from server at given url.
 
-    Raises UpdateError if return code is != 200 or timeout.
-    '''
+    Parameters:
+      - log: Standard python log instance
+      - url: The url to make a post/get request to.
+      - to: timeout, in seconds.
+      - data: dict of post data. If data != None, get_response makes a
+        http POST request, otherwise a http GET.
+    Returns:
+      - Data read from url.
+    Raises:
+      - UpdateError if return code is != 200, httpError or timeout.
+
+    """
     log.debug("Trying url: %s", url)
     form_data = urlencode(data).encode() if data else None
     if data:
@@ -61,7 +92,19 @@ def get_response(log, url, to=120, data=None):
 
 
 def get_netrc_auth(machine):
-    ''' Return a (user, password) tuple based on ~/-netrc or /etc/netrc. '''
+    """
+    Retrieve data from  ~/-netrc or /etc/netrc.
+
+    Parameters:
+      - machine: key while searching in netrc file.
+    Returns:
+      - A (user,password) tuple. Password might be None.
+    Raises:
+      - UpdateError if no password is found.
+    See:
+      - netrc(5)
+
+    """
     if os.path.exists(os.path.expanduser('~/.netrc')):
         path = os.path.expanduser('~/.netrc')
     elif os.path.exists('/etc/netrc'):
@@ -73,14 +116,21 @@ def get_netrc_auth(machine):
 
 
 class IpAddr(object):
-    ''' An (ip4, ipv6) collection. '''
+    """A (ipv4, ipv6) container."""
 
     def __init__(self, ipv4=None, ipv6=None):
+        """
+        Construct a fresh object.
+
+        Parameters:
+          - iov4: string, the ipv4 address in dotted notation.
+          - ipv6: strinng, the ipv6 address in dotted notation.
+
+        """
         self.v4 = ipv4
         self.v6 = ipv6
 
-    def str(self):
-        ''' Standard str() returns a printable representation. '''
+    def __str__(self):
         s1 = self.v4 if self.v4 else 'None'
         s2 = self.v6 if self.v6 else 'None'
         return '[%s, %s]' % (s1, s2)
@@ -94,11 +144,19 @@ class IpAddr(object):
         return hash(self.v4, self.v6)
 
     def empty(self):
-        ''' Check if any address is set. '''
+        """Check if any address is set."""
         return self.v4 is None and self.v6 is None
 
     def parse_ifconfig_output(self, text):
-        ''' Parse ifconfig <dev> or ip address show dev <dev> output. '''
+        """
+        Update v4 and v6 attributes by parsing ifconfig(8) or ip(8) output.
+
+        Parameters:
+          - text: string, ifconfig <dev> or ip address show dev <dev> output.
+        Raises:
+          - IpLookupError if no address can be found in text
+
+        """
         use_next4 = False
         use_next6 = False
         for word in text.split():
@@ -113,83 +171,104 @@ class IpAddr(object):
 
 
 class IpLookupError(Exception):
-    """ General error in IpPlugin """
+    """General error in IpPlugin."""
 
     def __init__(self, value, exitcode=1):
+        """
+        Construct the error.
+
+        Parameters:
+          - value: error message
+          - exitcode: aimed as sys.exit() argument.
+
+        """
         Exception.__init__(self, value)
         self.value = value
         self.exitcode = exitcode
 
     def __str__(self):
-        """ Represent the error. """
+        """Represent the error."""
         return repr(self.value)
 
 
 class UpdateError(IpLookupError):
-    """ General error in UpdatePlugin """
+    """General error in UpdatePlugin."""
+
     pass
 
 
 class AbstractPlugin(object):
-    ''' Abstract base for all plugins. '''
+    """Abstract base for all plugins."""
 
     _name = None
     _oneliner = 'No info found'
     __version__ = '0.0.6'
 
     def oneliner(self):
-        ''' Return oneliner describing the plugin. '''
+        """Return oneliner describing the plugin."""
         return self._oneliner
 
     def info(self):
-        ''' Return full, formatted user info; in particular, options
-        used.
-        '''
+        """
+        Return full, formatted user info; in particular, options used.
+
+        Default implementation returns class docstring.
+        """
         return inspect.getdoc(self)
 
     def name(self):
-        ''' Returns short name (no spaces). Returning None implies
-        not-a-plugin.
-        '''
+        """
+        Retrieve the plugin short, unique id (no spaces).
+
+        Returning None implies not-a-plugin. Names must be unique.
+        Also module name (i. e., filename) must be unique.
+        """
         return self._name
 
     def version(self):
-        ''' Return plugin version. '''
+        """Return plugin version."""
         return self.__version__
 
 
 class IpPlugin(AbstractPlugin):
-    ''' An abstract plugin obtaining the ip address. '''
+    """An abstract plugin obtaining the ip address."""
 
     def get_ip(self, log, options):
-        ''' Given the list of --option options and a log, return
-            an IpAddr or None. Raises IpLookupError on errors.
-        '''
+        """
+        Given list of --option options and a log, return an IpAddr or None.
+
+        Raises:
+            IpLookupError on errors.
+
+        """
         raise NotImplementedError("Attempt to invoke abstract get_ip()")
 
 
 class UpdatePlugin(AbstractPlugin):
-    ''' An abstract plugin doing the actual update work using a service. '''
+    """An abstract plugin doing the actual update work using a service."""
 
     _ip_cache_ttl = 120    # 2 hours, address cache timeout
     _socket_to = 120       # 2 min, timeout reading host
 
     def __init__(self):
+        """Default, empty constructor."""
         AbstractPlugin.__init__(self)
 
     def ip_cache_ttl(self):
-        ''' Return time when ip cache expires, in minutes from creation.
-        '''
+        """Return time when ip cache expires, in minutes from creation."""
         return self._ip_cache_ttl
 
     def register(self, log, hostname, ip, options):
-        ''' Given configuration, address and log do the actual update.
-            Parameters:
-              - log: standard python log instance
-              - hostname - string, the DNS name to register
-              - ip: Address to register
-              - opts: list of --option values.
-            Raises:
-              - UpdateError on errors.
-        '''
+        """
+        Given configuration, address and log do the actual update.
+
+        Parameters:
+        - log: standard python log instance
+        - hostname - string, the DNS name to register
+        - ip: Address to register
+        - opts: list of --option values.
+        Raises:
+        - UpdateError on errors.
+
+        """
         raise NotImplementedError("Attempt to invoke abstract register()")

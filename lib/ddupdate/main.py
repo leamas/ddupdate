@@ -83,7 +83,7 @@ def ip_cache_set(opts, addr):
     path = ip_cache_setup(opts)
     addr = addr if addr else "0.0.0.0"
     with open(path, "w") as f:
-        f.write(addr.str())
+        f.write(str(addr))
 
 
 def here(path):
@@ -345,7 +345,7 @@ def main():
             log.info("Using ip address provided by update service")
             ip = None
         else:
-            log.info("Using ip address: %s", ip.str())
+            log.info("Using ip address: %s", ip)
         if opts.force:
             ip_cache_clear(opts, log)
         addr, age = ip_cache_data(opts)
