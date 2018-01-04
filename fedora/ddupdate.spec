@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.0.6
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -57,6 +57,7 @@ python3 setup.py install --root=$RPM_BUILD_ROOT --prefix=/usr
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mv $RPM_BUILD_ROOT/lib/systemd/system/* $RPM_BUILD_ROOT/usr/lib/systemd/system
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/LICENSE.txt
+rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/README.md
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/NEWS
 
 %pre
@@ -87,8 +88,12 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Thu Jan 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-2
+- Fix epel-7 build error
+
 * Wed Jan 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-1
-- rebuilt
+- New upstream release.
+
 
 * Wed Jan 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.5-0.6.eb30248
 - rebuilt
