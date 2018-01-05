@@ -8,7 +8,7 @@ See: ddupdate(8)
 import re
 import subprocess
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError, dict_of_opts
+from ddupdate.ddplugin import IpPlugin, IpLookupError, dict_of_opts
 
 
 class IpV4FromCmdPlugin(IpPlugin):

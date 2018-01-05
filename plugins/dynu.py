@@ -6,7 +6,7 @@ See: https://www.dynu.com/Resources/API/Documentation
 
 '''
 import hashlib
-from ddupdate.plugins_base import UpdatePlugin, get_response, get_netrc_auth
+from ddupdate.ddplugin import UpdatePlugin, get_response, get_netrc_auth
 
 
 class DynuPlugin(UpdatePlugin):

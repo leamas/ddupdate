@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: http://myonlineportal.net/ddns_api
 '''
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError, \
+from ddupdate.ddplugin import UpdatePlugin, UpdateError, \
     get_response, http_basic_auth_setup
 
 

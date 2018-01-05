@@ -13,8 +13,8 @@ import time
 
 from straight.plugin import load
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import IpPlugin, IpLookupError
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']

@@ -5,8 +5,8 @@ See: ddupdate(8)
 See: https://www.dtdns.com/dtsite/updatespec
 
 '''
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import get_response, get_netrc_auth
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class DtdnsPlugin(UpdatePlugin):

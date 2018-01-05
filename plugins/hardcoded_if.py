@@ -8,7 +8,7 @@ See: ddupdate(8)
 import subprocess
 import sys
 
-from ddupdate.plugins_base import IpPlugin, IpAddr, dict_of_opts
+from ddupdate.ddplugin import IpPlugin, IpAddr, dict_of_opts
 
 
 class HardcodedIfPlugin(IpPlugin):

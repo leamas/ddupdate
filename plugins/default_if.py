@@ -6,7 +6,7 @@ See: ddupdate(8)
 
 import subprocess
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
 
 
 class DefaultIfPLugin(IpPlugin):

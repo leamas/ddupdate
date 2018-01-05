@@ -7,7 +7,7 @@ See: https://freedns.io/api
 FIXME: Add ipv6 support
 '''
 
-from ddupdate.plugins_base import UpdatePlugin, get_netrc_auth, get_response
+from ddupdate.ddplugin import UpdatePlugin, get_netrc_auth, get_response
 
 
 class FreednsIoPlugin(UpdatePlugin):

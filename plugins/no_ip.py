@@ -5,8 +5,8 @@ See: ddupdate(8)
 See: https://www.noip.com/integrate/request
 '''
 
-from ddupdate.plugins_base import UpdatePlugin
-from ddupdate.plugins_base import http_basic_auth_setup, get_response
+from ddupdate.ddplugin import UpdatePlugin
+from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
 class NoIpPlugin(UpdatePlugin):

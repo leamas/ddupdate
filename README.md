@@ -118,7 +118,7 @@ Next, pick a service plugin and check the help info, here dynu::
 
     $ ddupdate --help dynu
     Name: dynu
-    Source: /home/al/src/ddupdate/src/ddupdate/plugins/plugins_base.py
+    Source: /home/al/src/ddupdate/src/ddupdate/plugins/ddplugin.py
 
     Update a dns entry on dynu.com
 
@@ -265,7 +265,7 @@ existing plugins and pick solutions from them. Some hints:
     sure how the api works. Essential step, this one.
 
   - The plugin API is defined in the plugins\_base.py file. API docs can be
-    generated using *python3 -m pydoc lib/ddupdate/plugins_base.py* or so.
+    generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
 
   - Each plugin must live in a file with a unique name. It must contain a
     main class derived from IpPlugin or UpdatePlugin. The class docstring

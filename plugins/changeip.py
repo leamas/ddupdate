@@ -6,8 +6,8 @@ See:
  http://www.changeip.com/accounts/knowledgebase.php?action=displayarticle&id=34
 '''
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import http_basic_auth_setup, get_response
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
 class ChangeIpPlugin(UpdatePlugin):

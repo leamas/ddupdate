@@ -7,8 +7,8 @@ See: https://system-ns.com/services/dynamic
 '''
 import json
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import get_response, get_netrc_auth
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class SystemNsPlugin(UpdatePlugin):

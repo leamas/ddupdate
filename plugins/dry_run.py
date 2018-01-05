@@ -4,7 +4,7 @@ ddupdate dummy plugin making absolutely no update.
 See: ddupdate(8)
 '''
 
-from ddupdate.plugins_base import UpdatePlugin
+from ddupdate.ddplugin import UpdatePlugin
 
 
 class DryRunPlugin(UpdatePlugin):

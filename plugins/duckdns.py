@@ -5,8 +5,8 @@ See: ddupdate(8)
 See: https://www.duckdns.org/spec.jsp
 
 '''
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import get_response, get_netrc_auth
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class DuckdnsPlugin(UpdatePlugin):
