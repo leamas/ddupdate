@@ -15,7 +15,7 @@ pylint: .phony
 	        --msg-template='$(pylint_template)' \
 	        $(PYTHON_SRC)
 pydocstyle:
-	pydocstyle lib/ddupdate/ddplugin.py
+	pydocstyle $(PYTHON_SRC)
 
 pep8: $(PYTHON_SRC)
 	-python3-pep8 --config=pep8.conf $?

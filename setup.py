@@ -1,4 +1,4 @@
-''' ddupdate install data. '''
+"""ddupdate install data."""
 
 import os
 from glob import glob

@@ -1,8 +1,8 @@
-'''
-ddupdate plugin to obtain ip address
+"""
+ddupdate plugin to obtain ip address.
 
 See: ddupdate(8)
-'''
+"""
 
 import subprocess
 
@@ -10,20 +10,22 @@ from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
 
 
 class DefaultIfPLugin(IpPlugin):
-    '''
-    Locates the default interface by digging in the routing tables
-    and returns it's address using linux-specific code based on
-    the ip utility which must be in $PATH
+    """
+    Locates the default interface.
+
+    Digs in the routing tables and returns it's address using linux-specific
+    code based on the ip utility which must be in $PATH
 
     Options used: none
-    '''
+    """
+
     _name = 'default-if'
     _oneliner = 'Get ip address from default interface (linux)'
 
     def get_ip(self, log, options):
-        '''
-        Get default interface using ip route and address using ifconfig
-        '''
+        """
+        Get default interface using ip route and address using ifconfig.
+        """
         if_ = None
         for line in subprocess.getoutput('ip route').split('\n'):
             words = line.split()

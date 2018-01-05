@@ -1,9 +1,9 @@
-'''
+"""
 ddupdate plugin updating data on freedns.afraid.org.
 
 See: ddupdate(8)
 See: https://linuxaria.com/howto/dynamic-dns-with-bash-afraid-org
-'''
+"""
 
 import hashlib
 
@@ -12,7 +12,7 @@ from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class FreednsPlugin(UpdatePlugin):
-    '''
+    """
     Updates DNS data for host on freedns.afraid.org.
 
     Freedns will always use the external address as seen from afraid.org,
@@ -25,20 +25,22 @@ class FreednsPlugin(UpdatePlugin):
         machine freedns.afraid.org login <username> password <password>
     Options:
         None
-    '''
+    """
+
     _name = 'freedns.afraid.org'
     _oneliner = 'Updates on https://freedns.afraid.org'
     _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
     def register(self, log, hostname, ip, options):
-        '''
+        """
         Based on http://freedns.afraid.org/api/, needs _url below  to update.
+
         The sha parameter is sha1sum of login|password.  This returns a list
         of host|currentIP|updateURL lines.  Pick the line that matches myhost,
         and fetch the URL.  word 'Updated' for success, 'fail' for failure.
-        '''
+        """
         def build_shasum():
-            ''' Compute sha1sum('user|password') used in url. '''
+            """Compute sha1sum('user|password') used in url."""
             user, password = get_netrc_auth('freedns.afraid.org')
             token = "{0}|{1}".format(user, password)
             return hashlib.sha1(token.encode()).hexdigest()

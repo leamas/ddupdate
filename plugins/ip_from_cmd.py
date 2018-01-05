@@ -1,9 +1,9 @@
-'''
+"""
 ddupdate plugin supporting getting ip address from a command.
 
 See: ddupdate(8)
 
-'''
+"""
 
 import re
 import subprocess
@@ -12,11 +12,12 @@ from ddupdate.ddplugin import IpPlugin, IpLookupError, dict_of_opts
 
 
 class IpV4FromCmdPlugin(IpPlugin):
-    '''
-    Use ip4 address obtained from a command. The command is invoked
-    without parameters, and should return a single ip address
-    on stdout. Anything which is not parsed as an ipv4 address is treated
-    as an error message.
+    """
+    Use ip4 address obtained from a command.
+
+    The command is invoked without parameters, and should return a single
+    ip address on stdout. Anything which is not parsed as an ipv4 address
+    is treated as an error message.
 
     Note that when invoked in a systemd context, the environment
     for the command is more or less empty.
@@ -28,11 +29,13 @@ class IpV4FromCmdPlugin(IpPlugin):
 
     netrc:
         Nothing
-    '''
+    """
+
     _name = 'ipv4-from-command'
     _oneliner = 'Obtain address from a command'
 
     def get_ip(self, log, options):
+        """Implement IpPlugin.get_ip()."""
         opts = dict_of_opts(options)
         if 'cmd' not in opts:
             raise IpLookupError("Required option cmd= missing, giving up.")
