@@ -13,13 +13,14 @@ DATA = [
     ('/etc', ['ddupdate.conf']),
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8']),
-    ('share/doc/ddupdate', ['README.md', 'LICENSE.txt', 'NEWS']),
+    ('share/doc/ddupdate',
+        ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
 setup(
     name='ddupdate',
-    version='0.0.6',
+    version='0.1.0',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
