@@ -5,15 +5,15 @@ A plugin is either a service plugin or an ip plugin.
 
 Service plugins register the ip address with a dynamic dns service provider.
 They implement the UpdatePlugin abstract interface. Naming of these plugins
-is normally based on the website used to register since these are by
-definition unique
+is normally based on the website used to register since these by definition
+are unique
 
 Ip plugin determines the ip address to register. They implement the abstract
 IpPlugin interface.
 
 All plugins shares the AbstractPlugin interface. This handles general
-aspects like name and documentation. They also use functions defined in
-this module
+aspects like name and documentation. They also use utility functions defined
+in this module
 
 """
 
@@ -87,7 +87,7 @@ def get_response(log, url, to=120, data=None):
         raise UpdateError("Error reading %s :%s" % (url, err))
     log.debug("Got response (%d) : %s", code, html)
     if code != 200:
-        raise UpdateError("Cannot update, response code: %d", code)
+        raise UpdateError("Cannot update, response code: %d" % code)
     return html
 
 
@@ -98,7 +98,7 @@ def get_netrc_auth(machine):
     Parameters:
       - machine: key while searching in netrc file.
     Returns:
-      - A (user,password) tuple. Password might be None.
+      - A (user, password) tuple. Password might be None.
     Raises:
       - UpdateError if no password is found.
     See:
@@ -124,7 +124,7 @@ class IpAddr(object):
 
         Parameters:
           - iov4: string, the ipv4 address in dotted notation.
-          - ipv6: strinng, the ipv6 address in colon-hex notation.
+          - ipv6: string, the ipv6 address in colon-hex notation.
 
         """
         self.v4 = ipv4
@@ -167,7 +167,7 @@ class IpAddr(object):
             use_next4 = word == 'inet'
             use_next6 = word == 'inet6'
         if self.empty():
-            raise IpLookupError("Cannot find address for %s, giving up", text)
+            raise IpLookupError("Cannot find address for %s, giving up" % text)
 
 
 class IpLookupError(Exception):
@@ -260,13 +260,13 @@ class UpdatePlugin(AbstractPlugin):
 
     def register(self, log, hostname, ip, options):
         """
-        Given configuration, address and log do the actual update.
+        Do the actual update.
 
         Parameters:
-        - log: standard python log instance
-        - hostname - string, the DNS name to register
-        - ip: Address to register
-        - opts: list of --option values.
+        - log: Standard python log instance
+        - hostname: string, the DNS name to register
+        - ip: IpAddr, address to register
+        - opts: List of --option values.
         Raises:
         - UpdateError on errors.
 
