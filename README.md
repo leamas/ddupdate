@@ -40,19 +40,15 @@ symlink::
 
     $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
 
-User installations are not supported. To make a local site installation
-in /usr/local run something like::
+It is also possible to install as a pypi package using::
 
-    $ sudo python3 setup.py --prefix=/usr/local
+    $ sudo pip install ddupdate --prefix=/usr/local
 
-**ddupdate** can be installed in an virtualenv root by a regular user. To
-use the plugins in the venv in favor of the system ones prepend the proper
-path to XDG\_DATA\_DIRS using something like::
+User installations are not supported, but installing in a virtual env is -
+see Packaging below.
 
-    $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
-
-See Packaging below for building proper native packages for Debian and
-Fedora. This is the preferred installation method on these platforms.
+See also Packaging below for building proper native packages for Debian
+and Fedora. This is the preferred installation method on these platforms.
 
 Fast Track Configuration
 ------------------------
@@ -219,28 +215,44 @@ ddupdate has a multitude of packaging:
   - ddupdate is available as a **pypi package** from the master branch. It
     can be installed using pip::
 
-        $ sudo pip install ddupdate --prefix=/usr
+        $ sudo pip install ddupdate --prefix=/usr/local
+
+    or from the cloned git directory:
+
+        $ sudo python3 setup.py install --prefix=/usr/local
+
+    It can be installed in an virtualenv root by a regular user. To use
+    the plugins in the venv in favor of the system ones prepend the proper
+    path to XDG\_DATA\_DIRS using something like::
+
+        $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
+
+    Using a virtualenv, configuration files like */etc/ddupdate.conf* and
+    *~/.netrc* are still used from their system-wide locations.
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
-    at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/ Building
-    requires the fedora toolchain in the *git*, *rpmdevtools* and
-    *rpm-build* packages.  To build::
+    at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
+    requires the *git* and *rpm-build* packages. To build version 0.0.6::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
-        $ cd ddupdate
-        $ spectool -g ddupdate.spec
+        $ cd ddupdate/fedora
+        $ sudo dnf builddep ddupdate.spec
+        $ ./make-tarball 0.0.6
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
-
-    This creates both a source and a binary rpm package underneath *rpmbuild*.
+        $ rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
     and *git*  are required to build. To build current version 0.0.6 do::
 
-        $ git clone -b debian https://github.com/leamas/ddupdate.git
+        $ mkdir ddupdate; cd ddupdate
+        $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
+        $ sudo mk-build-deps -i -r  debian/control
+        $ git fetch upstream pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag=0.0.6 -us -uc
         $ git clean -fd; git checkout .    # To be able to rebuild
+        $ dpkg -i ../ddupdate_0.0.6*_all.deb
 
 Writing plugins
 ---------------
@@ -251,6 +263,9 @@ existing plugins and pick solutions from them. Some hints:
 
   - Before writing the plugin, make tests with wget or curl to make
     sure how the api works. Essential step, this one.
+
+  - The plugin API is defined in the plugins\_base.py file. API docs can be
+    generated using *python3 -m pydoc lib/ddupdate/plugins_base.py* or so.
 
   - Each plugin must live in a file with a unique name. It must contain a
     main class derived from IpPlugin or UpdatePlugin. The class docstring
@@ -267,12 +282,11 @@ existing plugins and pick solutions from them. Some hints:
       - Hashed passwords are used in e. g., ```dynu.py```
       - API tokens are handled in e. g., ```duckdns.py```
       - Some have broken basic authentication, see ```now_dns.py```
+
   - Most services uses a http GET request to set the data. See
     ```freedns_io.py``` for a http POST example.
+
   - Reply decoding:
       - Most sites just returns some text, simple enough
       - json: example in ```system_ns.py```
       - html: example in ```duiadns.py```
-
-  - The plugin API is defined in the plugins_base.py file. API docs can be
-    generated using *python3 -m pydoc lib/ddupdate/plugins_base.py* or so.
