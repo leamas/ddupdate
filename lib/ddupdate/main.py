@@ -1,5 +1,5 @@
 
-''' Update DNS data for dynamically ip addresses  '''
+"""Update DNS data for dynamically ip addresses."""
 
 import argparse
 import configparser
@@ -33,7 +33,7 @@ DEFAULTS = {
 
 
 class _GoodbyeError(Exception):
-    """ General error, implies sys.exit() """
+    """General error, implies sys.exit()."""
 
     def __init__(self, msg="", exitcode=0):
         Exception.__init__(self, msg)
@@ -42,19 +42,19 @@ class _GoodbyeError(Exception):
 
 
 def envvar_default(var, default=None):
-    ''' Return var if found in environment, else default. '''
+    """Return var if found in environment, else default."""
     return os.environ[var] if var in os.environ else default
 
 
 def ip_cache_setup(opts):
-    ''' Ensure that our cache directory exists, return cache file path '''
+    """Ensure that our cache directory exists, return cache file path."""
     if not os.path.exists(opts.ip_cache):
         os.makedirs(opts.ip_cache)
     return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
 
 
 def ip_cache_clear(opts, log):
-    ''' Remove the cache file for actual service plugin in opts. '''
+    """Remove the cache file for actual service plugin in opts."""
     path = ip_cache_setup(opts)
     if not os.path.exists(path):
         return
@@ -63,9 +63,11 @@ def ip_cache_clear(opts, log):
 
 
 def ip_cache_data(opts, default=("0.0.0.0", 100000)):
-    ''' Return  a (address, cache age in minute) tuples. If not existing,
-    the default value is returned.
-    '''
+    """
+    Return an (address, cache age in minute) tuple.
+
+    If not existing, the default value is returned.
+    """
     path = ip_cache_setup(opts)
     if not os.path.exists(path):
         return default
@@ -78,8 +80,7 @@ def ip_cache_data(opts, default=("0.0.0.0", 100000)):
 
 
 def ip_cache_set(opts, addr):
-    ''' Set the cached address to string addr. '''
-
+    """Set the cached address to string addr."""
     path = ip_cache_setup(opts)
     addr = addr if addr else "0.0.0.0"
     with open(path, "w") as f:
@@ -87,12 +88,12 @@ def ip_cache_set(opts, addr):
 
 
 def here(path):
-    ' Return path added to current dir for __file__. '
+    """Return path added to current dir for __file__."""
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
 
 
 def parse_conffile(log):
-    ' Parse config file path, returns verified path or None. '
+    """Parse config file path, returns verified path or None."""
     path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
     if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
         path = '/etc/ddupdate.conf'
@@ -115,7 +116,7 @@ def parse_conffile(log):
 
 
 def parse_config(path, log):
-    ' Parse config file, return fully populated dict of key-values '
+    """Parse config file, return fully populated dict of key-values."""
     results = {}
     config = configparser.ConfigParser()
     config.read(path)
@@ -134,7 +135,7 @@ def parse_config(path, log):
 
 
 def get_parser(conf):
-    ''' Construct the argparser. '''
+    """Construct the argparser."""
     parser = argparse.ArgumentParser(
         prog='ddupdate',
         add_help=False,
@@ -192,7 +193,7 @@ def get_parser(conf):
 
 
 def parse_options(conf):
-    ''' Parse command line using conf as defaults, return namespace. '''
+    """Parse command line using conf as defaults, return namespace."""
     level_by_name = {
         'error': logging.ERROR,
         'warn': logging.WARNING,
@@ -214,7 +215,7 @@ def parse_options(conf):
 
 
 def log_setup():
-    ' Setup the module log. '
+    """Initialize the module log."""
     log = logging.getLogger('ddupdate')
     log.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
@@ -226,7 +227,7 @@ def log_setup():
 
 
 def log_options(log, args):
-    ' Print some info on seledted options. '
+    """Print some info on seledted options."""
     log.info("Loglevel: " + logging.getLevelName(args.loglevel))
     log.info("Using hostname: " + args.hostname)
     log.info("Using ip address plugin: " + args.ip_plugin)
@@ -236,7 +237,7 @@ def log_options(log, args):
 
 
 def load_plugins(path, log):
-    ''' Load ip and service plugins into dicts keyed by name. '''
+    """Load ip and service plugins into dicts keyed by name."""
     sys.path.insert(0, path)
     getters = load('plugins', subclasses=IpPlugin)
     getters = getters.produce()
@@ -254,7 +255,7 @@ def load_plugins(path, log):
 
 
 def list_plugins(ip_plugins, service_plugins, kind):
-    ''' List all loaded plugins (noreturn). '''
+    """List all loaded plugins (noreturn)."""
     if kind == 'all' or kind.startswith('i'):
         for name, plugin in sorted(ip_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
@@ -264,7 +265,7 @@ def list_plugins(ip_plugins, service_plugins, kind):
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
-    ''' print full help for given plugin (noreturn).'''
+    """Print full help for given plugin (noreturn)."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
@@ -277,7 +278,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
 
 
 def build_load_path(log):
-    ''' Return list of paths to load plugins from. '''
+    """Return list of paths to load plugins from."""
     paths = []
     paths.append(envvar_default('XDG_DATA_HOME',
                                 os.path.expanduser('~/.local/share')))
@@ -292,7 +293,7 @@ def build_load_path(log):
 
 
 def setup():
-    ''' Return a standard log, arg_parser tuple. '''
+    """Return a standard log, arg_parser tuple."""
     log = log_setup()
     conffile_path = parse_conffile(log)
     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
@@ -304,9 +305,9 @@ def setup():
 
 
 def get_plugins(log, opts):
-    ''' Handle list_plugins, help <plugin> or return the ip and service
-    plugin.
-   .'''
+    """
+    Do list_plugins, help <plugin> or return (ip plugins, service plugins).
+    """
     ip_plugins = {}
     service_plugins = {}
     load_paths = build_load_path(log)
@@ -333,7 +334,7 @@ def get_plugins(log, opts):
 
 
 def main():
-    ''' Indeed: main function. '''
+    """Indeed: main function."""
     try:
         log, opts = setup()
         ip_plugin, service_plugin = get_plugins(log, opts)
