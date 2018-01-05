@@ -124,7 +124,7 @@ class IpAddr(object):
 
         Parameters:
           - iov4: string, the ipv4 address in dotted notation.
-          - ipv6: strinng, the ipv6 address in dotted notation.
+          - ipv6: strinng, the ipv6 address in colon-hex notation.
 
         """
         self.v4 = ipv4
