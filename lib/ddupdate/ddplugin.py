@@ -57,7 +57,7 @@ def dict_of_opts(options):
     return result
 
 
-def get_response(log, url, to=120, data=None):
+def get_response(log, url, to=120, **kwargs):
     """
     Get data from server at given url.
 
@@ -65,20 +65,21 @@ def get_response(log, url, to=120, data=None):
       - log: Standard python log instance
       - url: The url to make a post/get request to.
       - to: timeout, in seconds.
-      - data: dict of post data. If data != None, get_response makes a
-        http POST request, otherwise a http GET.
+      - kwargs: Keyword arguments.
+         - data: dict of post data. If data != None, get_response makes a
+           http POST request, otherwise a http GET.
     Returns:
-      - Data read from url.
+      - Text read from url.
     Raises:
       - UpdateError if return code is != 200, httpError or timeout.
 
     """
     log.debug("Trying url: %s", url)
-    form_data = urlencode(data).encode() if data else None
+    data = urlencode(kwargs['data']).encode() if 'data' in kwargs else None
     if data:
-        log.debug("Posting data: " + form_data.decode('ascii'))
+        log.debug("Posting data: " + data.decode('ascii'))
     try:
-        with urllib.request.urlopen(url, form_data, timeout=to) as response:
+        with urllib.request.urlopen(url, data, timeout=to) as response:
             code = response.getcode()
             html = response.read().decode('ascii')
     except timeoutError:
