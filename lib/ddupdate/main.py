@@ -1,5 +1,5 @@
 
-''' Update DNS data for dynamically ip addresses  '''
+"""Update DNS data for dynamically ip addresses."""
 
 import argparse
 import configparser
@@ -13,8 +13,8 @@ import time
 
 from straight.plugin import load
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import IpPlugin, IpLookupError
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -32,20 +32,29 @@ DEFAULTS = {
 }
 
 
+class _GoodbyeError(Exception):
+    """General error, implies sys.exit()."""
+
+    def __init__(self, msg="", exitcode=0):
+        Exception.__init__(self, msg)
+        self.exitcode = exitcode
+        self.msg = msg
+
+
 def envvar_default(var, default=None):
-    ''' Return var if found in environment, else default. '''
+    """Return var if found in environment, else default."""
     return os.environ[var] if var in os.environ else default
 
 
 def ip_cache_setup(opts):
-    ''' Ensure that our cache directory exists, return cache file path '''
+    """Ensure that our cache directory exists, return cache file path."""
     if not os.path.exists(opts.ip_cache):
         os.makedirs(opts.ip_cache)
     return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
 
 
 def ip_cache_clear(opts, log):
-    ''' Remove the cache file for actual service plugin in opts. '''
+    """Remove the cache file for actual service plugin in opts."""
     path = ip_cache_setup(opts)
     if not os.path.exists(path):
         return
@@ -54,9 +63,11 @@ def ip_cache_clear(opts, log):
 
 
 def ip_cache_data(opts, default=("0.0.0.0", 100000)):
-    ''' Return  a (address, cache age in minute) tuples. If not existing,
-    the default value is returned.
-    '''
+    """
+    Return an (address, cache age in minute) tuple.
+
+    If not existing, the default value is returned.
+    """
     path = ip_cache_setup(opts)
     if not os.path.exists(path):
         return default
@@ -69,24 +80,22 @@ def ip_cache_data(opts, default=("0.0.0.0", 100000)):
 
 
 def ip_cache_set(opts, addr):
-    ''' Set the cached address to string addr. '''
-
+    """Set the cached address to string addr."""
     path = ip_cache_setup(opts)
     addr = addr if addr else "0.0.0.0"
     with open(path, "w") as f:
-        f.write(addr.str())
+        f.write(str(addr))
 
 
 def here(path):
-    ' Return path added to current dir for __file__. '
+    """Return path added to current dir for __file__."""
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
 
 
 def parse_conffile(log):
-    ' Parse config file path, returns verified path or None. '
-    path = envvar_default('XDG_CONFIG_HOME',
-                          os.path.expanduser('~/.config/ddupdate.conf'))
-    if not os.path.exists(path):
+    """Parse config file path, returns verified path or None."""
+    path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
         path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
@@ -107,7 +116,7 @@ def parse_conffile(log):
 
 
 def parse_config(path, log):
-    ' Parse config file, return fully populated dict of key-values '
+    """Parse config file, return fully populated dict of key-values."""
     results = {}
     config = configparser.ConfigParser()
     config.read(path)
@@ -126,7 +135,7 @@ def parse_config(path, log):
 
 
 def get_parser(conf):
-    ''' Construct the argparser. '''
+    """Construct the argparser."""
     parser = argparse.ArgumentParser(
         prog='ddupdate',
         add_help=False,
@@ -148,7 +157,7 @@ def get_parser(conf):
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
-        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.cache/ddupdate.conf')
+        + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
         + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
@@ -184,7 +193,7 @@ def get_parser(conf):
 
 
 def parse_options(conf):
-    ''' Parse command line using conf as defaults, return namespace. '''
+    """Parse command line using conf as defaults, return namespace."""
     level_by_name = {
         'error': logging.ERROR,
         'warn': logging.WARNING,
@@ -193,11 +202,11 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.0.5"
+    parser.version = "0.1.0"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
-        sys.exit(0)
+        raise _GoodbyeError()
     if not opts.options:
         opts.options = conf['options']
     opts.loglevel = level_by_name[opts.loglevel]
@@ -206,7 +215,7 @@ def parse_options(conf):
 
 
 def log_setup():
-    ' Setup the module log. '
+    """Initialize the module log."""
     log = logging.getLogger('ddupdate')
     log.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
@@ -218,7 +227,7 @@ def log_setup():
 
 
 def log_options(log, args):
-    ' Print some info on seledted options. '
+    """Print some info on seledted options."""
     log.info("Loglevel: " + logging.getLevelName(args.loglevel))
     log.info("Using hostname: " + args.hostname)
     log.info("Using ip address plugin: " + args.ip_plugin)
@@ -228,7 +237,7 @@ def log_options(log, args):
 
 
 def load_plugins(path, log):
-    ''' Load ip and service plugins into dicts keyed by name. '''
+    """Load ip and service plugins into dicts keyed by name."""
     sys.path.insert(0, path)
     getters = load('plugins', subclasses=IpPlugin)
     getters = getters.produce()
@@ -237,97 +246,118 @@ def load_plugins(path, log):
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
     sys.path.pop(0)
+    plugins = list(setters_by_name.values()) + list(getters_by_name.values())
+    for plugin in plugins:
+        plugin.srcdir = path
     log.debug("Loaded %d address and %d service plugins from %s",
               len(getters), len(setters), path)
     return getters_by_name, setters_by_name
 
 
 def list_plugins(ip_plugins, service_plugins, kind):
-    ''' List all loaded plugins (noreturn). '''
+    """List all loaded plugins (noreturn)."""
     if kind == 'all' or kind.startswith('i'):
         for name, plugin in sorted(ip_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
     if kind == 'all' or kind.startswith('s'):
         for name, plugin in sorted(service_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
-    sys.exit(0)
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
-    ''' print full help for given plugin (noreturn).'''
+    """Print full help for given plugin (noreturn)."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
         plugin = service_plugins[plugid]
     else:
-        print("No help available (nu such plugin?): " + plugid)
-        sys.exit(2)
+        raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
-    print("Source: " + plugin.sourcefile() + "\n")
+    print("Source directory: " + plugin.srcdir + "\n")
     print(plugin.info())
-
-    sys.exit(0)
 
 
 def build_load_path(log):
-    ''' Return list of paths to load plugins from. '''
+    """Return list of paths to load plugins from."""
     paths = []
-    path = os.path.expanduser('~/.local/share')
-    if 'XDG_DATA_HOME' in os.environ:
-        path = os.environ['XDG_DATA_HOME']
-    paths.append(path)
-    syspaths = "/usr/local/share:/usr/share"
-    if 'XDG_DATA_DIRS' in os.environ:
-        syspaths = os.environ['XDG_DATA_DIRS']
+    paths.append(envvar_default('XDG_DATA_HOME',
+                                os.path.expanduser('~/.local/share')))
+    syspaths = envvar_default('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
     paths.extend(syspaths.split(':'))
     paths = [os.path.join(p, 'ddupdate') for p in paths]
-    paths.insert(0, os.getcwd())
+    home = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..')
+    paths.insert(0, os.path.abspath(home))
     log.debug('paths :%s', ':'.join(paths))
     return paths
 
 
-def main():
-    ''' Indeed: main function. '''
-    ip_plugins = {}
-    service_plugins = {}
+def setup():
+    """Return a standard log, arg_parser tuple."""
     log = log_setup()
     conffile_path = parse_conffile(log)
     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
     opts = parse_options(conf)
     log.handlers[0].setLevel(opts.loglevel)
+    log.debug('Using config file: %s', conffile_path)
     log_options(log, opts)
+    return log, opts
+
+
+def get_plugins(log, opts):
+    """
+    Do list_plugins, help <plugin> or return (ip plugins, service plugins).
+    """
+    ip_plugins = {}
+    service_plugins = {}
     load_paths = build_load_path(log)
     for path in load_paths:
         getters, setters = load_plugins(path, log)
-        ip_plugins.update(getters)
-        service_plugins.update(setters)
-    if opts.help and opts.help != '-':
-        plugin_help(ip_plugins, service_plugins, opts.help)
+        for name, plugin in getters.items():
+            ip_plugins.setdefault(name, plugin)
+        for name, plugin in setters.items():
+            service_plugins.setdefault(name, plugin)
     if opts.list_plugins:
         list_plugins(ip_plugins, service_plugins, opts.list_plugins)
-    if opts.ip_plugin not in ip_plugins:
-        log.error("No such ip plugin: %s", opts.ip_plugin)
-        sys.exit(2)
-    try:
-        ip = ip_plugins[opts.ip_plugin].get_ip(log, opts.options)
-    except IpLookupError as err:
-        log.error("Cannot obtain ip address: %s", err)
-        sys.exit(3)
-    if not ip or ip.empty():
-        log.info("Using ip address provided by update service")
-        ip = None
-    else:
-        log.info("Using ip address: %s, %s", ip.v4, ip.v6)
-    if opts.force:
-        ip_cache_clear(opts, log)
-    addr, age = ip_cache_data(opts)
-    if opts.service_plugin not in service_plugins:
-        log.error("No such service plugin: %s", opts.service_plugin)
-        sys.exit(2)
+        raise _GoodbyeError()
+    elif opts.help and opts.help != '-':
+        plugin_help(ip_plugins, service_plugins, opts.help)
+        raise _GoodbyeError()
+    elif opts.ip_plugin not in ip_plugins:
+        raise _GoodbyeError('No such ip plugin: ' + opts.ip_plugin, 2)
+    elif opts.service_plugin not in service_plugins:
+        raise _GoodbyeError(
+            'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
-    if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
-        log.info("Update inhibited, cache is fresh (%d min)", age)
-        sys.exit(0)
+    ip_plugin = ip_plugins[opts.ip_plugin]
+    return ip_plugin, service_plugin
+
+
+def main():
+    """Indeed: main function."""
+    try:
+        log, opts = setup()
+        ip_plugin, service_plugin = get_plugins(log, opts)
+        try:
+            ip = ip_plugin.get_ip(log, opts.options)
+        except IpLookupError as err:
+            raise _GoodbyeError("Cannot obtain ip address: " + err, 3)
+        if not ip or ip.empty():
+            log.info("Using ip address provided by update service")
+            ip = None
+        else:
+            log.info("Using ip address: %s", ip)
+        if opts.force:
+            ip_cache_clear(opts, log)
+        addr, age = ip_cache_data(opts)
+        if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
+            log.info("Update inhibited, cache is fresh (%d/%d min)",
+                     age, service_plugin.ip_cache_ttl)
+            raise _GoodbyeError()
+    except _GoodbyeError as err:
+        if err.exitcode != 0:
+            log.error(err.msg)
+        sys.exit(err.exitcode)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.options)
     except UpdateError as err:

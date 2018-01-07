@@ -1,16 +1,16 @@
-'''
+"""
 ddupdate plugin updating data on dnsexit.com.
 
 See: ddupdate(8)
 See: http://downloads.dnsexit.com/ipUpdateDev.doc
-'''
+"""
 
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import get_response, get_netrc_auth
+from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class DnsexitPlugin(UpdatePlugin):
-    '''
+    """
     Updates DNS data for host on dnsexit.com.
 
     The documentation is not clear whether dnsexit can update data
@@ -29,7 +29,8 @@ class DnsexitPlugin(UpdatePlugin):
         machine update.dnsexit.com login <username> password <password>
     Options:
         None
-    '''
+    """
+
     _name = 'dnsexit.com'
     _oneliner = 'Updates on https://www.dnsexit.com'
 
@@ -39,6 +40,7 @@ class DnsexitPlugin(UpdatePlugin):
         "service is not known to provide an address, use another ip plugin"
 
     def register(self, log, hostname, ip, options):
+        """Implement IpPlugin.get_ip()."""
         if not ip:
             log.warn(self._ip_warning)
         user, password = get_netrc_auth('update.dnsexit.com')
@@ -48,7 +50,7 @@ class DnsexitPlugin(UpdatePlugin):
             url += "&myip=" + ip.v4
         # if debugging:
         #     url += "&force=Y" # override 8 minutes server limit
-        html = get_response(log, url).split('\n')
+        html = get_response(log, url, self._socket_to).split('\n')
         if '200' not in html[0]:
             raise UpdateError("Bad HTML response: " + html)
         code = html[1].split('=')[0]

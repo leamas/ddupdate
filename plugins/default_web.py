@@ -1,28 +1,31 @@
-'''
-ddupdate plugin to retrieve address as seen from internet
+"""
+ddupdate plugin to retrieve address as seen from internet.
 
 See: ddupdate(8)
-'''
+"""
 
 import urllib.request
 import re
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
 
 
 class DefaultWebPlugin(IpPlugin):
-    ''' Get the external address as seen from the web. Relies on
-    dyndns.org, falling back to ipify.org and ifconfig.co.
+    """
+    Get the external address as seen from the web.
+
+    Relies on dyndns.org, falling back to ipify.org and ifconfig.co.
 
     Options used: none
-    '''
+    """
+
     _name = 'default-web-ip'
     _oneliner = 'Obtain external address as seen from the net'
 
     def get_ip(self, log, options):
-
+        """Implement IpPlugin.get_ip()."""
         def check_url(url):
-            ''' Get reply from host and decode '''
+            """Get reply from host and decode."""
             log.debug('trying ' + url)
             with urllib.request.urlopen(url) as response:
                 if response.getcode() != 200:
