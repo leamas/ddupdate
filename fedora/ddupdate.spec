@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.1.0
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -58,6 +58,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mv $RPM_BUILD_ROOT/lib/systemd/system/* $RPM_BUILD_ROOT/usr/lib/systemd/system
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/LICENSE.txt
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/README.md
+rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/CONTRIBUTE.md
 rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/NEWS
 
 %pre
@@ -88,6 +89,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Sun Jan 07 2018 Alec Leamas <leamas.alec@gmail.com> - 0.1.0-2
+- Fix unpackaged document file.
+
 * Sun Jan 07 2018 Alec Leamas <leamas.alec@gmail.com> - 0.1.0-1
 - New upstream release
 
