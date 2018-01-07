@@ -18,22 +18,22 @@ URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{dirspec}/%{name}-%{srcspec}.tar.gz
 
-%{?systemd_requires}
-
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
-Requires:       python%{python3_pkgversion}-straight-plugin
 BuildRequires:  systemd
+Requires(pre):  shadow-utils
+Requires:       python%{python3_pkgversion}-straight-plugin
 Requires:       /usr/sbin/ip
+
+%{?systemd_requires}
 
 %description
 
 A tool to update dynamic IP addresses typically obtained using DHCP
 with dynamic DNS services such as changeip.com, duckdns.org or no-ip.com.
-The goal is that it should be possible to access a machine with a fixed
-name like myhost.duckdns.org even if the ip address changes. ddupdate
-caches the address, and only attempts the update if the address actu‐
-ally is changed.
+It makes it  possible to access a machine with a fixed name like
+myhost.duckdns.org even if the ip address changes. ddupdate caches the
+address, and only attempts the update if the address actually is changed.
 
 The tool has a plugin structure with plugins for obtaining the actual
 address (typically hardware-dependent) and to update it (service depen‐
@@ -56,10 +56,7 @@ sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
 python3 setup.py install --root=$RPM_BUILD_ROOT --prefix=/usr
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mv $RPM_BUILD_ROOT/lib/systemd/system/* $RPM_BUILD_ROOT/usr/lib/systemd/system
-rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/LICENSE.txt
-rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/README.md
-rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/CONTRIBUTE.md
-rm  $RPM_BUILD_ROOT/usr/share/doc/ddupdate/NEWS
+rm -rf $RPM_BUILD_ROOT/usr/share/doc/ddupdate/*
 
 %pre
 getent group ddupdate >/dev/null || groupadd -r ddupdate

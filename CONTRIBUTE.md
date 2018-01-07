@@ -87,6 +87,7 @@ Creating a new version
         $ diff -r ddupdate-0.1.0 ddupdate > foo
         # Remove all cruft left in foo after merge.
         $ git commit -am "new upstream release..."
+        $ dch -v 0.1.0   # Edit debian changelog
         $ git  clean -fd
         $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
         $ git clean -fd; git checkout .    # To be able to rebuild
@@ -98,11 +99,10 @@ Creating a new version
     - sudo ntpdate se.pool.ntp.org
     - git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
     - git fetch upstream pristine-tar:pristine-tar
-    - pristine-tar checkout ddupdate\_0.1.0.orig.tar.gz
-    - mv ddupdate\_0.1.0.orig.tar.gz ..
+    - pristine-tar checkout ../ddupdate\_0.1.0.orig.tar.gz
     - sudo mk-build-deps -i -r debian/control
-    - Edit debian/changelog, add ~ubuntu1 suffix, change Standard-version
-      -> 3.9.7
+    - Edit debian/changelog, add ~ubuntu1 suffix, experimental-\>xenial.
+      Change Standard-version -> 3.9.7 in control,
     - debuild -S
     - dput ppa:leamas-alec/ddupdate ../ddupdate\*source.changes
 
