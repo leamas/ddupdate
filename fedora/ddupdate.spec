@@ -1,6 +1,6 @@
 %global debug_package %{nil}
 
-%global gittag 0.0.6
+%global gittag 0.1.0
 #global commit eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,8 +8,8 @@
 %global dirspec %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.0.6
-Release:        3%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.1.0
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,7 +17,6 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{dirspec}/%{name}-%{srcspec}.tar.gz
-Patch1:         0001-NetworkManager-support-bad-bugfix.patch
 
 %{?systemd_requires}
 
@@ -79,7 +78,7 @@ getent passwd ddupdate >/dev/null || \
 
 %files
 %license LICENSE.txt
-%doc README.md NEWS
+%doc README.md NEWS CONTRIBUTE.md
 %{_bindir}/ddupdate
 %config(noreplace) /etc/ddupdate.conf
 %{_unitdir}/ddupdate.*
@@ -89,6 +88,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Sun Jan 07 2018 Alec Leamas <leamas.alec@gmail.com> - 0.1.0-1
+- New upstream release
+
 * Thu Jan 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.0.6-3
 - NetworkManager support patch, from upstream
 
