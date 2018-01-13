@@ -27,7 +27,8 @@ username/password credentials.
 For these, the netrc(5) file is used.
 .P
 \fBddupdate\fR is distributed with systemd support to run at regular intervals,
-and with NetworkManager templates to run when interfaces goes up or down.
+and with NetworkManager templates to run when interfaces goes up or down. It
+fully supports ipv6 addresses and also using proxies (see ENVIRONMENT).
 .PP
 
 .SH OPTIONS
@@ -183,6 +184,15 @@ Locates user plugins. See PLUGIN LOADING.
 .TP 4
 .B XDG_DATA_DIRS
 Involved in system plugins, see PLUGIN LOADING.
+
+\fBddupdate\fR also accepts the standard proxy environment:
+
+.TP 4
+.B http_proxy, https_proxy
+URL to used proxies for http and https connections. The systemd service
+files distributed has provisions to define these as required.
+
+
 
 .TP 4
 .B XDG_CONFIG_HOME

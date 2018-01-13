@@ -84,7 +84,7 @@ def get_response(log, url, to=120, **kwargs):
             html = response.read().decode('ascii')
     except timeoutError:
         raise UpdateError("Timeout reading %s" % url)
-    except urllib.error.HTTPError as err:
+    except (urllib.error.HTTPError, urllib.error.URLError) as err:
         raise UpdateError("Error reading %s :%s" % (url, err))
     log.debug("Got response (%d) : %s", code, html)
     if code != 200:
