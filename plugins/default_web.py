@@ -10,11 +10,19 @@ import re
 from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
 
 
+_URLS = [
+    'http://checkip.dyndns.org/',
+    'https://api.ipify.org?format=json',
+    'https://ifconfig.co'
+]
+
+
 class DefaultWebPlugin(IpPlugin):
     """
     Get the external address as seen from the web.
 
-    Relies on dyndns.org, falling back to ipify.org and ifconfig.co.
+    Relies on urls defined in _URLS, trying each in turn when running
+    into trouble.
 
     Options used: none
     """
@@ -43,17 +51,11 @@ class DefaultWebPlugin(IpPlugin):
             log.debug("Cannot parse address reply")
             return None
 
-        ip = check_url('http://checkip.dyndns.org/')
-        if ip:
-            return IpAddr(ip)
-        log.info("Falling back to ipify.org")
-        ip = check_url('https://api.ipify.org?format=json')
-        if ip:
-            return IpAddr(ip)
-        log.info("Falling back to ifconfig.co")
-        ip = check_url('https://ifconfig.co')
-        if ip:
-            return IpAddr(ip)
+        for ix, url in enumerate(_URLS):
+            ip = check_url(url)
+            if ip:
+                return IpAddr(ip)
+            if ix + 1 < len(_URLS):
+                log.info("Falling back to %s", _URLS[ix + 1])
         raise IpLookupError(
-            "Cannot obtain ip address (%s, %s and %s tried)" %
-            ('checkip.dyndns.org', 'ipify.org', 'ifconfig.co'))
+            "Cannot obtain ip address (%s, %s and %s tried)" % tuple(_URLS))
