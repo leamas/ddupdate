@@ -48,7 +48,14 @@ address.
 \fB-i, --ip-plugin\fR <\fIplugin\fR>
 Plugin used to obtain the actual ip address. Defaults to default-if,
 which localizes the default interface using /usr/sbin/ip and uses it's
-address.
+
+.TP 4
+\fB-v, --ip-version\fR <\fIv4\fR|\fIv6\fR|\fIall\fR>
+The kind if ip addresses to register. The addresses obtained by the
+ip-plugin could be either v6, v4 or both. However, the actual addresses
+sent to the service plugin is filtered using this option so for example
+a not-used ipv6 address not becomes an official address to the host.
+Defaults to \fIv4\fr.
 
 .TP 4
 \fB-c, --config-file\fR <\fIpath\fR>
@@ -88,7 +95,7 @@ Print help. If given a plugin argument, prints help for this plugin.
 List ip-plugins or service-plugins. By default, lists all.
 
 .TP 4
-\fB-v, --version\fR
+\fB-V, --version\fR
 Print \fBddupdate\fR version.
 
 .SH PLUGIN OPTIONS

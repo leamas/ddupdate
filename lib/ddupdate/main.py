@@ -166,6 +166,11 @@ def get_parser(conf):
         help='Amount of printed diagnostics [warning]',
         default=conf['loglevel'])
     normals.add_argument(
+        "-v", "--ip-version", metavar='level',
+        choices=['all', 'v6', 'v4'],
+        help='Ip address version(s) to register (v6, v4, all) [v4]',
+        default='v4')
+    normals.add_argument(
         "-o", "--option", metavar="plugin option",
         help='Plugin option (enter multiple times if required)',
         dest='options', action='append')
@@ -186,7 +191,7 @@ def get_parser(conf):
         help='Print overall help or help for given plugin',
         nargs='?', const='-')
     others.add_argument(
-        "-v", "--version",
+        "-V", "--version",
         help='Print ddupdate version and exit',
         action='version')
     return parser
@@ -277,6 +282,17 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     print(plugin.info())
 
 
+def filter_ip(ip_version, ip):
+    """Filter the ip address to match the --ip-version option."""
+    if ip_version == 'v4':
+        ip.v6 = None
+    elif ip_version == 'v6':
+        ip.v4 = None
+    if ip.empty():
+        raise IpLookupError("No usable address")
+    return ip
+
+
 def build_load_path(log):
     """Return list of paths to load plugins from."""
     paths = []
@@ -341,11 +357,12 @@ def main():
         try:
             ip = ip_plugin.get_ip(log, opts.options)
         except IpLookupError as err:
-            raise _GoodbyeError("Cannot obtain ip address: " + err, 3)
+            raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
         if not ip or ip.empty():
             log.info("Using ip address provided by update service")
             ip = None
         else:
+            ip = filter_ip(opts.ip_version, ip)
             log.info("Using ip address: %s", ip)
         if opts.force:
             ip_cache_clear(opts, log)
