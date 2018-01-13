@@ -43,8 +43,7 @@ Creating a new version
 
   - Replace all occurrences of version string:
 
-        sed -E -i 's/([^0-9])0\.[0-9]+\.[0-9]+/\10.1.0/' $(git ls-files)
-        sed -i 's/[0-9]\.[0-9]\.[0-9]\.[0-9]/0.0.0.0/g' $(git ls-files)
+        sed -E -i 's/([^\.])0\.[0-9]+\.[0-9]+([^\. ])/\10.1.0\2/' $(git ls-files
 
   - Update NEWS file.
 

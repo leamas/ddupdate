@@ -154,7 +154,7 @@ For the default case, the default-web-ip plugin generates the address as
 seen from the network. This can be tested using::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
-    dry-run: Using address 90.224.208.212 and hostname host.nowhere.net
+    dry-run: Using address 90.1.08.212 and hostname host.nowhere.net
 
 All looks good (if you want to use another address, look into *ddupdate list
 ip-plugins*). Let's try to actually update that hostname on dynu.com::
@@ -166,7 +166,7 @@ ip-plugins*). Let's try to actually update that hostname on dynu.com::
     INFO - Using ip address plugin: default-web-ip
     INFO - Using service plugin: dynu
     INFO - Plugin options:
-    INFO - Using ip address: 90.224.208.212
+    INFO - Using ip address: 90.1.08.212
     INFO - Update OK
 
 Again fine. Update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to

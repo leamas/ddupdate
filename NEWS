@@ -1,3 +1,9 @@
+0.2.0:
+* Revise and finish ipv6 support (#3)
+* New option --version, ipv4/ipv6/all addresses switch.
+* New ip plugin default-web-ip6, external ipv6 address.
+* Update and document proxy usage (#4)
+
 0.1.0:
 * Multitude of minor bugfixes.
 * API: Finalizing current revision. Renaming silly
