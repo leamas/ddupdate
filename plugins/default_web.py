@@ -27,11 +27,14 @@ class DefaultWebPlugin(IpPlugin):
         def check_url(url):
             """Get reply from host and decode."""
             log.debug('trying ' + url)
-            with urllib.request.urlopen(url) as response:
-                if response.getcode() != 200:
-                    log.debug("Bad response at %s (ignored)" % url)
-                    return None
-                html = response.read().decode('ascii')
+            try:
+                with urllib.request.urlopen(url) as response:
+                    if response.getcode() != 200:
+                        log.debug("Bad response at %s (ignored)" % url)
+                        return None
+                    html = response.read().decode('ascii')
+            except (urllib.error.HTTPError, urllib.error.URLError) as err:
+                raise IpLookupError("Error reading %s :%s" % (url, err))
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
             match = pat.search(html)
