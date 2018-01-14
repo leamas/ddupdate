@@ -55,7 +55,7 @@ sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 
 %install
 %py3_install
-rm -rf $RPM_BUILD_ROOT/usr/share/doc/ddupdate/*
+rm -rf $RPM_BUILD_ROOT%{_pkgdocdir}/*
 
 
 %pre
