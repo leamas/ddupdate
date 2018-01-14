@@ -8,6 +8,9 @@ PYTHON_SRC      =  plugins lib/ddupdate setup.py ddupdate
 
 pylint_template  = {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
+all:
+	@echo "Use other for static code tests; plain make is undefined."
+
 pylint: .phony
 	-PYTHONPATH=$(CURDIR)/lib \
 	    python3-pylint \
