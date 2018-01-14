@@ -1,11 +1,13 @@
 #!/bin/sh
 
+here=$(dirname $(readlink -fn $0))
+
 if test -z "$1"; then
     echo "Usage: make-tarball <treeish>" >&2
     exit 2
 fi
 
 set -x
-cd ..
+cd $here/..
 git archive --prefix=ddupdate-$1/ $1 >fedora/ddupdate-$1.tar
 gzip -f fedora/ddupdate-$1.tar
