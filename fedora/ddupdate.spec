@@ -6,8 +6,8 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.1.0
-Release:        3%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.2.0
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -86,6 +86,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Sat Jan 13 2018 Alec Leamas <leamas.alec@gmail.com> - 0.2.0-1
+- New upstream release.
+
 * Mon Jan 08 2018 Alec Leamas <leamas.alec@gmail.com> - 0.1.0-3
 - Review remarks: Use %%{_unitdir}, %%py3_install, skip debug_package nil
 
