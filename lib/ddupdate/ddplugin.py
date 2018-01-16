@@ -101,7 +101,7 @@ def get_netrc_auth(machine):
     Returns:
       - A (user, password) tuple. Password might be None.
     Raises:
-      - UpdateError if no password is found.
+      - UpdateError if .netrc or password is not found.
     See:
       - netrc(5)
 
@@ -110,7 +110,11 @@ def get_netrc_auth(machine):
         path = os.path.expanduser('~/.netrc')
     elif os.path.exists('/etc/netrc'):
         path = '/etc/netrc'
+    else:
+        raise UpdateError("Cannot locate the netrc file (see manpage).")
     auth = netrc(path).authenticators(machine)
+    if not auth:
+        raise UpdateError("No .netrc data found for " + machine)
     if not auth[2]:
         raise UpdateError("No password found for " + machine)
     return auth[0], auth[2]
