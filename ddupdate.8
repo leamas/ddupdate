@@ -55,7 +55,7 @@ which localizes the default interface using /usr/sbin/ip and uses it's
 The kind if ip addresses to register. The addresses obtained by the
 ip-plugin could be either v6, v4 or both. However, the actual addresses
 sent to the service plugin is filtered using this option so for example
-a not-used ipv6 address not becomes an official address to the host.
+a unused ipv6 address not becomes an official address to the host.
 Defaults to \fIv4\fr.
 
 .TP 4
@@ -119,12 +119,6 @@ instead of probing for it.
 \fBforce\fR
 Force an update despite server-imposed restrictions.
 .TP 4
-\fBproxy=hostname\fR
-Use given HTTP proxy when connecting to service provider.
-.TP 4
-\fBssl\fR
-Use an encrypted SSL connection when connecting to service provider.
-.TP 4
 \fBtimeout=seconds\fR
 Timeout when communicating with service provider, defaults to 120
 seconds.
@@ -171,7 +165,7 @@ on the local, default interface:
 .fi
 
 .SH ENVIRONMENT
-ddupdate respects the data paths defined by freedesktop.org.
+\fBddupdate\fR respects the data paths defined by freedesktop.org.
 
 .TP 4
 .B XDG_CACHE_HOME
@@ -185,6 +179,11 @@ Locates user plugins. See PLUGIN LOADING.
 .B XDG_DATA_DIRS
 Involved in system plugins, see PLUGIN LOADING.
 
+.TP 4
+.B XDG_CONFIG_HOME
+User configuration file parent directory location, defaults to
+\fI~/.config\fR.
+.P
 \fBddupdate\fR also accepts the standard proxy environment:
 
 .TP 4
@@ -192,12 +191,6 @@ Involved in system plugins, see PLUGIN LOADING.
 URL to used proxies for http and https connections. The systemd service
 files distributed has provisions to define these as required.
 
-
-
-.TP 4
-.B XDG_CONFIG_HOME
-User configuration file parent directory location, defaults to
-\fI~/.config\fR.
 
 .SH FILES
 .TP 4
