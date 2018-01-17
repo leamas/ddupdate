@@ -1,3 +1,8 @@
+0.2.1:
+* Fix start exception on python 3.4/jessie (#6).
+* Fix unhelpful error messages for bad .netrc (#5).
+* Documentation fixes.
+
 0.2.0:
 * Revise and finish ipv6 support (#3)
 * New option --version, ipv4/ipv6/all addresses switch.
