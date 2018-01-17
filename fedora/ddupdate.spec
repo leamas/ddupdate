@@ -6,7 +6,7 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.2.0
+Version:        0.2.1
 Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
@@ -86,6 +86,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Wed Jan 17 2018 Alec Leamas <leamas.alec@gmail.com> - 0.2.1-1
+- New upstream release.
+
 * Sat Jan 13 2018 Alec Leamas <leamas.alec@gmail.com> - 0.2.0-1
 - New upstream release.
 
