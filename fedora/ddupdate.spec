@@ -1,4 +1,4 @@
-%global gittag      0.1.0
+%global gittag      0.2.1
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
