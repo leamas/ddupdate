@@ -5,9 +5,9 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-for example  DHCP. It makes it  possible to access a system with
+for example DHCP. It makes it  possible to access the system with
 a fixed dns name such as myhost.somewhere.net even if the IP address is
-changed. It is a flexible, user-friendly, maintainable and linux-centric
+changed. It is a linux-centric, user-friendly, flexible and maintainable
 alternative to the ubiquitous ddclient.
 
 
@@ -26,8 +26,8 @@ Dependencies
 
 Just a few:
 
-   - python3 (tested on 3.6)
-   - python3-straight-plugin
+   - python3 (tested on 3.6 and 3.4)
+   - python3-straight-plugin (a. k. a. python3-straight.plugin)
    - python3-setuptools
    - The /usr/sbin/ip command is used in some plugins.
 
@@ -45,7 +45,7 @@ It is also possible to install as a pypi package using::
     $ sudo pip install ddupdate --prefix=/usr/local
 
 User installations are not supported, but installing in a virtual env is -
-see Packaging below.
+see Packaging in CONTRIBUTE.md.
 
 Fedora and Mageia users can install binary packages from
 https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/.
@@ -85,6 +85,7 @@ Assuming using the ipv4 address as seen from the net, update
     service-plugin = <your service plugin>
     hostname = <your hostname>
     loglevel = info
+    ip-version = v4
 
 Now run *ddupdate* and check for errors.
 
@@ -95,18 +96,34 @@ Full Configuration
 ------------------
 
 Configuration is basically about selecting a plugin for a specific ddns
-service and possibly another plugin which provides the ip address to be
-registered. Some plugins needs specific plugin options.
+service and another plugin which provides the ip address to be registered.
+Some plugins needs specific plugin options.
 
-First question is what kind of ip address which should be registered. The
-most common case is to use the address as seen from the internet to make
-it possible for users on internet to access the machine.
+The ip plugin to use is use is normally either default-web-ip or default-if.
 
-Another case is when using DHCP addresses on an internal network behind
-a router and the machine should be reached by users on this network.
-In this case the machine's real address should be registered.
+The *default-web-ip* plugin should be used when the address to register is
+the external address visible on the internet - that is, if the registered
+host should be accessed from the internet. For most services the
+*ip-disabled* could be used instead. Services will then use the external
+address as seen from the service. See the *ddupdate --help <service>* info.
 
-In any case, begin with listing all service plugins::
+The *default-if* plugin uses the first address found on the default
+interface. This typically means registering the address used on an internal
+network, and should be used if the registered host should be accessed from
+the internal network.
+
+Should these options not fit, several other ip plugins are available using
+*ddupdate list ip-plugins*.  After selecting ip plugin, test it using
+something like::
+
+    $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
+    dry-run: Using
+        v4 address: 83.255.182.111
+        v6 address: None
+        hostname: host1.nowhere.net
+
+After selecting the ip plugin, start the process of selecting a service
+by listing all available services:
 
     $ ddupdate --list-plugins services
     changeip             Updates DNS data on changeip.com
@@ -140,7 +157,8 @@ Next, pick a service plugin and check the help info, here dynu::
         none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
-username and password. Create an entry in the *~/.netrc*  file like::
+username and password. Using the .netrc info in the *ddupdate help
+<service>*, create an entry in the *~/.netrc*  file like::
 
     machine api.dynu.com login <username> password <secret>
 
@@ -151,13 +169,8 @@ will accept it). Do::
 
 Now, let's select the plugin which provides the ip address to register.
 For the default case, the default-web-ip plugin generates the address as
-seen from the network. This can be tested using::
-
-    $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
-    dry-run: Using address 90.1.08.212 and hostname host.nowhere.net
-
-All looks good (if you want to use another address, look into *ddupdate list
-ip-plugins*). Let's try to actually update that hostname on dynu.com::
+seen from the network. Test the service using the selected ip plugin,
+something like::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
       --hostname myhost.dynu.net -L info
@@ -166,10 +179,10 @@ ip-plugins*). Let's try to actually update that hostname on dynu.com::
     INFO - Using ip address plugin: default-web-ip
     INFO - Using service plugin: dynu
     INFO - Plugin options:
-    INFO - Using ip address: 90.1.08.212
+    INFO - Using ip address: 90.2.18.212
     INFO - Update OK
 
-Again fine. Update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
+When all is fine, update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
 something like::
 
     [update]
@@ -187,9 +200,9 @@ If using a packaged version: make your  *~/.netrc*  available for the
 user running the service by copying it to the ddupdate user's home and
 give it proper permissions::
 
-    sudo cp ~/.netrc /var/lib/ddupdate
-    sudo chmod 600 /var/lib/ddupdate/.netrc
-    sudo chown ddupdate /var/lib/ddupdate/.netrc
+    sudo cp ~/.netrc ~ddupdate
+    sudo chmod 600 ~ddupdate/.netrc
+    sudo chown ddupdate ~ddupdate/.netrc
 
 systemd is used to invoke ddupdate periodically. The safest bet is
 not to use the upstream systemd files. Do::
