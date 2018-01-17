@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(HOME, 'lib'))
 
 try:
     import lib.ddupdate.main as main
-except ModuleNotFoundError:
+except ImportError:
     import ddupdate.main as main
 
 main.main()
