@@ -7,7 +7,7 @@
 
 Name:           ddupdate
 Version:        0.2.1
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -55,7 +55,7 @@ sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 
 %install
 %py3_install
-rm -rf $RPM_BUILD_ROOT%{_pkgdocdir}/*
+rm -rf $RPM_BUILD_ROOT%{_docdir}/ddupdate*/*
 
 
 %pre
@@ -86,6 +86,9 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Wed Jan 17 2018 Alec Leamas <leamas.alec@gmail.com> - 0.2.1-2
+- Fix FTBS on epel builders
+
 * Wed Jan 17 2018 Alec Leamas <leamas.alec@gmail.com> - 0.2.1-1
 - New upstream release.
 
