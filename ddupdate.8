@@ -43,19 +43,22 @@ usable host.nowhere.net
 \fB-s, --service-plugin\fR <\fIplugin\fR>
 Plugin used to update the dns data for the address obtained
 from the ip-plugin. Defaults to dry-run, which just prints the
-address.
+address. Use \fI\-\-list-services\fR to list available
+plugins.
 
 .TP 4
-\fB-i, --ip-plugin\fR <\fIplugin\fR>
+\fB-a, --address-plugin\fR <\fIplugin\fR>
 Plugin used to obtain the actual ip address. Defaults to default-if,
 which localizes the default interface using /usr/sbin/ip and uses it's
+primary address. Use \fI\-\-list-addressers\fR to list available
+plugins.
 
 .TP 4
 \fB-v, --ip-version\fR <\fIv4\fR|\fIv6\fR|\fIall\fR>
 The kind if ip addresses to register. The addresses obtained by the
 ip-plugin could be either v6, v4 or both. However, the actual addresses
 sent to the service plugin is filtered using this option so for example
-a unused ipv6 address not becomes an official address to the host.
+an unused ipv6 address not becomes an official address to the host.
 Defaults to \fIv4\fr.
 
 .TP 4
@@ -73,12 +76,17 @@ or \fIdebug\fR.
 It defaults to \fIwarning\fR.
 
 .TP 4
-\fB-o, --option\fR <\fIplugin option\fR>
-Option interpreted by plugins, documented in \fI--help <plugin>\fR.
+\fB-o, --service-option\fR <\fIplugin option\fR>
+Option interpreted by service plugin, documented in \fI--help <plugin>\fR.
 May be given multiple times as required.
 Any option on the command line will clear the list of options as of the
 config file.
 See PLUGIN OPTIONS.
+
+.TP 4
+\fB-O, --address-option\fR <\fIplugin option\fR>
+Option interpreted by address-plugin.
+See \fI\-\-service-option\fR and PLUGIN OPTIONS.
 
 .P
 Other options:
@@ -92,8 +100,12 @@ Force \fBddupdate\fR to run even if the cached value is still valid.
 Print help. If given a plugin argument, prints help for this plugin.
 
 .TP 4
-\fB-l, --list-plugins\fR [\flip-plugins\fR|\flservices\fR]
-List ip-plugins or service-plugins. By default, lists all.
+\fB-S, --list-services\fR
+List service provider plugins.
+
+.TP 4
+\fB-A, --list-addressers\fR
+List plugins providing one or more ip addresses
 
 .TP 4
 \fB-V, --version\fR
