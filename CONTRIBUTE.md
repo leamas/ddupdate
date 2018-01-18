@@ -130,7 +130,7 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.2.1::
+    requires the *git* and *rpm-build* packages. To build version 0.3.0::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
@@ -150,4 +150,4 @@ ddupdate has a multitude of packaging:
         $ git fetch upstream pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag0.1.0 -us -uc
         $ git clean -fd; git checkout .    # To be able to rebuild
-        $ dpkg -i ../ddupdate0.2.1*_all.deb
+        $ dpkg -i ../ddupdate0.3.0*_all.deb

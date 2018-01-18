@@ -99,7 +99,8 @@ Configuration is basically about selecting a plugin for a specific ddns
 service and another plugin which provides the ip address to be registered.
 Some plugins needs specific plugin options.
 
-The ip plugin to use is use is normally either default-web-ip or default-if.
+The address plugin to use is use is normally either default-web-ip or
+default-if.
 
 The *default-web-ip* plugin should be used when the address to register is
 the external address visible on the internet - that is, if the registered
@@ -110,10 +111,10 @@ address as seen from the service. See the *ddupdate --help <service>* info.
 The *default-if* plugin uses the first address found on the default
 interface. This typically means registering the address used on an internal
 network, and should be used if the registered host should be accessed from
-the internal network.
+this internal network.
 
 Should these options not fit, several other ip plugins are available using
-*ddupdate list ip-plugins*.  After selecting ip plugin, test it using
+*ddupdate --list-addressers*.  After selecting address plugin, test it using
 something like::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
@@ -179,7 +180,7 @@ something like::
     INFO - Using ip address plugin: default-web-ip
     INFO - Using service plugin: dynu
     INFO - Plugin options:
-    INFO - Using ip address: 90.2.18.212
+    INFO - Using ip address: 90.3.08.212
     INFO - Update OK
 
 When all is fine, update *~/.config/ddupdate.conf* or */etc/ddupdate.conf* to
@@ -204,27 +205,30 @@ give it proper permissions::
     sudo chmod 600 ~ddupdate/.netrc
     sudo chown ddupdate ~ddupdate/.netrc
 
-systemd is used to invoke ddupdate periodically. The safest bet is
-not to use the upstream systemd files. Do::
-
-    $ sudo cp /lib/systemd/system/ddupdate* /etc/systemd/system
-
-Check the two /etc files, in particular for paths. Test the service and
-the logged info::
+Again, using a packaged version just test the service and the logged info::
 
     $ sudo systemctl daemon-reload
     $ sudo systemcl start ddupdate.service
     $ sudo journalctl -u ddupdate.service
 
-When all is fine make sure ddupdate is run hourly using::
+If all is fine make sure ddupdate is run hourly using::
 
     $ sudo systemctl start ddupdate.timer
     $ sudo systemctl enable ddupdate.timer
+
+If there is trouble, the safest bet is not to use the upstream
+systemd files. Do::
+
+    $ sudo cp /lib/systemd/system/ddupdate* /etc/systemd/system
+
+Check the two /etc files, in particular for paths. Test the service and
+the logged info as described above.
+
 
 Configuring NetworkManager
 --------------------------
 
 NetworkManager can be configured to start/stop ddupdate when interfaces goes
 up or down. An example script to drop in */etc/NetworkManager/dispatcher.d*
-is distributed in the package.
+is distributed in te package.
 
