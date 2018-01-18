@@ -23,7 +23,7 @@ else:
 
 DEFAULTS = {
     'hostname': 'host.nowhere.net',
-    'ip-plugin': 'default-if',
+    'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
     'loglevel': 'info',
     'options': None,
@@ -148,12 +148,14 @@ def get_parser(conf):
         default=conf['hostname'])
     normals.add_argument(
         "-s", "--service-plugin", metavar="plugin",
-        help='Service plugin used to actually update a dns hostname address',
+        help='Plugin updating a dns hostname address [%s]'
+        % conf['service-plugin'],
         default=conf['service-plugin'])
     normals.add_argument(
-        "-i", "--ip-plugin", metavar="plugin",
-        help='Ip plugin used to obtain the ip address to use',
-        default=conf['ip-plugin'])
+        "-a", "--address-plugin", metavar="plugin",
+        help='Plugin providing ip address to use [%s]'
+        % conf['address-plugin'],
+        default=conf['address-plugin'])
     normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
@@ -161,27 +163,35 @@ def get_parser(conf):
         + ':/etc/dupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
-        "-L", "--loglevel", metavar='level',
+        "-l", "--loglevel", metavar='level',
         choices=['error', 'warning', 'info', 'debug'],
         help='Amount of printed diagnostics [warning]',
         default=conf['loglevel'])
     normals.add_argument(
-        "-v", "--ip-version", metavar='level',
+        "-v", "--ip-version", metavar='version',
         choices=['all', 'v6', 'v4'],
         help='Ip address version(s) to register (v6, v4, all) [v4]',
         default='v4')
     normals.add_argument(
-        "-o", "--option", metavar="plugin option",
-        help='Plugin option (enter multiple times if required)',
-        dest='options', action='append')
+        "-o", "--service-option", metavar="plugin option",
+        help='Service plugin option (enter multiple times if required)',
+        dest='service_options', action='append')
+    normals.add_argument(
+        "-O", "--address-option", metavar="plugin option",
+        help='Address plugin option (enter multiple times if required)',
+        dest='address_options', action='append')
+    normals.add_argument(
+        "-i", "--ip-plugin", help=argparse.SUPPRESS)
     others = parser.add_argument_group()
     others.title = "Other options"
     others.add_argument(
-        "-l", "--list-plugins", metavar="kind",
-        choices=['services', 'ip-plugins', 'all'],
-        help='List plugins of given kind: '
-        + 'ip-plugins, services or all  [all]',
-        const='all', nargs='?')
+        "-S", "--list-services",
+        help='List service provider plugins. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-A", "--list-addressers",
+        help='List plugins providing ip address. ',
+        default=False, action='store_true')
     others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
@@ -207,13 +217,15 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.2.1"
+    parser.version = "0.3.0"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
         raise _GoodbyeError()
-    if not opts.options:
-        opts.options = conf['options']
+    if not opts.address_options:
+        opts.address_options = conf['options']
+    if not opts.service_options:
+        opts.service_options = conf['options']
     opts.loglevel = level_by_name[opts.loglevel]
     opts.ip_cache = conf['ip-cache']
     return opts
@@ -235,10 +247,12 @@ def log_options(log, args):
     """Print some info on seledted options."""
     log.info("Loglevel: " + logging.getLevelName(args.loglevel))
     log.info("Using hostname: " + args.hostname)
-    log.info("Using ip address plugin: " + args.ip_plugin)
+    log.info("Using ip address plugin: " + args.address_plugin)
     log.info("Using service plugin: " + args.service_plugin)
-    log.info("Plugin options: "
-             + (' '.join(args.options) if args.options else ''))
+    log.info("Service options: " +
+             (' '.join(args.service_options) if args.service_options else ''))
+    log.info("Address options: " +
+             (' '.join(args.address_options) if args.address_options else ''))
 
 
 def load_plugins(path, log):
@@ -261,12 +275,14 @@ def load_plugins(path, log):
 
 def list_plugins(ip_plugins, service_plugins, kind):
     """List all loaded plugins (noreturn)."""
-    if kind == 'all' or kind.startswith('i'):
+    if kind == 'addressers':
         for name, plugin in sorted(ip_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
-    if kind == 'all' or kind.startswith('s'):
+    elif kind == 'services':
         for name, plugin in sorted(service_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
+    else:
+        assert False, "Illegal plugin list: " + kind
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
@@ -322,7 +338,9 @@ def setup():
 
 def get_plugins(log, opts):
     """
-    Do list_plugins, help <plugin> or return (ip plugins, service plugins).
+    Handles plugin listing, plugin help  or load plugins.
+
+    return: (ip plugins, service plugins).
     """
     ip_plugins = {}
     service_plugins = {}
@@ -333,19 +351,25 @@ def get_plugins(log, opts):
             ip_plugins.setdefault(name, plugin)
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
-    if opts.list_plugins:
-        list_plugins(ip_plugins, service_plugins, opts.list_plugins)
+    if opts.list_services:
+        list_plugins(ip_plugins, service_plugins, 'services')
         raise _GoodbyeError()
-    elif opts.help and opts.help != '-':
+    if opts.list_addressers:
+        list_plugins(ip_plugins, service_plugins, 'addressers')
+        raise _GoodbyeError()
+    if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
         raise _GoodbyeError()
-    elif opts.ip_plugin not in ip_plugins:
-        raise _GoodbyeError('No such ip plugin: ' + opts.ip_plugin, 2)
+    if opts.ip_plugin:
+        raise _GoodbyeError(
+            "--ip-plugin has been replaced by --address-plugin.")
+    elif opts.address_plugin not in ip_plugins:
+        raise _GoodbyeError('No such ip plugin: ' + opts.address_plugin, 2)
     elif opts.service_plugin not in service_plugins:
         raise _GoodbyeError(
             'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
-    ip_plugin = ip_plugins[opts.ip_plugin]
+    ip_plugin = ip_plugins[opts.address_plugin]
     return ip_plugin, service_plugin
 
 
@@ -355,7 +379,7 @@ def main():
         log, opts = setup()
         ip_plugin, service_plugin = get_plugins(log, opts)
         try:
-            ip = ip_plugin.get_ip(log, opts.options)
+            ip = ip_plugin.get_ip(log, opts.address_options)
         except IpLookupError as err:
             raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
         if not ip or ip.empty():
@@ -374,9 +398,10 @@ def main():
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)
+        sys.stderr.write("Fatal error: " + str(err) + "\n")
         sys.exit(err.exitcode)
     try:
-        service_plugin.register(log, opts.hostname, ip, opts.options)
+        service_plugin.register(log, opts.hostname, ip, opts.service_options)
     except UpdateError as err:
         log.error("Cannot update DNS data: %s", err)
     else:

@@ -20,7 +20,7 @@ existing plugins and pick solutions from them. Some hints:
 
   - The class ```_name``` property is the official name of the plugin, must
     be unique. ```_oneliner``` is indeed the short summary displayed by
-    *--list-plugins*.
+    *--list-*.
 
   - Authentication:
       - Some sites uses standard basic authentication. This is handled

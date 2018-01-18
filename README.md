@@ -63,7 +63,7 @@ Fast Track Configuration
 This is the fast track. If running into troubles, look into next
 chapter Full Configuration.
 
-Start with running *ddupdate --list-plugins services*. Pick a supported
+Start with running *ddupdate --list-services*. Pick a supported
 service, check it using *ddupdate --help <service>* and register with
 the relevant site. This should end up with a hostname, a user and a
 secret password.
@@ -125,7 +125,7 @@ something like::
 After selecting the ip plugin, start the process of selecting a service
 by listing all available services:
 
-    $ ddupdate --list-plugins services
+    $ ddupdate --list-services
     changeip             Updates DNS data on changeip.com
     dnsexit              Updates DNS data on www.dnsexit.com
     dry-run              Debug dummy update plugin
