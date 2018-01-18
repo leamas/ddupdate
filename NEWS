@@ -1,3 +1,9 @@
+0.3.0
+* Split old --list command to --list-services and list-addressers
+* Split old --options to --address-options and --service-options.
+* Incompatible CLI changes
+* Documentation fixes.
+
 0.2.1:
 * Fix start exception on python 3.4/jessie (#6).
 * Fix unhelpful error messages for bad .netrc (#5).
