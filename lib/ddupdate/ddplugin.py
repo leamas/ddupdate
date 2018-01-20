@@ -12,8 +12,9 @@ Address plugins determines the ip address to register. They implement the
 abstract AddressPlugin interface.
 
 All plugins shares the AbstractPlugin interface. This handles general
-aspects like name and documentation. They also use utility functions defined
-in this module
+aspects like name and documentation.
+
+The module also provides some use utility functions used in plugins.
 
 """
 
@@ -128,7 +129,7 @@ class IpAddr(object):
         Construct a fresh object.
 
         Parameters:
-          - iov4: string, the ipv4 address in dotted notation.
+          - ipv4: string, the ipv4 address in dotted notation.
           - ipv6: string, the ipv6 address in colon-hex notation.
 
         """
@@ -183,8 +184,8 @@ class AddressError(Exception):
         Construct the error.
 
         Parameters:
-          - value: error message
-          - exitcode: aimed as sys.exit() argument.
+          - value: string, error message
+          - exitcode: int, aimed as sys.exit() argument.
 
         """
         Exception.__init__(self, value)
@@ -240,10 +241,17 @@ class AddressPlugin(AbstractPlugin):
 
     def get_ip(self, log, options):
         """
-        Given list of --option options and a log, return an IpAddr or None.
+        Return ip address to register.
+
+        Parameters:
+            - log: Standard python log instance.
+            - options: List of --address-option options.
+
+        Returns:
+            - IpAddr or None
 
         Raises:
-            AddressError on errors.
+            AddressError.
 
         """
         raise NotImplementedError("Attempt to invoke abstract get_ip()")
@@ -271,7 +279,8 @@ class ServicePlugin(AbstractPlugin):
         - log: Standard python log instance
         - hostname: string, the DNS name to register
         - ip: IpAddr, address to register
-        - opts: List of --option values.
+        - opts: List of --service-option values.
+
         Raises:
         - ServiceError on errors.
 
