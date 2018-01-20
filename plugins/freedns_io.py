@@ -44,5 +44,5 @@ class FreednsIoPlugin(ServicePlugin):
         }
         if ip:
             data['value'] = ip.v4
-        html = get_response(log, self._url, self._socket_to, data=data)
+        html = get_response(log, self._url, data=data)
         log.info("Server reply: " + html)

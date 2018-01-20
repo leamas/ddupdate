@@ -75,7 +75,7 @@ class DuiadnsPlugin(ServicePlugin):
             url += "&ip4=" + ip.v4
         if ip and ip.v6:
             url += "&ip6=" + ip.v6
-        html = get_response(log, url, self._socket_to)
+        html = get_response(log, url)
         parser = DuiadnsParser()
         parser.feed(html)
         if 'error' in parser.data or 'Ipv4' not in parser.data:

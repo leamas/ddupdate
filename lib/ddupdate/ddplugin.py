@@ -27,6 +27,8 @@ from urllib.parse import urlencode, urlparse
 from socket import timeout as timeoutError
 from netrc import netrc
 
+URL_TIMEOUT = 120  # Default timeout in get_response()
+
 
 def http_basic_auth_setup(url, host=None):
     """
@@ -68,17 +70,17 @@ def dict_of_opts(options):
     return result
 
 
-def get_response(log, url, to=120, **kwargs):
+def get_response(log, url, **kwargs):
     """
     Get data from server at given url.
 
     Parameters:
       - log: Standard python log instance
       - url: The url to make a post/get request to.
-      - to: timeout, in seconds.
       - kwargs: Keyword arguments.
          - data: dict of post data. If data != None, get_response makes a
            http POST request, otherwise a http GET.
+         - timeout: int, timeout in seconds. Defaults to 120.
     Returns:
       - Text read from url.
     Raises:
@@ -87,6 +89,7 @@ def get_response(log, url, to=120, **kwargs):
     """
     log.debug("Trying url: %s", url)
     data = urlencode(kwargs['data']).encode() if 'data' in kwargs else None
+    to = kwargs['timeout'] if 'timeout' in kwargs else URL_TIMEOUT
     if data:
         log.debug("Posting data: " + data.decode('ascii'))
     try:
@@ -271,7 +274,6 @@ class ServicePlugin(AbstractPlugin):
     """An abstract plugin doing the actual update work using a service."""
 
     _ip_cache_ttl = 120    # 2 hours, address cache timeout
-    _socket_to = 120       # 2 min, timeout reading host
 
     def __init__(self):
         """Default, empty constructor."""
