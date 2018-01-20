@@ -9,7 +9,7 @@ from ddupdate.ddplugin import UpdatePlugin
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
-class NoIpPlugin(UpdatePlugin):
+class NoAddressPlugin(UpdatePlugin):
     """
     Update a dns entry on no-ip.com.
 

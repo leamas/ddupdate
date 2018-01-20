@@ -7,7 +7,7 @@ See: ddupdate(8)
 import urllib.request
 import re
 
-from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr
 
 
 _URLS = [
@@ -17,7 +17,7 @@ _URLS = [
 ]
 
 
-class DefaultWebPlugin(IpPlugin):
+class DefaultWebPlugin(AddressPlugin):
     """
     Get the external address as seen from the web.
 
@@ -31,7 +31,7 @@ class DefaultWebPlugin(IpPlugin):
     _oneliner = 'Obtain external address as seen from the net'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         def check_url(url):
             """Get reply from host and decode."""
             log.debug('trying ' + url)
@@ -42,7 +42,7 @@ class DefaultWebPlugin(IpPlugin):
                         return None
                     html = response.read().decode('ascii')
             except (urllib.error.HTTPError, urllib.error.URLError) as err:
-                raise IpLookupError("Error reading %s :%s" % (url, err))
+                raise AddressError("Error reading %s :%s" % (url, err))
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
             match = pat.search(html)
@@ -57,5 +57,5 @@ class DefaultWebPlugin(IpPlugin):
                 return IpAddr(ip)
             if ix + 1 < len(_URLS):
                 log.info("Falling back to %s", _URLS[ix + 1])
-        raise IpLookupError(
+        raise AddressError(
             "Cannot obtain ip address (%s, %s and %s tried)" % tuple(_URLS))

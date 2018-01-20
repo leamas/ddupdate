@@ -6,10 +6,10 @@ See: ddupdate(8)
 
 import subprocess
 
-from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr
 
 
-class DefaultIfPLugin(IpPlugin):
+class DefaultIfPLugin(AddressPlugin):
     """
     Locates the default interface.
 
@@ -33,7 +33,7 @@ class DefaultIfPLugin(IpPlugin):
                 if_ = words[4]
                 break
         if if_ is None:
-            raise IpLookupError("Cannot find default interface, giving up")
+            raise AddressError("Cannot find default interface, giving up")
         address = IpAddr()
         output = subprocess.getoutput('ip address show dev ' + if_)
         address.parse_ifconfig_output(output)

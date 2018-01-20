@@ -5,10 +5,10 @@ See: ddupdate(8)
 
 """
 
-from ddupdate.ddplugin import IpPlugin, IpAddr
+from ddupdate.ddplugin import AddressPlugin, IpAddr
 
 
-class IpDisabledPlugin(IpPlugin):
+class IpDisabledPlugin(AddressPlugin):
     """
     ddupdate plugin providing a null ip address.
 
@@ -24,5 +24,5 @@ class IpDisabledPlugin(IpPlugin):
     _oneliner = 'Force update service to provide ip address'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         return IpAddr()

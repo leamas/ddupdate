@@ -40,7 +40,7 @@ class DnsexitPlugin(UpdatePlugin):
         "service is not known to provide an address, use another ip plugin"
 
     def register(self, log, hostname, ip, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         if not ip:
             log.warn(self._ip_warning)
         user, password = get_netrc_auth('update.dnsexit.com')
