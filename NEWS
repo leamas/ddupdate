@@ -1,3 +1,7 @@
+0.4.0:
+* Declared as beta state.
+* Revise API
+
 0.3.0
 * Split old --list command to --list-services and list-addressers
 * Split old --options to --address-options and --service-options.
