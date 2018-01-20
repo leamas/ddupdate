@@ -11,8 +11,12 @@ existing plugins and pick solutions from them. Some hints:
   - Before writing the plugin, make tests with wget or curl to make
     sure how the api works. Essential step, this one.
 
-  - The plugin API is defined in the plugins\_base.py file. API docs can be
-    generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
+  - The plugin API is defined in the ```ddplugin.py``` file. API docs can
+    be generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
+
+  - Coding style: Use *make pylint*, *make pep8* and *make pydocstyle*;
+    The relevant tools python3-pylint, python3-pep8 and pydocstyle needs
+    to be in place.
 
   - Each plugin must live in a file with a unique name. It must contain a
     main class derived from AddressPlugin or ServicePlugin. The class
@@ -90,20 +94,33 @@ Creating a new version
         $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
         $ git clean -fd; git checkout .    # To be able to rebuild
 
-  - Create fedora packages (README.md)
+  - Create fedora packages (below)
   - Make a new COPR build
-  - Create an Ubuntu package (TBD)
-    - Needs tar >= 1.29b, pristine-tar >= 1.42 (from zesty)
-    - sudo ntpdate se.pool.ntp.org
-    - git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
-    - git fetch upstream pristine-tar:pristine-tar
-    - pristine-tar checkout ddupdate\_0.1.0.orig.tar.gz
-    - mv ddupdate\_0.1.0.orig.tar.gz ..
-    - sudo mk-build-deps -i -r debian/control
-    - Edit debian/changelog, add ~ubuntu1 suffix, change Standard-version
-      -> 3.9.7
-    - debuild -S
-    - dput ppa:leamas-alec/ddupdate ../ddupdate\*source.changes
+  - Create an Ubuntu package
+    - Needs tar >= 1.29b, pristine-tar >= 1.42 (from zesty)::
+
+        $ sudo ntpdate se.pool.ntp.org
+
+        # Setup build environment
+        $ git clone \
+            -o upstream -b debian https://github.com/leamas/ddupdate.git
+        $ git fetch upstream pristine-tar:pristine-tar
+        $ pristine-tar checkout ddupdate_0.4.0.orig.tar.gz
+        $ mv ddupdate_0.4.0.orig.tar.gz ..
+        $ sudo mk-build-deps -i -r debian/control
+
+        # Patch ubuntu stuff:
+        $ sed -i '1,3s/[^ ]*;/xenial;/' debian/changelog
+        $ sed -i '1,3s/)/~xenial1)/' debian/changelog
+        $ sed -i 'Standards-Version:/s/:.*/: 3.9.7/' debian/control
+
+        # Build and distribute source package
+        $ debuild -S
+        $ dput ppa:leamas-alec/ddupdate ../ddupdate\*source.changes
+
+        # Build and install the binary packet
+        $ debuild -us -uc
+        $ sudo dpkg -i ../ddupdate_0.4.0.all.deb
 
 Packaging
 ---------
@@ -135,19 +152,32 @@ ddupdate has a multitude of packaging:
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
         $ sudo dnf builddep ddupdate.spec
-        $ ./make-tarball0.1.0
+        $ ./make-tarball 0.4.0
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
-        $ rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
+        $ sudo rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version0.1.0 do::
+    and *git*  are required to build. To build current version 0.4.0 do::
 
         $ mkdir ddupdate; cd ddupdate
         $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ gbp buildpackage --git-upstream-tag0.1.0 -us -uc
-        $ git clean -fd; git checkout .    # To be able to rebuild
-        $ dpkg -i ../ddupdate0.3.0*_all.deb
+        $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
+        $ dpkg -i ../ddupdate0.4.0*_all.deb
+        $ git clean -fd             # To be able to rebuild
+
+  - A simpler way to build **debian** packages is based on retreiving the
+    sources from the ubuntu ppa and rebuilding them::
+
+        $ sudo apt-get install \
+            devscripts build-essential python3-straight.plugin
+        $ ppa="http://ppa.launchpad.net/leamas-alec/ddupdate/ubuntu"
+        $ echo "deb-src $ppa xenial main" | sudo tee -a /etc/apt/sources.list
+        $ sudo apt-key adv \
+            --keyserver keyserver.ubuntu.com --recv-keys B0319103FF2D1390
+        $ sudo apt-get update
+        $ apt-get source --build ddupdate
+        $ sudo dpkg -i ddupdate*.all.deb

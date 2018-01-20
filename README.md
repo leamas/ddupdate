@@ -1,4 +1,4 @@
-ddupdate - update dns data for dynamic ip addresses.
+ddupdate - Update dns data for dynamic ip addresses.
 ====================================================
 
 General
@@ -10,21 +10,24 @@ a fixed dns name such as myhost.somewhere.net even if the IP address is
 changed. It is a linux-centric, user-friendly, flexible and maintainable
 alternative to the ubiquitous ddclient.
 
-
 Status
 ------
 
-Like... well, alpha. Fresh code, here is probably bugs lurking around.
-That said, it supports more than 10 services including  duckdns,
-afraid.org, no-ip.com and dynu.com. Ip addresses to register can be
-retrieved in a multitude of ways from none at all (trusting the service
-provider) to the generic 'cmd' plugin which can use the output from a
-command.
+Beta. The plugin API will be kept stable up to 1.0.0, and there should be
+no incompatible CLI changes.
+
+At the time of writing 14 free services are supported.
+
+The address plugins supports ipv4 or ipv6 addresses using::
+  - The external address as seen from the net.
+  - The address on a given interface, or the default one.
+  - A hardcoded (configured) address.
+  - The address returned by a command.
+
+Still, this is beta and there is most likely bugs out there.
 
 Dependencies
 ------------
-
-Just a few:
 
    - python3 (tested on 3.6 and 3.4)
    - python3-straight-plugin (a. k. a. python3-straight.plugin)
@@ -35,8 +38,7 @@ Installation
 ------------
 
 **ddupdate** can be run as a regular user straight off the cloned git
-directory. To make a test version possible to run from anywhere make a
-symlink::
+directory. To make it possible to run from anywhere make a symlink::
 
     $ ln -s $PWD/ddupdate $HOME/bin/ddupdate
 
@@ -44,7 +46,7 @@ It is also possible to install as a pypi package using::
 
     $ sudo pip install ddupdate --prefix=/usr/local
 
-User installations are not supported, but installing in a virtual env is -
+User installations are not supported, but installing in a virtual env is \-
 see Packaging in CONTRIBUTE.md.
 
 Fedora and Mageia users can install binary packages from
@@ -99,12 +101,12 @@ Configuration is basically about selecting a plugin for a specific ddns
 service and another plugin which provides the ip address to be registered.
 Some plugins needs specific plugin options.
 
-The address plugin to use is use is normally either default-web-ip or
-default-if.
+The address plugin to use is use is normally either *default-web-ip*
+or *default-if*.
 
 The *default-web-ip* plugin should be used when the address to register is
 the external address visible on the internet - that is, if the registered
-host should be accessed from the internet. For most services the
+host should be accessed from the internet. For most services
 *ip-disabled* could be used instead. Services will then use the external
 address as seen from the service. See the *ddupdate --help <service>* info.
 
@@ -113,9 +115,9 @@ interface. This typically means registering the address used on an internal
 network, and should be used if the registered host should be accessed from
 this internal network.
 
-Should these options not fit, several other ip plugins are available using
-*ddupdate --list-addressers*.  After selecting address plugin, test it using
-something like::
+Should these options not fit, several other address plugins are available
+using *ddupdate --list-addressers*.  After selecting address plugin, test
+it using something like::
 
     $ ./ddupdate --ip-plugin default-web-ip --service-plugin dry-run
     dry-run: Using
@@ -123,8 +125,8 @@ something like::
         v6 address: None
         hostname: host1.nowhere.net
 
-After selecting the ip plugin, start the process of selecting a service
-by listing all available services:
+After selecting the address plugin, start the process of selecting a
+service by listing all available services (your list might differ):
 
     $ ddupdate --list-services
     changeip             Updates DNS data on changeip.com
@@ -170,11 +172,11 @@ will accept it). Do::
 
 Now, let's select the plugin which provides the ip address to register.
 For the default case, the default-web-ip plugin generates the address as
-seen from the network. Test the service using the selected ip plugin,
+seen from the network. Test the service using the selected address plugin,
 something like::
 
-    $ ./ddupdate --ip-plugin default-web-ip --service-plugin dynu \
-      --hostname myhost.dynu.net -L info
+    $ ./ddupdate --address-plugin default-web-ip --service-plugin dynu \
+    --hostname myhost.dynu.net -l info
     INFO - Loglevel: INFO
     INFO - Using hostname: myhost.dynu.net
     INFO - Using ip address plugin: default-web-ip
@@ -192,8 +194,8 @@ something like::
     hostname = myhost.dynu.net
     loglevel = info
 
-After which it should be possible to just invoke *ddupdate* without
-any options.
+After which it should be possible to just invoke *ddupdate* without any
+options.
 
 Configuring systemd
 -------------------
