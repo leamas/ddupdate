@@ -15,7 +15,7 @@ existing plugins and pick solutions from them. Some hints:
     generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
 
   - Each plugin must live in a file with a unique name. It must contain a
-    main class derived from AddressPlugin or UpdatePlugin. The class
+    main class derived from AddressPlugin or ServicePlugin. The class
     docstring is the *help <plugin>* documentation.
 
   - The class ```_name``` property is the official name of the plugin, must

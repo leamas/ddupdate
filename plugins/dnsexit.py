@@ -5,11 +5,11 @@ See: ddupdate(8)
 See: http://downloads.dnsexit.com/ipUpdateDev.doc
 """
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
-class DnsexitPlugin(UpdatePlugin):
+class DnsexitPlugin(ServicePlugin):
     """
     Updates DNS data for host on dnsexit.com.
 

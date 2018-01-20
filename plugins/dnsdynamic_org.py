@@ -6,11 +6,11 @@ See: https://www.dnsdynamic.org/api.php
 
 """
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
-class DynamicDnsPlugin(UpdatePlugin):
+class DynamicDnsPlugin(ServicePlugin):
     """
     Update a dns entry on dnsdynamic.org.
 
@@ -30,7 +30,7 @@ class DynamicDnsPlugin(UpdatePlugin):
     _url = 'https://www.dnsdynamic.org/api?hostname={0}'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register."""
+        """Implement ServicePlugin.register."""
         url = self._url.format(hostname)
         http_basic_auth_setup(url, 'www.dnsdynamic.org')
         html = get_response(log, url, self._socket_to)

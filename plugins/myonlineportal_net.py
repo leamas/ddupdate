@@ -5,11 +5,11 @@ See: ddupdate(8)
 See: http://myonlineportal.net/ddns_api
 """
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError, \
+from ddupdate.ddplugin import ServicePlugin, UpdateError, \
     get_response, http_basic_auth_setup
 
 
-class MyOnlinePortalPlugin(UpdatePlugin):
+class MyOnlinePortalPlugin(ServicePlugin):
     """
     Updates DNS data for host on myonlineportal.net  .
 
@@ -29,7 +29,7 @@ class MyOnlinePortalPlugin(UpdatePlugin):
     _url = 'https://myonlineportal.net/updateddns?hostname={0}'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         url = self._url.format(hostname)
         if ip and ip.v4:
             url += "&ip=" + ip.v4

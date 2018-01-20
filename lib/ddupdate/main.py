@@ -14,7 +14,7 @@ import time
 from straight.plugin import load
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -261,7 +261,7 @@ def load_plugins(path, log):
     getters = load('plugins', subclasses=AddressPlugin)
     getters = getters.produce()
     getters_by_name = {plug.name(): plug for plug in getters}
-    setters = load('plugins', UpdatePlugin)
+    setters = load('plugins', ServicePlugin)
     setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
     sys.path.pop(0)

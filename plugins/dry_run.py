@@ -4,10 +4,10 @@ ddupdate dummy plugin making absolutely no update.
 See: ddupdate(8)
 """
 
-from ddupdate.ddplugin import UpdatePlugin
+from ddupdate.ddplugin import ServicePlugin
 
 
-class DryRunPlugin(UpdatePlugin):
+class DryRunPlugin(ServicePlugin):
     """
     Prints the ip address obtained and configured hostname to update.
 

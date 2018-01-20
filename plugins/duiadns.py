@@ -7,7 +7,7 @@ See: https://www.duiadns.net/duiadns-url-update
 """
 from html.parser import HTMLParser
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -34,7 +34,7 @@ class DuiadnsParser(HTMLParser):
             self.data['error'] = data
 
 
-class DuiadnsPlugin(UpdatePlugin):
+class DuiadnsPlugin(ServicePlugin):
     """
     Update a dns entry on duiadns.com.
 
@@ -66,7 +66,7 @@ class DuiadnsPlugin(UpdatePlugin):
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         password = get_netrc_auth('ip.duiadns.net')[1]
         url = self._url.format(hostname, password)
         if not ip:

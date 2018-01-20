@@ -9,10 +9,10 @@ import base64
 import urllib.request
 import urllib.error
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError, get_netrc_auth
+from ddupdate.ddplugin import ServicePlugin, UpdateError, get_netrc_auth
 
 
-class NowDnsPlugin(UpdatePlugin):
+class NowDnsPlugin(ServicePlugin):
     """
     Update a dns entry on now-dns.com.
 
@@ -38,7 +38,7 @@ class NowDnsPlugin(UpdatePlugin):
     _url = 'https://now-dns.com/update?hostname={0}'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         url = self._url.format(hostname)
         if ip:
             url += '&myip=' + ip.v4
