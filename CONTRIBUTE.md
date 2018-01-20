@@ -47,7 +47,8 @@ Creating a new version
 
   - Replace all occurrences of version string:
 
-        sed -E -i 's/([^\.])0\.[0-9]+\.[0-9]+([^\. ])/\10.1.0\2/' $(git ls-files
+        sed -E -i \
+            's/([^\.0-9])0\.[0-9]+\.[0-9]+([^\. ])/\10.1.0\2/' $(git ls-files)
 
   - Update NEWS file.
 
@@ -147,7 +148,7 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.3.0::
+    requires the *git* and *rpm-build* packages. To build version 0.4.0::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
