@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: https://www.duckdns.org/spec.jsp
 
 """
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -42,4 +42,4 @@ class DuckdnsPlugin(ServicePlugin):
             url += "&ipv6=" + ip.v6
         html = get_response(log, url, self._socket_to)
         if html.strip() != "OK":
-            raise UpdateError("Update error, got: %s", html)
+            raise ServiceError("Update error, got: %s", html)

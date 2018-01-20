@@ -6,7 +6,7 @@ See: https://www.dnsdynamic.org/api.php
 
 """
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
@@ -35,4 +35,4 @@ class DynamicDnsPlugin(ServicePlugin):
         http_basic_auth_setup(url, 'www.dnsdynamic.org')
         html = get_response(log, url, self._socket_to)
         if html.split()[0] not in ['nochg', 'good']:
-            raise UpdateError("Bad update reply: " + html)
+            raise ServiceError("Bad update reply: " + html)

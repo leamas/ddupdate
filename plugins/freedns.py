@@ -7,7 +7,7 @@ See: https://linuxaria.com/howto/dynamic-dns-with-bash-afraid-org
 
 import hashlib
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -59,7 +59,7 @@ class FreednsPlugin(ServicePlugin):
                 update_url = tokens[2]
                 break
         if not update_url:
-            raise UpdateError(
+            raise ServiceError(
                 "Cannot see %s being set up at this account" % hostname)
         log.debug("Contacting freedns for update on %s", update_url)
         get_response(log, update_url, self._socket_to)

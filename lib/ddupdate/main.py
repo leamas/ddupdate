@@ -14,7 +14,7 @@ import time
 from straight.plugin import load
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -402,7 +402,7 @@ def main():
         sys.exit(err.exitcode)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.service_options)
-    except UpdateError as err:
+    except ServiceError as err:
         log.error("Cannot update DNS data: %s", err)
     else:
         ip_cache_set(opts, ip)

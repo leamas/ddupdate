@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: http://myonlineportal.net/ddns_api
 """
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError, \
+from ddupdate.ddplugin import ServicePlugin, ServiceError, \
     get_response, http_basic_auth_setup
 
 
@@ -39,5 +39,5 @@ class MyOnlinePortalPlugin(ServicePlugin):
         html = get_response(log, url, self._socket_to)
         key = html.split()[0]
         if key not in ['OK', 'good', 'nochg']:
-            raise UpdateError("Bad server reply: " + html)
+            raise ServiceError("Bad server reply: " + html)
         log.info("Server reply: " + html)

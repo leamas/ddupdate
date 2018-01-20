@@ -9,7 +9,7 @@ import base64
 import urllib.request
 import urllib.error
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError, get_netrc_auth
+from ddupdate.ddplugin import ServicePlugin, ServiceError, get_netrc_auth
 
 
 class NowDnsPlugin(ServicePlugin):
@@ -53,9 +53,9 @@ class NowDnsPlugin(ServicePlugin):
                 code = response.getcode()
                 html = response.read().decode('ascii').strip()
         except urllib.error.HTTPError as err:
-            raise UpdateError("Error reading %s :%s" % (url, err))
+            raise ServiceError("Error reading %s :%s" % (url, err))
         if code != 200:
-            raise UpdateError('Bad server reply code: ' + code)
+            raise ServiceError('Bad server reply code: ' + code)
         if html not in ['good', 'nochg']:
-            raise UpdateError('Bad server reply: ' + html)
+            raise ServiceError('Bad server reply: ' + html)
         log.info("Server reply: " + html)

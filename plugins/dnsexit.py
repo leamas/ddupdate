@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: http://downloads.dnsexit.com/ipUpdateDev.doc
 """
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -52,8 +52,8 @@ class DnsexitPlugin(ServicePlugin):
         #     url += "&force=Y" # override 8 minutes server limit
         html = get_response(log, url, self._socket_to).split('\n')
         if '200' not in html[0]:
-            raise UpdateError("Bad HTML response: " + html)
+            raise ServiceError("Bad HTML response: " + html)
         code = html[1].split('=')[0]
         if int(code) > 1:
-            raise UpdateError("Bad update response: " + html[1])
+            raise ServiceError("Bad update response: " + html[1])
         log.info("Response: " + html[1])
