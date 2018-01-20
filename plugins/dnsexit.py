@@ -50,7 +50,7 @@ class DnsexitPlugin(ServicePlugin):
             url += "&myip=" + ip.v4
         # if debugging:
         #     url += "&force=Y" # override 8 minutes server limit
-        html = get_response(log, url, self._socket_to).split('\n')
+        html = get_response(log, url).split('\n')
         if '200' not in html[0]:
             raise ServiceError("Bad HTML response: " + html)
         code = html[1].split('=')[0]

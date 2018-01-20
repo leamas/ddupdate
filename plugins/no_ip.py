@@ -33,4 +33,4 @@ class NoAddressPlugin(ServicePlugin):
         if ip:
             url += "&myip=" + ip.v4
         http_basic_auth_setup(url)
-        get_response(log, url, self._socket_to)
+        get_response(log, url)
