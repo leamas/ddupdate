@@ -13,7 +13,7 @@ import time
 
 from straight.plugin import load
 
-from ddupdate.ddplugin import IpPlugin, IpLookupError
+from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import UpdatePlugin, UpdateError
 
 if 'XDG_CACHE_HOME' in os.environ:
@@ -258,7 +258,7 @@ def log_options(log, args):
 def load_plugins(path, log):
     """Load ip and service plugins into dicts keyed by name."""
     sys.path.insert(0, path)
-    getters = load('plugins', subclasses=IpPlugin)
+    getters = load('plugins', subclasses=AddressPlugin)
     getters = getters.produce()
     getters_by_name = {plug.name(): plug for plug in getters}
     setters = load('plugins', UpdatePlugin)
@@ -305,7 +305,7 @@ def filter_ip(ip_version, ip):
     elif ip_version == 'v6':
         ip.v4 = None
     if ip.empty():
-        raise IpLookupError("No usable address")
+        raise AddressError("No usable address")
     return ip
 
 
@@ -380,7 +380,7 @@ def main():
         ip_plugin, service_plugin = get_plugins(log, opts)
         try:
             ip = ip_plugin.get_ip(log, opts.address_options)
-        except IpLookupError as err:
+        except AddressError as err:
             raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
         if not ip or ip.empty():
             log.info("Using ip address provided by update service")

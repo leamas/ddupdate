@@ -7,10 +7,10 @@ See: ddupdate(8)
 import subprocess
 import sys
 
-from ddupdate.ddplugin import IpPlugin, IpAddr, dict_of_opts
+from ddupdate.ddplugin import AddressPlugin, IpAddr, dict_of_opts
 
 
-class HardcodedIfPlugin(IpPlugin):
+class HardcodedIfPlugin(AddressPlugin):
     """
     Use address on hardcoded interface.
 
@@ -22,7 +22,7 @@ class HardcodedIfPlugin(IpPlugin):
     _oneliner = 'Get address from an configuration option interface'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         opts = dict_of_opts(options)
         if 'if' not in opts:
             log.error("Required option if= missing, giving up.")

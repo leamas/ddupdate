@@ -1,15 +1,15 @@
 """
 ddupdate plugin API.
 
-A plugin is either a service plugin or an ip plugin.
+A plugin is either a service plugin or an address plugin.
 
 Service plugins register the ip address with a dynamic dns service provider.
 They implement the UpdatePlugin abstract interface. Naming of these plugins
 is normally based on the website used to register since these by definition
 are unique
 
-Ip plugin determines the ip address to register. They implement the abstract
-IpPlugin interface.
+Address plugins determines the ip address to register. They implement the
+abstract AddressPlugin interface.
 
 All plugins shares the AbstractPlugin interface. This handles general
 aspects like name and documentation. They also use utility functions defined
@@ -159,7 +159,7 @@ class IpAddr(object):
         Parameters:
           - text: string, ifconfig <dev> or ip address show dev <dev> output.
         Raises:
-          - IpLookupError if no address can be found in text
+          - AddressError if no address can be found in text
 
         """
         use_next4 = False
@@ -172,11 +172,11 @@ class IpAddr(object):
             use_next4 = word == 'inet'
             use_next6 = word == 'inet6'
         if self.empty():
-            raise IpLookupError("Cannot find address for %s, giving up" % text)
+            raise AddressError("Cannot find address for %s, giving up" % text)
 
 
-class IpLookupError(Exception):
-    """General error in IpPlugin."""
+class AddressError(Exception):
+    """General error in AddressPlugin."""
 
     def __init__(self, value, exitcode=1):
         """
@@ -196,7 +196,7 @@ class IpLookupError(Exception):
         return repr(self.value)
 
 
-class UpdateError(IpLookupError):
+class UpdateError(AddressError):
     """General error in UpdatePlugin."""
 
     pass
@@ -235,7 +235,7 @@ class AbstractPlugin(object):
         return self.__version__
 
 
-class IpPlugin(AbstractPlugin):
+class AddressPlugin(AbstractPlugin):
     """An abstract plugin obtaining the ip address."""
 
     def get_ip(self, log, options):
@@ -243,7 +243,7 @@ class IpPlugin(AbstractPlugin):
         Given list of --option options and a log, return an IpAddr or None.
 
         Raises:
-            IpLookupError on errors.
+            AddressError on errors.
 
         """
         raise NotImplementedError("Attempt to invoke abstract get_ip()")

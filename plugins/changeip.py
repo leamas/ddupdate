@@ -10,7 +10,7 @@ from ddupdate.ddplugin import UpdatePlugin, UpdateError
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
-class ChangeIpPlugin(UpdatePlugin):
+class ChangeAddressPlugin(UpdatePlugin):
     """
     Update a dns entry on changeip.com.
 

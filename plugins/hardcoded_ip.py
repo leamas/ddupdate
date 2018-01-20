@@ -6,10 +6,10 @@ See: ddupdate(8)
 
 import sys
 
-from ddupdate.ddplugin import IpPlugin, IpAddr, dict_of_opts
+from ddupdate.ddplugin import AddressPlugin, IpAddr, dict_of_opts
 
 
-class HardcodedIfPlugin(IpPlugin):
+class HardcodedIfPlugin(AddressPlugin):
     """
     Use address given in configuration options.
 
@@ -22,7 +22,7 @@ class HardcodedIfPlugin(IpPlugin):
     _oneliner = 'Get address from configuration options'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         addr = IpAddr()
         opts = dict_of_opts(options)
         if 'ip' not in opts and 'ip6' not in opts:

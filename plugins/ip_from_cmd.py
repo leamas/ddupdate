@@ -8,10 +8,11 @@ See: ddupdate(8)
 import re
 import subprocess
 
-from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr, dict_of_opts
+from ddupdate.ddplugin import \
+    AddressPlugin, AddressError, IpAddr, dict_of_opts
 
 
-class IpFromCmdPlugin(IpPlugin):
+class IpFromCmdPlugin(AddressPlugin):
     """
     Use ip4 address obtained from a command.
 
@@ -36,10 +37,10 @@ class IpFromCmdPlugin(IpPlugin):
     _oneliner = 'Obtain address from a command'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         opts = dict_of_opts(options)
         if 'cmd' not in opts:
-            raise IpLookupError('Required option cmd= missing, giving up.')
+            raise AddressError('Required option cmd= missing, giving up.')
         cmd = opts['cmd']
         log.debug('Running: %s', cmd)
         addr = IpAddr()
@@ -53,6 +54,6 @@ class IpFromCmdPlugin(IpPlugin):
             elif pat6.fullmatch(word):
                 addr.v6 = word
             else:
-                raise IpLookupError(
+                raise AddressError(
                     'Cannot parse command output: ' + result)
         return addr

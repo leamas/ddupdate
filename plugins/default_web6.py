@@ -8,12 +8,12 @@ import urllib.request
 import urllib.error
 import re
 
-from ddupdate.ddplugin import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr
 
 TIMEOUT = 20
 
 
-class DefaultWeb6Plugin(IpPlugin):
+class DefaultWeb6Plugin(AddressPlugin):
     """
     Get the external ipv6 address as seen from the web.
 
@@ -27,7 +27,7 @@ class DefaultWeb6Plugin(IpPlugin):
     _oneliner = 'Obtain external ipv6 address as seen from the net'
 
     def get_ip(self, log, options):
-        """Implement IpPlugin.get_ip()."""
+        """Implement AddressPlugin.get_ip()."""
         def check_url(url):
             """Get reply from host and decode."""
             log.debug('trying ' + url)
@@ -60,6 +60,6 @@ class DefaultWeb6Plugin(IpPlugin):
                 return IpAddr(None, ip)
             if ix + 1 < len(urls):
                 log.info("Falling back to %s", urls[ix + 1])
-        raise IpLookupError(
+        raise AddressError(
             "Cannot obtain ip6 address (%s, %s and %s tried)"
             % tuple(urls))
