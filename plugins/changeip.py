@@ -6,7 +6,7 @@ See:
  http://www.changeip.com/accounts/knowledgebase.php?action=displayarticle&id=34
 """
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
@@ -36,4 +36,4 @@ class ChangeAddressPlugin(ServicePlugin):
         http_basic_auth_setup(url, 'nic.ChangeIP.com')
         html = get_response(log, url, self._socket_to)
         if not'uccessful' in html:
-            raise UpdateError("Bad update reply: " + html)
+            raise ServiceError("Bad update reply: " + html)

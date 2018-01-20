@@ -7,7 +7,7 @@ See: https://system-ns.com/services/dynamic
 """
 import json
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -43,6 +43,6 @@ class SystemNsPlugin(ServicePlugin):
         html = get_response(log, url, self._socket_to)
         reply = json.loads(html)
         if reply['code'] > 2:
-            raise UpdateError('Bad reply code {0}, message: {1}'.format(
+            raise ServiceError('Bad reply code {0}, message: {1}'.format(
                 reply['code'], reply['msg']))
         log.info("Server reply: " + reply['msg'])

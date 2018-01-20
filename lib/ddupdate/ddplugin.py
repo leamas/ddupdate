@@ -71,7 +71,7 @@ def get_response(log, url, to=120, **kwargs):
     Returns:
       - Text read from url.
     Raises:
-      - UpdateError if return code is != 200, httpError or timeout.
+      - ServiceError if return code is != 200, httpError or timeout.
 
     """
     log.debug("Trying url: %s", url)
@@ -83,12 +83,12 @@ def get_response(log, url, to=120, **kwargs):
             code = response.getcode()
             html = response.read().decode('ascii')
     except timeoutError:
-        raise UpdateError("Timeout reading %s" % url)
+        raise ServiceError("Timeout reading %s" % url)
     except (urllib.error.HTTPError, urllib.error.URLError) as err:
-        raise UpdateError("Error reading %s :%s" % (url, err))
+        raise ServiceError("Error reading %s :%s" % (url, err))
     log.debug("Got response (%d) : %s", code, html)
     if code != 200:
-        raise UpdateError("Cannot update, response code: %d" % code)
+        raise ServiceError("Cannot update, response code: %d" % code)
     return html
 
 
@@ -101,7 +101,7 @@ def get_netrc_auth(machine):
     Returns:
       - A (user, password) tuple. Password might be None.
     Raises:
-      - UpdateError if .netrc or password is not found.
+      - ServiceError if .netrc or password is not found.
     See:
       - netrc(5)
 
@@ -111,12 +111,12 @@ def get_netrc_auth(machine):
     elif os.path.exists('/etc/netrc'):
         path = '/etc/netrc'
     else:
-        raise UpdateError("Cannot locate the netrc file (see manpage).")
+        raise ServiceError("Cannot locate the netrc file (see manpage).")
     auth = netrc(path).authenticators(machine)
     if not auth:
-        raise UpdateError("No .netrc data found for " + machine)
+        raise ServiceError("No .netrc data found for " + machine)
     if not auth[2]:
-        raise UpdateError("No password found for " + machine)
+        raise ServiceError("No password found for " + machine)
     return auth[0], auth[2]
 
 
@@ -196,7 +196,7 @@ class AddressError(Exception):
         return repr(self.value)
 
 
-class UpdateError(AddressError):
+class ServiceError(AddressError):
     """General error in ServicePlugin."""
 
     pass
@@ -273,7 +273,7 @@ class ServicePlugin(AbstractPlugin):
         - ip: IpAddr, address to register
         - opts: List of --option values.
         Raises:
-        - UpdateError on errors.
+        - ServiceError on errors.
 
         """
         raise NotImplementedError("Attempt to invoke abstract register()")

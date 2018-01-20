@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: https://www.dtdns.com/dtsite/updatespec
 
 """
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -41,5 +41,5 @@ class DtdnsPlugin(ServicePlugin):
             # one more try...
             html = get_response(log, url)
         if 'points to' not in html:
-            raise UpdateError("Bad update reply: " + html)
+            raise ServiceError("Bad update reply: " + html)
         log.info("Update completed: " + html)

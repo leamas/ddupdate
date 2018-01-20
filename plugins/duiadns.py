@@ -7,7 +7,7 @@ See: https://www.duiadns.net/duiadns-url-update
 """
 from html.parser import HTMLParser
 
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -16,7 +16,7 @@ class DuiadnsParser(HTMLParser):
 
     def error(self, message):
         """Implement HTMLParser.error()."""
-        raise UpdateError("HTML parser error: " + message)
+        raise ServiceError("HTML parser error: " + message)
 
     def __init__(self):
         """Default constructor."""
@@ -79,5 +79,5 @@ class DuiadnsPlugin(ServicePlugin):
         parser = DuiadnsParser()
         parser.feed(html)
         if 'error' in parser.data or 'Ipv4' not in parser.data:
-            raise UpdateError('Cannot parse server reply (see debug log)')
+            raise ServiceError('Cannot parse server reply (see debug log)')
         log.info('New ip address: ' + parser.data['Ipv4'])

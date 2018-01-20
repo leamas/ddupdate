@@ -5,7 +5,7 @@ See: ddupdate(8)
 See: https://dynv6.com/docs/apis
 
 """
-from ddupdate.ddplugin import ServicePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
@@ -41,4 +41,4 @@ class Dynv6Plugin(ServicePlugin):
             url += "&ipv6=" + ip.v6
         html = get_response(log, url, self._socket_to)
         if not ('updated' in html or 'unchanged' in html):
-            raise UpdateError("Update error, got: %s", html)
+            raise ServiceError("Update error, got: %s", html)
