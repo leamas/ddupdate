@@ -6,11 +6,11 @@ See:
  http://www.changeip.com/accounts/knowledgebase.php?action=displayarticle&id=34
 """
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
-class ChangeAddressPlugin(UpdatePlugin):
+class ChangeAddressPlugin(ServicePlugin):
     """
     Update a dns entry on changeip.com.
 
@@ -29,7 +29,7 @@ class ChangeAddressPlugin(UpdatePlugin):
     _url = "https://nic.ChangeIP.com/nic/update?&hostname={0}"
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register."""
+        """Implement ServicePlugin.register."""
         url = self._url.format(hostname)
         if ip:
             url += "&ip=" + ip.v4

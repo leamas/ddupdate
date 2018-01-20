@@ -4,7 +4,7 @@ ddupdate plugin API.
 A plugin is either a service plugin or an address plugin.
 
 Service plugins register the ip address with a dynamic dns service provider.
-They implement the UpdatePlugin abstract interface. Naming of these plugins
+They implement the ServicePlugin abstract interface. Naming of these plugins
 is normally based on the website used to register since these by definition
 are unique
 
@@ -197,7 +197,7 @@ class AddressError(Exception):
 
 
 class UpdateError(AddressError):
-    """General error in UpdatePlugin."""
+    """General error in ServicePlugin."""
 
     pass
 
@@ -249,7 +249,7 @@ class AddressPlugin(AbstractPlugin):
         raise NotImplementedError("Attempt to invoke abstract get_ip()")
 
 
-class UpdatePlugin(AbstractPlugin):
+class ServicePlugin(AbstractPlugin):
     """An abstract plugin doing the actual update work using a service."""
 
     _ip_cache_ttl = 120    # 2 hours, address cache timeout

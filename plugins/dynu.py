@@ -6,10 +6,10 @@ See: https://www.dynu.com/Resources/API/Documentation
 
 """
 import hashlib
-from ddupdate.ddplugin import UpdatePlugin, get_response, get_netrc_auth
+from ddupdate.ddplugin import ServicePlugin, get_response, get_netrc_auth
 
 
-class DynuPlugin(UpdatePlugin):
+class DynuPlugin(ServicePlugin):
     """
     Update a dns entry on dynu.com.
 
@@ -29,7 +29,7 @@ class DynuPlugin(UpdatePlugin):
         + "/nic/update?hostname={0}&username={1}&password={2}"
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         user, password = get_netrc_auth('api.dynu.com')
         pw_hash = hashlib.md5(password.encode()).hexdigest()
         url = self._url.format(hostname, user, pw_hash)

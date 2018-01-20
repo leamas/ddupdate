@@ -5,11 +5,11 @@ See: ddupdate(8)
 See: https://www.dtdns.com/dtsite/updatespec
 
 """
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
-class DtdnsPlugin(UpdatePlugin):
+class DtdnsPlugin(ServicePlugin):
     """
     Update a dns entry on dtdns.com.
 
@@ -30,7 +30,7 @@ class DtdnsPlugin(UpdatePlugin):
     # pylint: disable=unused-variable
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         user, password = get_netrc_auth('www.dtdns.com')
         url = self._url.format(hostname, password)
         if ip:

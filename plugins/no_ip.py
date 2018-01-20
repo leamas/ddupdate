@@ -5,11 +5,11 @@ See: ddupdate(8)
 See: https://www.noip.com/integrate/request
 """
 
-from ddupdate.ddplugin import UpdatePlugin
+from ddupdate.ddplugin import ServicePlugin
 from ddupdate.ddplugin import http_basic_auth_setup, get_response
 
 
-class NoAddressPlugin(UpdatePlugin):
+class NoAddressPlugin(ServicePlugin):
     """
     Update a dns entry on no-ip.com.
 
@@ -28,7 +28,7 @@ class NoAddressPlugin(UpdatePlugin):
     _url = "http://dynupdate.no-ip.com/nic/update?hostname={0}"
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         url = self._url.format(hostname)
         if ip:
             url += "&myip=" + ip.v4

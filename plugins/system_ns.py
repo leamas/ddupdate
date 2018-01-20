@@ -7,11 +7,11 @@ See: https://system-ns.com/services/dynamic
 """
 import json
 
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
-class SystemNsPlugin(UpdatePlugin):
+class SystemNsPlugin(ServicePlugin):
     """
     Update a dns entry on system-ns.com.
 
@@ -35,7 +35,7 @@ class SystemNsPlugin(UpdatePlugin):
     _url = '{0}?type=dynamic&domain={1}&command=set&token={2}'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         password = get_netrc_auth('system-ns.com')[1]
         url = self._url.format(self._apihost, hostname, password)
         if ip:

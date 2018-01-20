@@ -7,10 +7,10 @@ See: https://freedns.io/api
 FIXME: Add ipv6 support
 """
 
-from ddupdate.ddplugin import UpdatePlugin, get_netrc_auth, get_response
+from ddupdate.ddplugin import ServicePlugin, get_netrc_auth, get_response
 
 
-class FreednsIoPlugin(UpdatePlugin):
+class FreednsIoPlugin(ServicePlugin):
     """
     Updates DNS data for host on freedns.io.
 
@@ -34,7 +34,7 @@ class FreednsIoPlugin(UpdatePlugin):
     _url = 'https://freedns.io/request'
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register."""
+        """Implement ServicePlugin.register."""
         user, password = get_netrc_auth('freedns.io')
         data = {
             'username': user,

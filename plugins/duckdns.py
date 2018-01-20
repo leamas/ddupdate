@@ -5,11 +5,11 @@ See: ddupdate(8)
 See: https://www.duckdns.org/spec.jsp
 
 """
-from ddupdate.ddplugin import UpdatePlugin, UpdateError
+from ddupdate.ddplugin import ServicePlugin, UpdateError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
-class DuckdnsPlugin(UpdatePlugin):
+class DuckdnsPlugin(ServicePlugin):
     """
     Update a dns entry on duckdns.org.
 
@@ -32,7 +32,7 @@ class DuckdnsPlugin(UpdatePlugin):
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
     def register(self, log, hostname, ip, options):
-        """Implement UpdatePlugin.register()."""
+        """Implement ServicePlugin.register()."""
         password = get_netrc_auth('www.duckdns.org')[1]
         host = hostname.split('.duckdns.org')[0]
         url = self._url.format(host, password)
