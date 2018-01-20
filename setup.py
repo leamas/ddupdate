@@ -30,7 +30,7 @@ setup(
     author_email='alec.leamas@nowhere.net',
     install_requires=['straight.plugin'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',
         'Topic :: System :: Networking',
         'License :: OSI Approved :: MIT License',
