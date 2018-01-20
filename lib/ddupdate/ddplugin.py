@@ -22,14 +22,24 @@ import inspect
 import os.path
 
 import urllib.request
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from socket import timeout as timeoutError
 from netrc import netrc
 
 
-def http_basic_auth_setup(url, host):
-    """Configure urllib to provide basic authentication from netrc on url."""
+def http_basic_auth_setup(url, host=None):
+    """
+    Configure urllib to provide basic authentication.
+
+    Parameters:
+        - url: string, the url to connect to.
+        - host: string, hostname looked up in .netrc. Defaults to
+          to hostname part of url.
+
+    """
+    if not host:
+        host = urlparse(url).hostname
     user, password = get_netrc_auth(host)
     pwmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     pwmgr.add_password(None, url, user, password)

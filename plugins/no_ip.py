@@ -32,5 +32,5 @@ class NoAddressPlugin(ServicePlugin):
         url = self._url.format(hostname)
         if ip:
             url += "&myip=" + ip.v4
-        http_basic_auth_setup(url, 'dynupdate.no-ip.com')
+        http_basic_auth_setup(url)
         get_response(log, url, self._socket_to)
