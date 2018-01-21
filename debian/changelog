@@ -1,6 +1,7 @@
-ddupdate (0.4.1-1) experimental; urgency=medium
+ddupdate (0.4.1-2) experimental; urgency=medium
 
   * New upstream release
   * New ITP package, closes: #886546
 
- -- Alec Leamas <leamas.alec@gmail.com>  Sun, 21 Jan 2018 10:18:06 +0100
+ -- Alec Leamas <leamas.alec@gmail.com>  Sun, 21 Jan 2018 11:31:22 +0100
+

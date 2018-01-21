@@ -1,5 +1,5 @@
 version=4
 
-opts="filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%<project>-$1.tar.gz%" \
+opts="filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%ddupdate-$1.tar.gz%" \
    https://github.com/leamas/ddupdate/tags \
    (?:.*?/)?v?(\d[\d.]*)\.tar\.gz debian uupdate

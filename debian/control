@@ -3,31 +3,24 @@ Section: net
 Priority: optional
 Maintainer: Alec Leamas <leamas.alec@gmail.com>
 Build-Depends: debhelper (>= 9),
- python3-all-dev, 
- dh-systemd, 
- dh-python,
- python3-setuptools
-Standards-Version: 4.0.0
+  dh-python, dh-systemd, python3, python3-setuptools
+Standards-Version: 4.0.1
 Homepage: http://github.com/leamas/ddupdate
-#Vcs-Git: https://anonscm.debian.org/collab-maint/ddupdate.git
+Vcs-Git: https://github.com/leamas/ddupdate.git -b debian
 Vcs-Browser: https://github.com/leamas/ddupdate/tree/debian
 
 Package: ddupdate
 Architecture: all
 Pre-Depends: adduser
-Depends: python3, ${misc:Depends}, ${python3:Depends}
+Depends: python3, python3-straight.plugin, ${misc:Depends}
 Description: Tool updating DNS data for dynamic IP addresses
- A tool to update dynamic IP addresses typically obtained using DHCP
- at dynamic DNS services such as changeip.com, duckdns.org or no-ip.com.
- It makes it possible to access a machine with a fixed name like 
- myhost.duckdns.org even if the ip address changes.
+ Updates dynamic IP addresses typically obtained using DHCP with dynamic
+ DNS services such as changeip.com, duckdns.org or no-ip.com. This makes
+ it possible to access a machine with a fixed name like myhost.duckdns.org
+ even if the ip address changes. It is a linux-centric, user-friendly and
+ secure alternative to the ubiquotious ddclient(8)
  .
- The tool has a plugin structure with plugins for obtaining the actual
+ ddupdate has a plugin structure with plugins for obtaining the actual
  address (typically hardware-dependent) and to update it (service depen‐
- dent). For supported services it's a linux-centric, user-friendly and
- flexible alternative to the ubiquotious ddclient.
- .
- ddupdate caches the address, and only attempts the update if the address 
- actually is changed. It is distributed with systemd support to run at 
- regular intervals, and with NetworkManager templates to run when interfaces 
- goes up or down.
+ dent). It is distributed with systemd support to run at regular intervals
+ and with NetworkManager templates to run when interfaces goes up or down.
