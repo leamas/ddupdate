@@ -29,10 +29,10 @@ Still, this is beta and there is most likely bugs out there.
 Dependencies
 ------------
 
-   - python3 (tested on 3.6 and 3.4)
-   - python3-straight-plugin (a. k. a. python3-straight.plugin)
-   - python3-setuptools
-   - The /usr/sbin/ip command is used in some plugins.
+  - python3 (tested on 3.6 and 3.4)
+  - python3-straight-plugin (a. k. a. python3-straight.plugin)
+  - python3-setuptools
+  - The /usr/sbin/ip command is used in some plugins.
 
 Installation
 ------------
@@ -126,7 +126,7 @@ it using something like::
         hostname: host1.nowhere.net
 
 After selecting the address plugin, start the process of selecting a
-service by listing all available services (your list might differ):
+service by listing all available services (your list might differ)::
 
     $ ddupdate --list-services
     changeip             Updates DNS data on changeip.com

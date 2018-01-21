@@ -67,7 +67,7 @@ Creating a new version
 
         git fetch upstream pristine-tar:pristine-tar
         git fetch upstream debian:debian
-        scp fedora/ddupdate-0.1.0.tar.gz sid:
+        scp fedora/ddupdate-0.1.0.tar.gz sid:ddupdate
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
         ssh sid
@@ -86,15 +86,13 @@ Creating a new version
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ git merge -X theirs 0.1.0 --allow
-        $ cd ..; tar xf ddupdate_0.1.0.orig.tar.gz
-        $ diff -r ddupdate-0.1.0 ddupdate > foo
-        # Remove all cruft left in foo after merge.
-        $ git commit -am "new upstream release..."
-        $ dch -v 0.1.0   # Edit debian changelog
+        $ git merge -X theirs 0.1.0
+        $ dch -v 0.4.1-1
+        $ dpkg-source --commit   # Check that patch is sane
         $ git  clean -fd
+        $ git commit -am "debian: 0.4.1-1"
         $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
-        $ git clean -fd; git checkout .    # To be able to rebuild
+        $ git clean -fd    # To be able to rebuild
 
   - Create fedora packages (below)
   - Make a new COPR build
@@ -149,7 +147,7 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.4.0::
+    requires the *git* and *rpm-build* packages. To build version 0.4.1::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
@@ -168,7 +166,7 @@ ddupdate has a multitude of packaging:
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
-        $ dpkg -i ../ddupdate0.4.0*_all.deb
+        $ dpkg -i ../ddupdate0.4.1*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the

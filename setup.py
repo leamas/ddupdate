@@ -20,7 +20,7 @@ DATA = [
 
 setup(
     name='ddupdate',
-    version='0.4.0',
+    version='0.4.1',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -30,7 +30,7 @@ setup(
     author_email='alec.leamas@nowhere.net',
     install_requires=['straight.plugin'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',
         'Topic :: System :: Networking',
         'License :: OSI Approved :: MIT License',
