@@ -21,7 +21,7 @@ pydocstyle:
 	pydocstyle $(PYTHON_SRC)
 
 pep8: $(PYTHON_SRC)
-	-python3-pep8 --config=pep8.conf $?
+	-python3-pep8 $?
 
 ddupdate.8.html: ddupdate.8
 	man2html $? > $@
