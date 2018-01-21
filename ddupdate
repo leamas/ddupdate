@@ -5,12 +5,13 @@
 import os.path
 import sys
 
+sys.path.pop(0)
 HOME = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(HOME, 'lib'))
 
 try:
     import lib.ddupdate.main as main
-except ModuleNotFoundError:
+except ImportError:
     import ddupdate.main as main
 
 main.main()

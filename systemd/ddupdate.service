@@ -3,10 +3,12 @@ Description=Update DNS  data for this host
 After=network.target
 
 [Service]
-# User=ddupdate
 Type=oneshot
-Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
 ExecStart=/usr/local/bin/ddupdate
+Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+# User=ddupdate
+# Environment=http_proxy=my.proxy.domain:8888
+# Environment=https_proxy=my.proxy.domain:8888
 
 [Install]
 WantedBy=multi-user.target

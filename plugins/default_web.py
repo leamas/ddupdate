@@ -1,34 +1,48 @@
-'''
-ddupdate plugin to retrieve address as seen from internet
+"""
+ddupdate plugin to retrieve address as seen from internet.
 
 See: ddupdate(8)
-'''
+"""
 
 import urllib.request
 import re
 
-from ddupdate.plugins_base import IpPlugin, IpLookupError, IpAddr
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr
 
 
-class DefaultWebPlugin(IpPlugin):
-    ''' Get the external address as seen from the web. Relies on
-    dyndns.org, falling back to ipify.org and ifconfig.co.
+_URLS = [
+    'http://checkip.dyndns.org/',
+    'https://api.ipify.org?format=json',
+    'https://ifconfig.co'
+]
+
+
+class DefaultWebPlugin(AddressPlugin):
+    """
+    Get the external address as seen from the web.
+
+    Relies on urls defined in _URLS, trying each in turn when running
+    into trouble.
 
     Options used: none
-    '''
+    """
+
     _name = 'default-web-ip'
     _oneliner = 'Obtain external address as seen from the net'
 
     def get_ip(self, log, options):
-
+        """Implement AddressPlugin.get_ip()."""
         def check_url(url):
-            ''' Get reply from host and decode '''
+            """Get reply from host and decode."""
             log.debug('trying ' + url)
-            with urllib.request.urlopen(url) as response:
-                if response.getcode() != 200:
-                    log.debug("Bad response at %s (ignored)" % url)
-                    return None
-                html = response.read().decode('ascii')
+            try:
+                with urllib.request.urlopen(url) as response:
+                    if response.getcode() != 200:
+                        log.debug("Bad response at %s (ignored)" % url)
+                        return None
+                    html = response.read().decode('ascii')
+            except (urllib.error.HTTPError, urllib.error.URLError) as err:
+                raise AddressError("Error reading %s :%s" % (url, err))
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
             match = pat.search(html)
@@ -37,17 +51,11 @@ class DefaultWebPlugin(IpPlugin):
             log.debug("Cannot parse address reply")
             return None
 
-        ip = check_url('http://checkip.dyndns.org/')
-        if ip:
-            return IpAddr(ip)
-        log.info("Falling back to ipify.org")
-        ip = check_url('https://api.ipify.org?format=json')
-        if ip:
-            return IpAddr(ip)
-        log.info("Falling back to ifconfig.co")
-        ip = check_url('https://ifconfig.co')
-        if ip:
-            return IpAddr(ip)
-        raise IpLookupError(
-            "Cannot obtain ip address (%s, %s and %s tried)" %
-            ('checkip.dyndns.org', 'ipify.org', 'ifconfig.co'))
+        for ix, url in enumerate(_URLS):
+            ip = check_url(url)
+            if ip:
+                return IpAddr(ip)
+            if ix + 1 < len(_URLS):
+                log.info("Falling back to %s", _URLS[ix + 1])
+        raise AddressError(
+            "Cannot obtain ip address (%s, %s and %s tried)" % tuple(_URLS))

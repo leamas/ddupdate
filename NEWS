@@ -1,3 +1,35 @@
+0.4.1
+* Documentation fixes
+
+0.4.0:
+* Declared as beta state.
+* Revise API
+
+0.3.0
+* Split old --list command to --list-services and list-addressers
+* Split old --options to --address-options and --service-options.
+* Incompatible CLI changes
+* Documentation fixes.
+
+0.2.1:
+* Fix start exception on python 3.4/jessie (#6).
+* Fix unhelpful error messages for bad .netrc (#5).
+* Documentation fixes.
+
+0.2.0:
+* Revise and finish ipv6 support (#3)
+* New option --version, ipv4/ipv6/all addresses switch.
+* New ip plugin default-web-ip6, external ipv6 address.
+* Update and document proxy usage (#4)
+
+0.1.0:
+* Multitude of minor bugfixes.
+* API: Finalizing current revision. Renaming silly
+  named plugins_base -> ddplugin.
+* Adding pydocstyle checks and updating source
+* Review and bugfixes for package generation
+" Added COPR and Ubuntu PPA downstream repos.
+
 0.0.6:
 * Fixed several bugs in plugin load paths.
 * Fixed a bug in config file path computation.

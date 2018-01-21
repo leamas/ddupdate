@@ -1,17 +1,17 @@
-'''
+"""
 ddupdate plugin updating data on dtdns.com.
 
 See: ddupdate(8)
 See: https://www.dtdns.com/dtsite/updatespec
 
-'''
-from ddupdate.plugins_base import UpdatePlugin, UpdateError
-from ddupdate.plugins_base import get_response, get_netrc_auth
+"""
+from ddupdate.ddplugin import ServicePlugin, ServiceError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
-class DtdnsPlugin(UpdatePlugin):
-    '''
-    Update a dns entry on dtdns.com
+class DtdnsPlugin(ServicePlugin):
+    """
+    Update a dns entry on dtdns.com.
 
     Supports ip address discovery and can thus work with the ip-disabled
     plugin. As usual any host updated must first be defined in the web UI
@@ -21,7 +21,8 @@ class DtdnsPlugin(UpdatePlugin):
 
     Options:
         none
-    '''
+    """
+
     _name = 'dtdns.com'
     _oneliner = 'Updates on https://www.dtdns.com'
     _url = "https://www.dtdns.com/api/autodns.cfm?id={0}&pw={1}"
@@ -29,16 +30,16 @@ class DtdnsPlugin(UpdatePlugin):
     # pylint: disable=unused-variable
 
     def register(self, log, hostname, ip, options):
-
+        """Implement ServicePlugin.register()."""
         user, password = get_netrc_auth('www.dtdns.com')
         url = self._url.format(hostname, password)
         if ip:
             url += "&ip=" + ip.v4
         try:
-            html = get_response(log, url, self._socket_to)
+            html = get_response(log, url)
         except TimeoutError:
             # one more try...
             html = get_response(log, url)
         if 'points to' not in html:
-            raise UpdateError("Bad update reply: " + html)
+            raise ServiceError("Bad update reply: " + html)
         log.info("Update completed: " + html)

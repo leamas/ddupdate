@@ -8,12 +8,17 @@ PYTHON_SRC      =  plugins lib/ddupdate setup.py ddupdate
 
 pylint_template  = {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
+all:
+	@echo "Use other for static code tests; plain make is undefined."
+
 pylint: .phony
 	-PYTHONPATH=$(CURDIR)/lib \
 	    python3-pylint \
 	        --rcfile=pylint.conf \
 	        --msg-template='$(pylint_template)' \
 	        $(PYTHON_SRC)
+pydocstyle:
+	pydocstyle $(PYTHON_SRC)
 
 pep8: $(PYTHON_SRC)
 	-python3-pep8 --config=pep8.conf $?

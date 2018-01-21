@@ -1,4 +1,4 @@
-''' ddupdate install data. '''
+"""ddupdate install data."""
 
 import os
 from glob import glob
@@ -13,13 +13,14 @@ DATA = [
     ('/etc', ['ddupdate.conf']),
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8']),
-    ('share/doc/ddupdate', ['README.md', 'LICENSE.txt', 'NEWS']),
+    ('share/doc/ddupdate',
+        ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
 setup(
     name='ddupdate',
-    version='0.0.6',
+    version='0.4.1',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -29,7 +30,7 @@ setup(
     author_email='alec.leamas@nowhere.net',
     install_requires=['straight.plugin'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',
         'Topic :: System :: Networking',
         'License :: OSI Approved :: MIT License',

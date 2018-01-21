@@ -7,7 +7,7 @@
 [\fIoptions\fR]
 .SH DESCRIPTION
 A tool to update dynamic IP addresses typically obtained using DHCP with
-dynamic DNS service providers such as changeip.com, duckdns.org no-ip.com.
+dynamic DNS service providers such as changeip.com, duckdns.org or no-ip.com.
 It makes it possible to access a machine with a fixed
 name like myhost.duckdns.org even if the ip address changes.
 \fBddupdate\fR caches the address, and only attempts the update if the address
@@ -27,12 +27,14 @@ username/password credentials.
 For these, the netrc(5) file is used.
 .P
 \fBddupdate\fR is distributed with systemd support to run at regular intervals,
-and with NetworkManager templates to run when interfaces goes up or down.
+and with NetworkManager templates to run when interfaces goes up or down. It
+fully supports ipv6 addresses and also using proxies (see ENVIRONMENT).
 .PP
 
 .SH OPTIONS
 
-Options for normal operation:
+Options for normal operation, typically defined in config file:
+
 .TP 4
 \fB-H, --hostname\fR <\fIhostname\fR>
 Hostname to update,  typically fully qualified. Defaults to the not really
@@ -41,14 +43,24 @@ usable host.nowhere.net
 .TP 4
 \fB-s, --service-plugin\fR <\fIplugin\fR>
 Plugin used to update the dns data for the address obtained
-from the ip-plugin. Defaults to dry-run, which just prints the
-address.
+from the address-plugin. Defaults to dry-run, which just prints the
+address. Use \fI\-\-list-services\fR to list available
+plugins.
 
 .TP 4
-\fB-i, --ip-plugin\fR <\fIplugin\fR>
+\fB-a, --address-plugin\fR <\fIplugin\fR>
 Plugin used to obtain the actual ip address. Defaults to default-if,
 which localizes the default interface using /usr/sbin/ip and uses it's
-address.
+primary address. Use \fI\-\-list-addressers\fR to list available
+plugins.
+
+.TP 4
+\fB-v, --ip-version\fR <\fIv4\fR|\fIv6\fR|\fIall\fR>
+The kind if ip addresses to register. The addresses obtained by the
+address-plugin could be either v6, v4 or both. However, the actual addresses
+sent to the service plugin is filtered using this option so for example
+an unused ipv6 address not becomes an official address to the host.
+Defaults to \fIv4\fr.
 
 .TP 4
 \fB-c, --config-file\fR <\fIpath\fR>
@@ -65,12 +77,17 @@ or \fIdebug\fR.
 It defaults to \fIwarning\fR.
 
 .TP 4
-\fB-o, --option\fR <\fIplugin option\fR>
-Option interpreted by plugins, documented in \fI--help <plugin>\fR.
+\fB-o, --service-option\fR <\fIplugin option\fR>
+Option interpreted by service plugin, documented in \fI--help <plugin>\fR.
 May be given multiple times as required.
 Any option on the command line will clear the list of options as of the
 config file.
 See PLUGIN OPTIONS.
+
+.TP 4
+\fB-O, --address-option\fR <\fIplugin option\fR>
+Option interpreted by address-plugin.
+See \fI\-\-service-option\fR and PLUGIN OPTIONS.
 
 .P
 Other options:
@@ -84,42 +101,23 @@ Force \fBddupdate\fR to run even if the cached value is still valid.
 Print help. If given a plugin argument, prints help for this plugin.
 
 .TP 4
-\fB-l, --list-plugins\fR [\flip-plugins\fR|\flservices\fR]
-List ip-plugins or service-plugins. By default, lists all.
+\fB-S, --list-services\fR
+List service provider plugins.
 
 .TP 4
-\fB-v, --version\fR
+\fB-A, --list-addressers\fR
+List plugins providing one or more ip addresses
+
+.TP 4
+\fB-V, --version\fR
 Print \fBddupdate\fR version.
 
 .SH PLUGIN OPTIONS
 The plugin options are generally just handed to the plugins without
 any further interpretation.
-An option is either a single keyword, or a \fIkey=value\fR
+An option is either a single keyword or a \fIkey=value\fR
 string.
 No whitespace is allowed in \fIkey\fR or \fIvalue\fR.
-Reserved options includes:
-.TP 4
-\fBfirewall=hostname\fR
-For ip-plugins plugins retrieving the address from the local firewall.
-The hostname must normally be present in .netrc to provide username
-and password.
-.TP 4
-\fBip=address\fR
-Used by the fixed-address plugin, which uses a hardcoded ip address
-instead of probing for it.
-.TP 4
-\fBforce\fR
-Force an update despite server-imposed restrictions.
-.TP 4
-\fBproxy=hostname\fR
-Use given HTTP proxy when connecting to service provider.
-.TP 4
-\fBssl\fR
-Use an encrypted SSL connection when connecting to service provider.
-.TP 4
-\fBtimeout=seconds\fR
-Timeout when communicating with service provider, defaults to 120
-seconds.
 
 .SH PLUGIN LOADING
 \fBddupdate\fR looks for a directory named \fIplugins\fR and tries to load
@@ -137,33 +135,28 @@ The directories listed in the XDG_DATA_DIRS environment variable,
 by default \fI/usr/local/share:/usr/share\fR, are searched for
 \fIddupdate/plugins\fR.
 
-.P
-By default, the location of the file is \fI~/.config/ddupdate.conf\fR. If
-not found, \fI/etc/ddupdate.conf\fR is used.
-
 .SH EXAMPLES
 .P
 Please note that the command line options are normally stored
-in /etc/ddupdate.conf, allowing an invocation without command line
+in \fI/etc/ddupdate.conf\fR, allowing an invocation without command line
 options.
 .P
 Update on dyndns.com using the external address as seen from the
 internet, displaying the address used:
 
 .nf
-	ddupdate -i default-web-ip -s dyndns -H myhost.dyndns.org -L info
+	ddupdate -a default-web-ip -s dtdns.com -H myhost.dyndns.org -l info
 .fi
 .P
 Make a debug run without actually updating, displaying the address
 on the local, default interface:
 
 .nf
-	ddupdate -i default-if -s dry_run --loglevel debug \\
-            -H myhost.dyndns.org
+	ddupdate -a default-if -s dry-run --loglevel info -H host.dyndns.org
 .fi
 
 .SH ENVIRONMENT
-ddupdate respects the data paths defined by freedesktop.org.
+\fBddupdate\fR respects the data paths defined by freedesktop.org.
 
 .TP 4
 .B XDG_CACHE_HOME
@@ -181,6 +174,14 @@ Involved in system plugins, see PLUGIN LOADING.
 .B XDG_CONFIG_HOME
 User configuration file parent directory location, defaults to
 \fI~/.config\fR.
+.P
+\fBddupdate\fR also accepts the standard proxy environment:
+
+.TP 4
+.B http_proxy, https_proxy
+URL to used proxies for http and https connections. The systemd service
+files distributed has provisions to define these as required.
+
 
 .SH FILES
 .TP 4

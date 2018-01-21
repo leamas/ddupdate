@@ -1,1 +1,1 @@
-# Empty placeholder
+"""Empty placeholder."""
