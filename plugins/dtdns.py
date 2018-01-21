@@ -17,7 +17,7 @@ class DtdnsPlugin(ServicePlugin):
     plugin. As usual any host updated must first be defined in the web UI
 
     .netrc: Use a line like:
-        machine www.dtdns.com login <user>  password <password>
+        machine www.dtdns.com login <username>  password <password>
 
     Options:
         none
