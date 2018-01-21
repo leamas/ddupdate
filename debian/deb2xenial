@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Patch a debian package -> xenial
+
+rev=${1:-1}
+here=$(dirname $(readlink -fn $0))
+
+sed -i '1,3s/[^ ]*;/xenial;/' debian/changelog
+sed -i '1,3s/)/~xenial'$rev')/' debian/changelog
+sed -i '/Standards-Version:/s/:.*/: 3.9.7/' debian/control
+
