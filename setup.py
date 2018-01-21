@@ -20,7 +20,7 @@ DATA = [
 
 setup(
     name='ddupdate',
-    version='0.4.0',
+    version='0.4.1',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,

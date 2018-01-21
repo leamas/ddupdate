@@ -87,10 +87,10 @@ Creating a new version
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
         $ git merge -X theirs 0.1.0
-        $ dch -v 0.1.0-1
+        $ dch -v 0.4.1-1
         $ dpkg-source --commit   # Check that patch is sane
         $ git  clean -fd
-        $ git commit -am "debian: 0.1.0-1"
+        $ git commit -am "debian: 0.4.1-1"
         $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
         $ git clean -fd    # To be able to rebuild
 
@@ -147,7 +147,7 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.4.0::
+    requires the *git* and *rpm-build* packages. To build version 0.4.1::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
@@ -166,7 +166,7 @@ ddupdate has a multitude of packaging:
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
-        $ dpkg -i ../ddupdate0.4.0*_all.deb
+        $ dpkg -i ../ddupdate0.4.1*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the
