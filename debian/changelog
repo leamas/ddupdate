@@ -1,37 +1,6 @@
-ddupdate (0.0.6-1) experimental; urgency=medium
-
-  *  Updating debian version  number to proper 0.0.6
-
- -- Alec Leamas <leamas.alec@gmail.com>  Thu, 04 Jan 2018 12:58:38 +0100
-
-ddupdate (0.0.5~rc2-2) experimental; urgency=medium
-
-  *  Added upstream  fix for NetworkManager support.
-
- -- Alec Leamas <leamas.alec@gmail.com>  Thu, 04 Jan 2018 11:59:07 +0100
-
-ddupdate (0.0.5~rc2-1) experimental; urgency=medium
+ddupdate (0.4.1-1) experimental; urgency=medium
 
   * New upstream release
+  * New ITP package, closes: #886546
 
- -- Alec Leamas <leamas.alec@gmail.com>  Tue, 02 Jan 2018 16:54:58 +0100
-
-ddupdate (0.0.5~rc1-1) experimental; urgency=medium
-
-  * New upstream release
-
- -- Alec Leamas <leamas.alec@gmail.com>  Mon, 01 Jan 2018 19:15:43 +0100
-
-ddupdate (0.0.4-1) experimental; urgency=medium
-
-  *  Nex upstream release
-
- -- Alec Leamas <leamas.alec@gmail.com>  Sat, 30 Dec 2017 22:47:27 +0100
-
-ddupdate (0.0.2-1) experimental; urgency=medium
-
-  * New upstream release
-  * Purgin inconsistent history
-
- -- Alec Leamas <leamas.alec@gmail.com>  Fri, 29 Dec 2017 11:25:58 +0100
-
+ -- Alec Leamas <leamas.alec@gmail.com>  Sun, 21 Jan 2018 10:18:06 +0100
