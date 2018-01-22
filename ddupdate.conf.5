@@ -1,0 +1,29 @@
+.TH DDUPDATE.CONF "5" "Last change: Jan 2018" "ddupdate.comf" "File Formats Manual"
+
+.SH NAME
+\fBddupdate.conf\fR - ddupdate configuration file.
+
+.SH SYNOPSIS
+The \fBddupdate.conf\fR file holds default values for all \fBddupdate(8)\fR
+options. Since \fBddupdate\fR normally is invoked without command line
+parameters, this file then represents the used option values.
+
+.SH FILE FORMAT
+The file is formatted according to the rules use by the python3 configparser
+module.
+Basically, this is a leading \fI[update]\fR line followed by
+by \fI key = value\fR lines. The \fikey\fR represents the command line option,
+and \fIvalue\fR the value of said option.
+.P
+The actual options available are documented in \fBddupdate(8)\fR.
+
+.SH "SEE ALSO"
+.TP 4
+.B ddupdate(8)
+.TP 4
+.B  https://github.com/leamas/ddupdate
+Project homesite and README
+.TP 4
+.B https://docs.python.org/3/library/configparser.html
+More info on file format.
+
