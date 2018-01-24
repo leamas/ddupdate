@@ -12,7 +12,8 @@ DATA = [
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('/etc', ['ddupdate.conf']),
     ('/lib/systemd/system', glob('systemd/*')),
-    ('share/man/man8', ['ddupdate.8']),
+    ('share/man/man8', ['ddupdate.8','ddupdate-config.8']),
+    ('share/man/man5', ['ddupdate.conf.5']),
     ('share/doc/ddupdate',
         ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
@@ -20,7 +21,7 @@ DATA = [
 
 setup(
     name='ddupdate',
-    version='0.4.1',
+    version='0.5.0',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -39,6 +40,6 @@ setup(
     keywords=['dyndns', 'dhcp', 'dns'],
     package_dir={'': 'lib'},
     packages=['ddupdate'],
-    scripts=['ddupdate'],
+    scripts=['ddupdate', 'ddupdate-config'],
     data_files=DATA
 )

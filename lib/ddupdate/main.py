@@ -217,7 +217,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.4.1"
+    parser.version = "0.5.0"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -274,7 +274,7 @@ def load_plugins(path, log):
 
 
 def list_plugins(ip_plugins, service_plugins, kind):
-    """List all loaded plugins (noreturn)."""
+    """List all loaded plugins."""
     if kind == 'addressers':
         for name, plugin in sorted(ip_plugins.items()):
             print("%-20s %s" % (name, plugin.oneliner()))
@@ -398,7 +398,7 @@ def main():
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)
-        sys.stderr.write("Fatal error: " + str(err) + "\n")
+            sys.stderr.write("Fatal error: " + str(err) + "\n")
         sys.exit(err.exitcode)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.service_options)

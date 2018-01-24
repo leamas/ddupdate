@@ -1,3 +1,10 @@
+0.5.0
+* Add ddupate-config configuration script.
+* Add missing ddupdate.conf.5 manpage
+* Static code checkers cleanup
+* Documentation updates
+* Fix bogus error message in --list-services/addressers.
+
 0.4.1
 * Documentation fixes
 

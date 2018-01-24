@@ -33,6 +33,7 @@ Dependencies
   - python3-straight-plugin (a. k. a. python3-straight.plugin)
   - python3-setuptools
   - The /usr/sbin/ip command is used in some plugins.
+  - The configuration script requires sudo.
 
 Installation
 ------------
@@ -49,7 +50,7 @@ It is also possible to install as a pypi package using::
 User installations are not supported, but installing in a virtual env is \-
 see Packaging in CONTRIBUTE.md.
 
-Fedora and Mageia users can install binary packages from
+Fedora and Mageia users can install native packages from
 https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/.
 
 Ubuntu users can use the PPA at
@@ -63,36 +64,22 @@ Fast Track Configuration
 ------------------------
 
 This is the fast track. If running into troubles, look into next
-chapter Full Configuration.
+chapter Full Configuration. This track assumes that you
+are using:
+
+  - ipv4 addresses.
+  - Mainstream address options.
+  - A packaged version running as the *ddupdate* user (the regular
+    packaging on Fedora, Mageia, Ubuntu and Debian does).
 
 Start with running *ddupdate --list-services*. Pick a supported
 service, check it using *ddupdate --help <service>* and register with
 the relevant site. This should end up with a hostname, a user and a
-secret password.
+secret password (some sites just uses an API key).
 
-Using the info in *ddupdate --help <service>* create an entry in the
-*~/.netrc* file, something like::
-
-    machine  <service host> login <user> password <secret password>
-
-Give it proper permissions::
-
-    sudo chmod 600 ~/.netrc
-
-Assuming using the ipv4 address as seen from the net, update
-*/etc/ddupdate.conf* to something like::
-
-    [update]
-    address-plugin = web-default-ip
-    service-plugin = <your service plugin>
-    hostname = <your hostname>
-    loglevel = info
-    ip-version = v4
-
-Now run *ddupdate* and check for errors.
-
-That's the main configuration, look below for Configuring systemd
-
+Then, start the configuration script *ddupdate-config*. The script
+guides you through the configuration and updates several files, notably
+*/etc/ddupdate.conf* and *~ddupdate/.netrc*.
 
 Full Configuration
 ------------------
@@ -101,14 +88,14 @@ Configuration is basically about selecting a plugin for a specific ddns
 service and another plugin which provides the ip address to be registered.
 Some plugins needs specific plugin options.
 
-The address plugin to use is use is normally either *default-web-ip*
+The address plugin to use is normally either *default-web-ip*
 or *default-if*.
 
 The *default-web-ip* plugin should be used when the address to register is
 the external address visible on the internet - that is, if the registered
-host should be accessed from the internet. For most services
-*ip-disabled* could be used instead. Services will then use the external
-address as seen from the service. See the *ddupdate --help <service>* info.
+host should be accessed from the internet. For most services *ip-disabled*
+could be used instead. Services will then use the external address as seen
+from the service. See the *ddupdate --help <service>* info.
 
 The *default-if* plugin uses the first address found on the default
 interface. This typically means registering the address used on an internal
@@ -201,7 +188,8 @@ Configuring systemd
 -------------------
 If using a packaged version: make your  *~/.netrc*  available for the
 user running the service by copying it to the ddupdate user's home and
-give it proper permissions::
+give it proper permissions (have you been using *ddupdate-config* this is
+already done)::
 
     sudo cp ~/.netrc ~ddupdate
     sudo chmod 600 ~ddupdate/.netrc
