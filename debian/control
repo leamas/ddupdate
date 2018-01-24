@@ -12,8 +12,7 @@ Vcs-Browser: https://github.com/leamas/ddupdate/tree/debian
 Package: ddupdate
 Architecture: all
 Pre-Depends: adduser
-Depends: python3, python3-straight.plugin, iproute2, sudo,
- ${misc:Depends}, ${python3:Depends}
+Depends: iproute2, sudo, ${misc:Depends}, ${python3:Depends}
 Description: Tool updating DNS data for dynamic IP addresses
  Updates dynamic IP addresses typically obtained using DHCP with dynamic
  DNS services such as changeip.com, duckdns.org or no-ip.com. This makes
