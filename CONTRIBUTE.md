@@ -68,7 +68,7 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.4.1::
+    requires the *git* and *rpm-build* packages. To build version 0.5.0::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
@@ -87,7 +87,7 @@ ddupdate has a multitude of packaging:
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
-        $ sudo dpkg -i ../ddupdate_0.4.1*_all.deb
+        $ sudo dpkg -i ../ddupdate_0.5.0*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the
@@ -152,8 +152,8 @@ Creating a new version
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
         $ git merge -X theirs 0.1.0
-        $ dch -v 0.4.1-1
-        $ git commit -am "debian: 0.4.1-1"
+        $ dch -v 0.5.0-1
+        $ git commit -am "debian: 0.5.0-1"
         $ Check systemd/ddupdate.service
         $ dpkg-source --commit
         $ git commit -a --amend
@@ -183,7 +183,7 @@ Creating a new version
 
          # Build and install the binary package
          $ debuild -us -uc
-         $ sudo dpkg -i ../ddupdate_0.4.1_all.deb
+         $ sudo dpkg -i ../ddupdate_0.5.0_all.deb
 
          # Build and distribute source package (upstream only)
          $ debuild -S
