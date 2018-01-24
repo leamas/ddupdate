@@ -4,8 +4,6 @@
 	dh $@  --with systemd,python3
 
 override_dh_auto_install:
-	python3 setup.py install --root=debian/tmp --install-layout=deb
+	python3 setup.py --quiet \
+	    install --root=debian/tmp --install-layout=deb
 	py3clean debian/tmp
-
-override_dh_python3:
-	dh_python3 -p ddupdate /usr/share/ddupdate/plugins
