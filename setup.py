@@ -40,6 +40,6 @@ setup(
     keywords=['dyndns', 'dhcp', 'dns'],
     package_dir={'': 'lib'},
     packages=['ddupdate'],
-    scripts=['ddupdate'],
+    scripts=['ddupdate', 'ddupdate-config'],
     data_files=DATA
 )
