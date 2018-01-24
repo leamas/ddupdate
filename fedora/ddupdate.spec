@@ -1,4 +1,4 @@
-%global gittag      0.4.1
+%global gittag      0.5.0
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -6,7 +6,7 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.4.1
+Version:        0.5.0
 Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
@@ -36,7 +36,7 @@ address, and only attempts the update if the address actually is changed.
 The tool has a plugin structure with plugins for obtaining the actual
 address (typically hardware-dependent) and to update it (service depen‐
 dent). For supported services, it's a linux-centric, user-friendly and
-flexible alternative to the ubiquotious ddclient.
+flexible alternative to the ubiquitous ddclient.
 
 ddupdate is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down.
@@ -78,14 +78,21 @@ getent passwd ddupdate >/dev/null || \
 %license LICENSE.txt
 %doc README.md NEWS CONTRIBUTE.md
 %{_bindir}/ddupdate
+%{_bindir}/ddupdate-config
 %config(noreplace) /etc/ddupdate.conf
 %{_unitdir}/ddupdate.*
 %{_datadir}/ddupdate
 %{_mandir}/man8/ddupdate.8*
+%{_mandir}/man8/ddupdate-config.8*
+%{_mandir}/man5/ddupdate.conf.5*
 %{python3_sitelib}/*
 
 
 %changelog
+* Wed Jan 24 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.0-1
+- New upstream version.
+- New tool ddupdate-config and new manpages.
+
 * Sun Jan 21 2018 Alec Leamas <leamas.alec@gmail.com> - 0.4.1-1
 - New upstream release.
 
