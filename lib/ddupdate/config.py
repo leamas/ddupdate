@@ -51,8 +51,9 @@ def check_existing_files():
     """Check existing files and let user save them."""
     files = [
         '/etc/ddupdate.conf',
+        os.path.expanduser('~ddupdate/.netrc'),
         os.path.expanduser('~/.netrc'),
-        os.path.expanduser('~ddupdate/.netrc')
+        os.path.expanduser('~/.config/ddupdate.conf')
     ]
     files = [f for f in files if os.path.exists(f)]
     if not files:
@@ -62,12 +63,23 @@ def check_existing_files():
         print("        " + f)
     reply = input("OK to overwrite (Yes/No) [No]: ")
     if not reply or not reply.lower().startswith('y'):
-        print("Please save and remove these file(s) and try again.")
+        print("Please save these file(s) and try again.")
         raise _GoodbyeError("", 0)
 
 
 def _load_plugins(log, paths, plugin_class):
-    """Load plugins into dict keyed by name."""
+    """
+    Load plugins into dict keyed by name.
+
+    Parameters:
+      - log: Standard python log instance
+      - paths: List of path candidates containing plugins
+      - plugin_class: Type, base class of plugins to load.
+
+    Returns:
+      dict of loaded plugins with plugin.name() as key.
+
+    """
     plugins = {}
     for path in paths:
         sys.path.insert(0, path)
@@ -82,17 +94,25 @@ def _load_plugins(log, paths, plugin_class):
 
 
 def _load_services(log, paths):
-    """Load service plugins into dict keyed by name."""
+    """Load service plugins from paths into dict keyed by name."""
     return _load_plugins(log, paths, ServicePlugin)
 
 
 def _load_addressers(log, paths):
-    """Load address plugins into dict keyed by name."""
+    """Load address plugins from paths into dict keyed by name."""
     return _load_plugins(log, paths, AddressPlugin)
 
 
 def get_service_plugin(service_plugins):
-    """Present a menu with all plugins to user, let her select."""
+    """
+    Present a menu with all plugins to user, let her select.
+
+    Parameters:
+      - service_plugins: Dict of loaded plugins keyed by plugin.name()
+    Returns:
+      A loaded plugin as selected by user.
+
+    """
     ix = 1
     services_by_ix = {}
     for id_ in sorted(service_plugins):
@@ -111,7 +131,18 @@ def get_service_plugin(service_plugins):
 
 
 def get_address_plugin(log, paths, options):
-    """Mumbo jumbo."""
+    """
+    Let user select address plugin.
+
+    Parameters:
+      - log: Standard python log instance.
+      - paths: List of path candidates to load plugins from.
+      - options: List of --service-option options.
+
+    Return:
+      Name of selected address plugin.
+
+    """
     plugins = _load_addressers(log, paths)
     web_default_ip = plugins['default-web-ip']
     default_if = plugins['default-if']
@@ -136,10 +167,14 @@ def get_address_plugin(log, paths, options):
 
 def get_netrc(service):
     """
-    Using docstring in service.
+    Get .netrc line for service.
 
-    Return netrc line with user supplied user, pasword etc.
-    original line.
+    Parameters:
+      - service: Loaded service plugin.
+
+    Return:
+      netrc line with user supplied user, password, etc.
+
     """
     lines = service.info().split('\n')
     line = ''
@@ -155,12 +190,24 @@ def get_netrc(service):
     return line
 
 
-def merge_configs(line, netrc_path, config_src, config_dest, cmd):
-    """Merge line into existing .netrc file and cp src to dest using cmd."""
-    line = line if line else "machine dummy"
+def merge_configs(netrc_line, netrc_path, config_src, config_dest, cmd):
+    """
+    Merge netrc and config file options into current configuration.
+
+    Parameters:
+      - netrc_line: New netrc authentication line.
+      - netrc_path: Path of netrc file.
+      - config_src: Path of updated, temporary config file.
+      - config_dest: Path of existing config file actually used.
+      - cmd: function(path) returning command executing path in a shell.
+
+    Returns nothing.
+
+    """
+    netrc_line = netrc_line if netrc_line else "machine dummy"
     script = _UPDATE_CONFIG.format(
-        netrc_line=line,
-        machine=line.split()[1],
+        netrc_line=netrc_line,
+        machine=netrc_line.split()[1],
         netrc_path=netrc_path,
         config_src=config_src,
         config_dest=config_dest
@@ -175,7 +222,17 @@ def merge_configs(line, netrc_path, config_src, config_dest, cmd):
 
 
 def update_config(config, path):
-    """Merge values from config dict into file on path, return tmpfile."""
+    """
+    Merge values from config dict into file.
+
+    Parameters:
+      - config: dict of new configuration options.
+      - path:  Path to existing confgi file.
+
+    Return:
+      Path to temporary config file with updated options.
+
+    """
     parser = configparser.SafeConfigParser()
     try:
         parser.read(path)
@@ -197,8 +254,17 @@ def update_config(config, path):
 
 
 def write_config_files(config, netrc_line):
-    """Merge user config data into user config-files."""
-    confdir =  os.path.expanduser("~/.config")
+    """
+    Merge user config data into user config-files.
+
+    Parameters:
+      - config: dict with new configuration options.
+      - netrc_line: Authentication line to merge into existing .netrc file.
+
+    Updates: ~/.config/ddupdate.conf and ~/.config/ddupdate.conf
+
+    """
+    confdir = os.path.expanduser("~/.config")
     if not os.path.exists(confdir):
         os.makedirs(confdir)
     tmp_conf = update_config(config, os.path.join(confdir, "ddupdate.conf"))
@@ -211,7 +277,16 @@ def write_config_files(config, netrc_line):
 
 
 def write_root_files(config, netrc_line):
-    """Merge user config data into system-wide config-files root."""
+    """
+    Merge user config data into system-wide config-files as root.
+
+    Parameters:
+      - config: dict with new configuration options.
+      - netrc_line: Authentication line to merge into existing .netrc file.
+
+    Updates: /etc/ddupdate.conf and ~ddupdate/.netrc
+
+    """
     tmp_conf = update_config(config, "/etc/ddupdate.conf")
     merge_configs(netrc_line,
                   os.path.expanduser('~ddupdate/.netrc'),

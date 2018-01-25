@@ -12,7 +12,7 @@ DATA = [
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('/etc', ['ddupdate.conf']),
     ('/lib/systemd/system', glob('systemd/*')),
-    ('share/man/man8', ['ddupdate.8','ddupdate-config.8']),
+    ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
     ('share/doc/ddupdate',
         ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
