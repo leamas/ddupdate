@@ -130,7 +130,7 @@ def get_service_plugin(service_plugins):
     return services_by_ix[ix]
 
 
-def get_address_plugin(log, paths, options):
+def get_address_plugin(log, paths):
     """
     Let user select address plugin.
 
@@ -147,8 +147,8 @@ def get_address_plugin(log, paths, options):
     web_default_ip = plugins['default-web-ip']
     default_if = plugins['default-if']
     print("Probing for addresses, can take some time...")
-    if_addr = default_if.get_ip(log, options)
-    web_addr = web_default_ip.get_ip(log, options)
+    if_addr = default_if.get_ip(log, {})
+    web_addr = web_default_ip.get_ip(log, {})
     print("1  Use address as seen from Internet [%s]" % web_addr.v4)
     print("2  Use address as seen on local network [%s]" % if_addr.v4)
     text = input("Select address to register (1, 2) [1]: ")
@@ -300,14 +300,14 @@ def main():
     """Indeed: main function."""
     try:
         check_existing_files()
-        log, opts = setup()
+        log = setup()[0]
         log.setLevel(logging.WARNING)
         load_paths = build_load_path(log)
         service_plugins = _load_services(log, load_paths)
         service = get_service_plugin(service_plugins)
         netrc = get_netrc(service)
         hostname = input("[%s] Hostname: " % service.name())
-        address_plugin = get_address_plugin(log, load_paths, opts)
+        address_plugin = get_address_plugin(log, load_paths)
         print("Address plugin :" + address_plugin)
         conf = {
             'address-plugin': address_plugin,
