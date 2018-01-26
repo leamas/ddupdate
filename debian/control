@@ -24,3 +24,6 @@ Description: Tool updating DNS data for dynamic IP addresses
  address (typically hardware-dependent) and to update it (service depen‐
  dent). It is distributed with systemd support to run at regular intervals
  and with NetworkManager templates to run when interfaces goes up or down.
+ .
+ The package also sports an interactive setup script which should be 
+ suitable in most cases.
