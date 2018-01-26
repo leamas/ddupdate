@@ -14,7 +14,7 @@ import time
 
 from straight.plugin import load
 
-from ddupdate.main import setup, build_load_path
+from ddupdate.main import setup, build_load_path, envvar_default
 from ddupdate.ddplugin import ServicePlugin, AddressPlugin
 
 
@@ -52,10 +52,12 @@ class _GoodbyeError(Exception):
 
 def check_existing_files():
     """Check existing files and let user save them."""
+    confdir = \
+        envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
     files = [
         '/etc/ddupdate.conf',
         os.path.expanduser('~/.netrc'),
-        os.path.expanduser('~/.config/ddupdate.conf')
+        os.path.join(confdir, 'ddupdate.conf')
     ]
     files = [f for f in files if os.path.exists(f)]
     if not files:
@@ -267,17 +269,19 @@ def write_config_files(config, netrc_line):
       - config: dict with new configuration options.
       - netrc_line: Authentication line to merge into existing .netrc file.
 
-    Updates: ~/.config/ddupdate.conf and ~/.config/ddupdate.conf
+    Updates:
+      ~/.config/ddupdate.conf and ~/.netrc, respecting XDG_CONFIG_HOME.
 
     """
-    confdir = os.path.expanduser("~/.config")
+    confdir = \
+        envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
     if not os.path.exists(confdir):
         os.makedirs(confdir)
     tmp_conf = update_config(config, os.path.join(confdir, "ddupdate.conf"))
     merge_configs(netrc_line,
                   os.path.expanduser('~/.netrc'),
                   tmp_conf,
-                  os.path.expanduser("~/.config/ddupdate.conf"),
+                  os.path.join(confdir, "ddupdate.conf"),
                   lambda p: ["/bin/sh", p])
     os.unlink(tmp_conf)
 
