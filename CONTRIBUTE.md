@@ -14,8 +14,8 @@ existing plugins and pick solutions from them. Some hints:
   - The plugin API is defined in the ```ddplugin.py``` file. API docs can
     be generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
 
-  - Coding style: Use *make pylint*, *make pep8* and *make pydocstyle*;
-    The relevant tools python3-pylint, python3-pep8 and pydocstyle needs
+  - Coding style: Use *make pylint*, *make pycodestyle* and *make pydocstyle*.
+    The relevant tools python3-pylint, pycodestyle and pydocstyle needs
     to be in place.
 
   - Each plugin must live in a file with a unique name. It must contain a

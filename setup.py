@@ -1,6 +1,9 @@
 """ddupdate install data."""
 
+import shutil
 import os
+
+from distutils.command.clean import clean
 from glob import glob
 from setuptools import setup
 
@@ -18,6 +21,18 @@ DATA = [
         ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
+
+
+class _ProjectClean(clean):
+    """Actually clean up everything generated."""
+
+    def run(self):
+        super().run()
+        paths = ['build', 'install', 'dist', 'lib/ddupdate.egg-info']
+        for path in paths:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
 
 setup(
     name='ddupdate',
@@ -41,5 +56,6 @@ setup(
     package_dir={'': 'lib'},
     packages=['ddupdate'],
     scripts=['ddupdate', 'ddupdate-config'],
-    data_files=DATA
+    data_files=DATA,
+    cmdclass={'clean': _ProjectClean}
 )
