@@ -273,16 +273,10 @@ def load_plugins(path, log):
     return getters_by_name, setters_by_name
 
 
-def list_plugins(ip_plugins, service_plugins, kind):
-    """List all loaded plugins."""
-    if kind == 'addressers':
-        for name, plugin in sorted(ip_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    elif kind == 'services':
-        for name, plugin in sorted(service_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    else:
-        assert False, "Illegal plugin list: " + kind
+def list_plugins(plugins):
+    """List given plugins."""
+    for name, plugin in sorted(plugins.items()):
+        print("%-20s %s" % (name, plugin.oneliner()))
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
@@ -352,10 +346,10 @@ def get_plugins(log, opts):
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
     if opts.list_services:
-        list_plugins(ip_plugins, service_plugins, 'services')
+        list_plugins(service_plugins)
         raise _GoodbyeError()
     if opts.list_addressers:
-        list_plugins(ip_plugins, service_plugins, 'addressers')
+        list_plugins(ip_plugins)
         raise _GoodbyeError()
     if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
