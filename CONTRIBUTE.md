@@ -73,20 +73,20 @@ ddupdate has a multitude of packaging:
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
         $ sudo dnf builddep ddupdate.spec
-        $ ./make-tarball 0.4.0
+        $ ./make-tarball 0.5.0
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
         $ sudo rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.4.0 do::
+    and *git*  are required to build. To build current version 0.5.0 do::
 
         $ rm -rf ddupdate; mkdir ddupdate; cd ddupdate
         $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
+        $ gbp buildpackage --git-upstream-tag=0.5.0 -us -uc
         $ sudo dpkg -i ../ddupdate_0.5.0*_all.deb
         $ git clean -fd             # To be able to rebuild
 
@@ -111,18 +111,17 @@ Creating a new version
 
   - Replace all occurrences of version string:
 
-        sed -E -i \
-            's/([^\.0-9])0\.[0-9]+\.[0-9]+([^\. ])/\10.1.0\2/' $(git ls-files)
+        sed -E -i 's/([^0-9])0\.[1-9]\.[0-9]/\10.5.1/g' $(git ls-files)
 
   - Update NEWS file.
 
-  - Tag the release: git tag 0.1.0
+  - Commit and tag the release: git tag 0.5.0
 
   - Create fedora package:
 
         git checkout fedora
         cd fedora
-        ./make-tarball 0.1.0
+        ./make-tarball 0.5.0
         rpmdev-bumpspec *.spec , and edit it.
         rm -rf rpmbuild
         rpmbuild-here -ba *.spec
@@ -131,16 +130,16 @@ Creating a new version
 
         git fetch upstream pristine-tar:pristine-tar
         git fetch upstream debian:debian
-        scp fedora/ddupdate-0.1.0.tar.gz sid:
+        scp fedora/ddupdate-0.5.0.tar.gz sid:
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
         ssh sid
         cd ddupdate; rm  -rf *
-        mv ../ddupdate-0.1.0.tar.gz ddupdate_0.1.0.orig.tar.gz
+        mv ../ddupdate-0.5.0.tar.gz ddupdate_0.5.0.orig.tar.gz
         git clone -o upstream -b debian ../ddupdate.git ddupdate
         cd ddupdate
         git fetch upstream pristine-tar:pristine-tar
-        pristine-tar commit ../ddupdate_0.1.0.orig.tar.gz 0.1.0
+        pristine-tar commit ../ddupdate_0.5.0.orig.tar.gz 0.5.0
 
   - Upload to pypi:
 
@@ -151,14 +150,14 @@ Creating a new version
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ git merge -X theirs 0.1.0
+        $ git merge -X theirs 0.5.0
         $ dch -v 0.5.0-1
         $ git commit -am "debian: 0.5.0-1"
         $ Check systemd/ddupdate.service
         $ dpkg-source --commit
         $ git commit -a --amend
         $ git  clean -fd
-        $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
+        $ gbp buildpackage --git-upstream-tag=0.5.0 -us -uc
         $ git clean -fd    # To be able to rebuild
 
   - Create fedora packages (above)
@@ -174,8 +173,8 @@ Creating a new version
              -o upstream -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
          $ git fetch upstream pristine-tar:pristine-tar
-         $ pristine-tar checkout ddupdate_0.4.0.orig.tar.gz
-         $ mv ddupdate_0.4.0.orig.tar.gz ..
+         $ pristine-tar checkout ddupdate_0.5.0.orig.tar.gz
+         $ mv ddupdate_0.5.0.orig.tar.gz ..
          $ sudo mk-build-deps -i -r debian/control
 
          # Patch ubuntu stuff:
