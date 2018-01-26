@@ -1,6 +1,9 @@
 """ddupdate install data."""
 
+import shutil
 import os
+
+from distutils.command.clean import clean
 from glob import glob
 from setuptools import setup
 
@@ -11,17 +14,34 @@ ROOT = ROOT if ROOT else '.'
 DATA = [
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('/etc', ['ddupdate.conf']),
+    ('/etc/bash_completion.d', ['bash_completion.d/ddupdate']),
     ('/lib/systemd/system', glob('systemd/*')),
-    ('share/man/man8', ['ddupdate.8','ddupdate-config.8']),
+    ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
     ('share/doc/ddupdate',
-        ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
+        ['CONFIGURATION.md',
+         'CONTRIBUTE.md',
+         'README.md',
+         'LICENSE.txt',
+         'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
+
+class _ProjectClean(clean):
+    """Actually clean up everything generated."""
+
+    def run(self):
+        super().run()
+        paths = ['build', 'install', 'dist', 'lib/ddupdate.egg-info']
+        for path in paths:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+
 setup(
     name='ddupdate',
-    version='0.5.0',
+    version='0.5.1',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -41,5 +61,6 @@ setup(
     package_dir={'': 'lib'},
     packages=['ddupdate'],
     scripts=['ddupdate', 'ddupdate-config'],
-    data_files=DATA
+    data_files=DATA,
+    cmdclass={'clean': _ProjectClean}
 )

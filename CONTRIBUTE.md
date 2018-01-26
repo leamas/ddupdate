@@ -14,8 +14,8 @@ existing plugins and pick solutions from them. Some hints:
   - The plugin API is defined in the ```ddplugin.py``` file. API docs can
     be generated using *python3 -m pydoc lib/ddupdate/ddplugin.py* or so.
 
-  - Coding style: Use *make pylint*, *make pep8* and *make pydocstyle*;
-    The relevant tools python3-pylint, python3-pep8 and pydocstyle needs
+  - Coding style: Use *make pylint*, *make pycodestyle* and *make pydocstyle*.
+    The relevant tools python3-pylint, pycodestyle and pydocstyle needs
     to be in place.
 
   - Each plugin must live in a file with a unique name. It must contain a
@@ -68,26 +68,26 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.5.0::
+    requires the *git* and *rpm-build* packages. To build version 0.5.1::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
         $ sudo dnf builddep ddupdate.spec
-        $ ./make-tarball 0.4.0
+        $ ./make-tarball 0.5.1
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
         $ sudo rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.4.0 do::
+    and *git*  are required to build. To build current version 0.5.1 do::
 
         $ rm -rf ddupdate; mkdir ddupdate; cd ddupdate
         $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ gbp buildpackage --git-upstream-tag=0.4.0 -us -uc
-        $ sudo dpkg -i ../ddupdate_0.5.0*_all.deb
+        $ gbp buildpackage --git-upstream-tag=0.5.1 -us -uc
+        $ sudo dpkg -i ../ddupdate_0.5.1*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the
@@ -111,18 +111,17 @@ Creating a new version
 
   - Replace all occurrences of version string:
 
-        sed -E -i \
-            's/([^\.0-9])0\.[0-9]+\.[0-9]+([^\. ])/\10.1.0\2/' $(git ls-files)
+        sed -E -i 's/([^0-9])0\.[1-9]\.[0-9]/\10.5.1/g' $(git ls-files)
 
   - Update NEWS file.
 
-  - Tag the release: git tag 0.1.0
+  - Commit and tag the release: git tag 0.5.1
 
   - Create fedora package:
 
         git checkout fedora
         cd fedora
-        ./make-tarball 0.1.0
+        ./make-tarball 0.5.1
         rpmdev-bumpspec *.spec , and edit it.
         rm -rf rpmbuild
         rpmbuild-here -ba *.spec
@@ -131,16 +130,16 @@ Creating a new version
 
         git fetch upstream pristine-tar:pristine-tar
         git fetch upstream debian:debian
-        scp fedora/ddupdate-0.1.0.tar.gz sid:
+        scp fedora/ddupdate-0.5.1.tar.gz sid:
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
         ssh sid
         cd ddupdate; rm  -rf *
-        mv ../ddupdate-0.1.0.tar.gz ddupdate_0.1.0.orig.tar.gz
+        mv ../ddupdate-0.5.1.tar.gz ddupdate_0.5.1.orig.tar.gz
         git clone -o upstream -b debian ../ddupdate.git ddupdate
         cd ddupdate
         git fetch upstream pristine-tar:pristine-tar
-        pristine-tar commit ../ddupdate_0.1.0.orig.tar.gz 0.1.0
+        pristine-tar commit ../ddupdate_0.5.1.orig.tar.gz 0.5.1
 
   - Upload to pypi:
 
@@ -151,14 +150,14 @@ Creating a new version
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ git merge -X theirs 0.1.0
-        $ dch -v 0.5.0-1
-        $ git commit -am "debian: 0.5.0-1"
+        $ git merge -X theirs 0.5.1
+        $ dch -v 0.5.1-1
+        $ git commit -am "debian: 0.5.1-1"
         $ Check systemd/ddupdate.service
         $ dpkg-source --commit
         $ git commit -a --amend
         $ git  clean -fd
-        $ gbp buildpackage --git-upstream-tag=0.1.0 -us -uc
+        $ gbp buildpackage --git-upstream-tag=0.5.1 -us -uc
         $ git clean -fd    # To be able to rebuild
 
   - Create fedora packages (above)
@@ -174,8 +173,8 @@ Creating a new version
              -o upstream -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
          $ git fetch upstream pristine-tar:pristine-tar
-         $ pristine-tar checkout ddupdate_0.4.0.orig.tar.gz
-         $ mv ddupdate_0.4.0.orig.tar.gz ..
+         $ pristine-tar checkout ddupdate_0.5.1.orig.tar.gz
+         $ mv ddupdate_0.5.1.orig.tar.gz ..
          $ sudo mk-build-deps -i -r debian/control
 
          # Patch ubuntu stuff:
@@ -183,7 +182,7 @@ Creating a new version
 
          # Build and install the binary package
          $ debuild -us -uc
-         $ sudo dpkg -i ../ddupdate_0.5.0_all.deb
+         $ sudo dpkg -i ../ddupdate_0.5.1_all.deb
 
          # Build and distribute source package (upstream only)
          $ debuild -S

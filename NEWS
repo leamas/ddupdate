@@ -1,3 +1,11 @@
+0.5.1
+* Add bash completion support
+* Fix a bug in the user config file ~/.config/ddupdate.conf path.
+* Fix Respect XDG_CONFIG_HOME (#8).
+* Fix handle .netrc permissions correct (#7).
+* Clean up the Makefile build-install-clean targets.
+* Documentation re-organized and updated.
+
 0.5.0
 * Add ddupate-config configuration script.
 * Add missing ddupdate.conf.5 manpage

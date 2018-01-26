@@ -95,7 +95,8 @@ def here(path):
 def parse_conffile(log):
     """Parse config file path, returns verified path or None."""
     path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
-    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
+    path = os.path.join(path, 'ddupdate.conf')
+    if not os.path.exists(path):
         path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
@@ -217,7 +218,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.5.0"
+    parser.version = "0.5.1"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -273,16 +274,10 @@ def load_plugins(path, log):
     return getters_by_name, setters_by_name
 
 
-def list_plugins(ip_plugins, service_plugins, kind):
-    """List all loaded plugins."""
-    if kind == 'addressers':
-        for name, plugin in sorted(ip_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    elif kind == 'services':
-        for name, plugin in sorted(service_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    else:
-        assert False, "Illegal plugin list: " + kind
+def list_plugins(plugins):
+    """List given plugins."""
+    for name, plugin in sorted(plugins.items()):
+        print("%-20s %s" % (name, plugin.oneliner()))
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
@@ -352,10 +347,10 @@ def get_plugins(log, opts):
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
     if opts.list_services:
-        list_plugins(ip_plugins, service_plugins, 'services')
+        list_plugins(service_plugins)
         raise _GoodbyeError()
     if opts.list_addressers:
-        list_plugins(ip_plugins, service_plugins, 'addressers')
+        list_plugins(ip_plugins)
         raise _GoodbyeError()
     if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
