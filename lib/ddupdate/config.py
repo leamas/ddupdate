@@ -34,7 +34,10 @@ fi
 if test "{netrc_line}" != "machine dummy"; then
     echo {netrc_line} >> {netrc_path}
 fi
+chmod 600 {netrc_path}
+chown ddupdate {netrc_path} >/dev/null 2>&1 || :
 cp {config_src} {config_dest}
+
 """
 
 
@@ -51,7 +54,6 @@ def check_existing_files():
     """Check existing files and let user save them."""
     files = [
         '/etc/ddupdate.conf',
-        os.path.expanduser('~ddupdate/.netrc'),
         os.path.expanduser('~/.netrc'),
         os.path.expanduser('~/.config/ddupdate.conf')
     ]
@@ -61,6 +63,8 @@ def check_existing_files():
     print("The following configuration files already exists:")
     for f in files:
         print("        " + f)
+    print("Script will also update (might exist):\n        "
+          + os.path.expanduser('~ddupdate/.netrc'))
     reply = input("OK to overwrite (Yes/No) [No]: ")
     if not reply or not reply.lower().startswith('y'):
         print("Please save these file(s) and try again.")
@@ -72,8 +76,8 @@ def _load_plugins(log, paths, plugin_class):
     Load plugins into dict keyed by name.
 
     Parameters:
-      - log: Standard python log instance
-      - paths: List of path candidates containing plugins
+      - log: Standard python log instance.
+      - paths: List of strings, path candidates containing plugins.
       - plugin_class: Type, base class of plugins to load.
 
     Returns:
@@ -109,7 +113,8 @@ def get_service_plugin(service_plugins):
 
     Parameters:
       - service_plugins: Dict of loaded plugins keyed by plugin.name()
-    Returns:
+
+    Return:
       A loaded plugin as selected by user.
 
     """
@@ -136,7 +141,7 @@ def get_address_plugin(log, paths):
 
     Parameters:
       - log: Standard python log instance.
-      - paths: List of path candidates to load plugins from.
+      - paths: List of strings, path candidates to load plugins from.
       - options: List of --service-option options.
 
     Return:
@@ -173,7 +178,7 @@ def get_netrc(service):
       - service: Loaded service plugin.
 
     Return:
-      netrc line with user supplied user, password, etc.
+      netrc line user, password, etc., as supplied by user.
 
     """
     lines = service.info().split('\n')
@@ -195,11 +200,12 @@ def merge_configs(netrc_line, netrc_path, config_src, config_dest, cmd):
     Merge netrc and config file options into current configuration.
 
     Parameters:
-      - netrc_line: New netrc authentication line.
-      - netrc_path: Path of netrc file.
-      - config_src: Path of updated, temporary config file.
-      - config_dest: Path of existing config file actually used.
-      - cmd: function(path) returning command executing path in a shell.
+      - netrc_line: String, new netrc authentication line.
+      - netrc_path: String, path of netrc file.
+      - config_src: String, path of updated, temporary config file.
+      - config_dest: String, path of existing config file actually used.
+      - cmd: function(path) returning command executing path in a shell,
+             a list of strings.
 
     Returns nothing.
 
@@ -227,7 +233,7 @@ def update_config(config, path):
 
     Parameters:
       - config: dict of new configuration options.
-      - path:  Path to existing confgi file.
+      - path:  Path to existing config file.
 
     Return:
       Path to temporary config file with updated options.
@@ -308,7 +314,6 @@ def main():
         netrc = get_netrc(service)
         hostname = input("[%s] Hostname: " % service.name())
         address_plugin = get_address_plugin(log, load_paths)
-        print("Address plugin :" + address_plugin)
         conf = {
             'address-plugin': address_plugin,
             'service-plugin': service.name(),
