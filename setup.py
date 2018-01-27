@@ -14,6 +14,7 @@ ROOT = ROOT if ROOT else '.'
 DATA = [
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('/etc', ['ddupdate.conf']),
+    ('/etc/bash_completion.d', ['bash_completion.d/ddupdate']),
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
