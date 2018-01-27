@@ -18,7 +18,11 @@ DATA = [
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
     ('share/doc/ddupdate',
-        ['CONTRIBUTE.md', 'README.md', 'LICENSE.txt', 'NEWS']),
+        ['CONFIGURATION.md',
+         'CONTRIBUTE.md',
+         'README.md',
+         'LICENSE.txt',
+         'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
