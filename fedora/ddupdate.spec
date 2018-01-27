@@ -1,4 +1,4 @@
-%global gittag      0.5.0
+%global gittag      0.5.1
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -6,8 +6,8 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.5.0
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.5.1
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -15,6 +15,9 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
+Patch0:         0001-completions-Fix-deprecated-installation-path.patch
+Patch1:         0002-completions-Fix-missing-list-services-addressers.patch
+
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -80,10 +83,9 @@ getent passwd ddupdate >/dev/null || \
 %{_bindir}/ddupdate
 %{_bindir}/ddupdate-config
 %config(noreplace) /etc/ddupdate.conf
-%config(noreplace) /etc/bash_completion.d/ddupdate
-
 %{_unitdir}/ddupdate.*
 %{_datadir}/ddupdate
+%{_datadir}/bash-completion/completions/ddupdate
 %{_mandir}/man8/ddupdate.8*
 %{_mandir}/man8/ddupdate-config.8*
 %{_mandir}/man5/ddupdate.conf.5*
@@ -91,6 +93,13 @@ getent passwd ddupdate >/dev/null || \
 
 
 %changelog
+* Sat Jan 27 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.1-2
+- Add upstream patch for bash completions install path
+- Add upstream patch for missing list-addressers/services completions
+
+* Sat Jan 27 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.1-1
+- New upstream release
+
 * Wed Jan 24 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.0-1
 - New upstream version.
 - New tool ddupdate-config and new manpages.
