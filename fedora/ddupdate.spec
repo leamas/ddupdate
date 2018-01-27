@@ -76,10 +76,12 @@ getent passwd ddupdate >/dev/null || \
 
 %files
 %license LICENSE.txt
-%doc README.md NEWS CONTRIBUTE.md
+%doc README.md NEWS CONTRIBUTE.md CONFIGURATION.md
 %{_bindir}/ddupdate
 %{_bindir}/ddupdate-config
 %config(noreplace) /etc/ddupdate.conf
+%config(noreplace) /etc/bash_completion.d/ddupdate
+
 %{_unitdir}/ddupdate.*
 %{_datadir}/ddupdate
 %{_mandir}/man8/ddupdate.8*
