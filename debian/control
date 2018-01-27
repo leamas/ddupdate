@@ -2,9 +2,9 @@ Source: ddupdate
 Section: net
 Priority: optional
 Maintainer: Alec Leamas <leamas.alec@gmail.com>
-Build-Depends: debhelper (>= 10),
+Build-Depends: debhelper (>= 9),
   dh-python, dh-systemd, python3, python3-setuptools
-Standards-Version: 4.0.1
+Standards-Version: 3.9.7
 Homepage: http://github.com/leamas/ddupdate
 Vcs-Git: https://github.com/leamas/ddupdate.git -b debian
 Vcs-Browser: https://github.com/leamas/ddupdate/tree/debian

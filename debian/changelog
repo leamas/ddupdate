@@ -1,4 +1,4 @@
-ddupdate (0.5.1-1) UNRELEASED; urgency=medium
+ddupdate (0.5.1-1~trusty2) trusty; urgency=medium
 
   * New upstream release
   * New ITP package, closes: #886546
