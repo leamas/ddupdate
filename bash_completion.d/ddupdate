@@ -6,6 +6,7 @@ _ddupdate()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --hostname --service-plugin --address-plugin --config-file"
     opts="$opts --loglevel --ip-version --service-option --address-option"
+    opts="$opts --list-addressers --list-services"
     case  "${prev}" in
         --ip-version)
             COMPREPLY=( $(compgen -W "v4 v6 all" -- ${cur}) )
