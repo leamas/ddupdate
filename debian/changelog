@@ -1,6 +1,8 @@
-ddupdate (0.5.0-1) experimental; urgency=medium
+ddupdate (0.5.1-1) UNRELEASED; urgency=medium
 
   * New upstream release
   * New ITP package, closes: #886546
+  * Add patch for deprecated bash completions dir /etc/bash_completion.d
+  * Add patch for missing bash completions.
 
- -- Alec Leamas <leamas.alec@gmail.com>  Wed, 24 Jan 2018 22:01:22 +0100
+ -- Alec Leamas <leamas.alec@gmail.com>  Sat, 27 Jan 2018 00:43:42 +0100

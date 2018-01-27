@@ -1,1 +1,3 @@
-Fix-service-file.patch
+debian-fix-completions-path
+debian-fix-service-file
+fix-missing-completions.patch

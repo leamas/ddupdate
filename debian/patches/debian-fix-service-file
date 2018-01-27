@@ -1,0 +1,16 @@
+Index: ddupdate/systemd/ddupdate.service
+===================================================================
+--- ddupdate.orig/systemd/ddupdate.service
++++ ddupdate/systemd/ddupdate.service
+@@ -4,9 +4,9 @@ After=network.target
+ 
+ [Service]
+ Type=oneshot
+-ExecStart=/usr/local/bin/ddupdate
++ExecStart=/usr/bin/ddupdate
+ Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+-# User=ddupdate
++User=ddupdate
+ # Environment=http_proxy=my.proxy.domain:8888
+ # Environment=https_proxy=my.proxy.domain:8888
+ 

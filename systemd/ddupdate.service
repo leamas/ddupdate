@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/ddupdate
+ExecStart=/usr/local/bin/ddupdate
 Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
-User=ddupdate
+# User=ddupdate
 # Environment=http_proxy=my.proxy.domain:8888
 # Environment=https_proxy=my.proxy.domain:8888
 
