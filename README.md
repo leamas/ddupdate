@@ -5,7 +5,7 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-for example DHCP. It makes it  possible to access the system with
+for example DHCP. It makes it possible to access the system with
 a fixed dns name such as myhost.somewhere.net even if the IP address is
 changed. It is a linux-centric, user-friendly, flexible and maintainable
 alternative to the ubiquitous ddclient.
@@ -59,19 +59,19 @@ preferred method on platforms supporting this.
 Configuration
 -------------
 
-This is the fast track. This track assumes that you are using a native
-package and mainstream address options. If running into troubles, see the
-manual steps described in CONFIGURATION.md.
+This is the fast track assuming that you are using a native package and
+mainstream address options. If running into troubles, see the manual
+steps described in CONFIGURATION.md.
 
-Start with running *ddupdate --list-services*. Pick a supported service
-and check it using *ddupdate --help <service>*.
+Start with running ```ddupdate --list-services```. Pick a supported
+service and check it using ```ddupdate --help <service>```.
 
-At this point you need to register  with the relevant website. The usual
+At this point you need to register with the relevant website. The usual
 steps are to first create an account and then, using the account, create
 a host. The process should end up with a hostname, a user and a secret
 password (some sites just uses an API key).
 
-Then start the configuration script *ddupdate-config*. The script
+Then start the configuration script ```ddupdate-config```. The script
 guides you through the configuration and updates several files, notably
 */etc/ddupdate.conf* and *~ddupdate/.netrc*.
 
@@ -103,4 +103,4 @@ Configuring NetworkManager
 
 NetworkManager can be configured to start/stop ddupdate when interfaces goes
 up or down. An example script to drop in */etc/NetworkManager/dispatcher.d*
-is distributed in te package.
+is distributed in the package.
