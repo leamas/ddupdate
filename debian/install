@@ -4,3 +4,4 @@ usr/share/ddupdate
 usr/share/man/man8/ddupdate*
 usr/lib/python3/dist-packages/*
 etc/ddupdate.conf
+etc/bash_completion.d/ddupdate
