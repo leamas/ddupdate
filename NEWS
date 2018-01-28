@@ -1,3 +1,9 @@
+0.5.2
+* Multiple bugfixes in config script
+* Add missing commands and short options to completions
+* Move completions to proper /usr/share/bash-comletions/completions
+* Drop sudo usage, use plain su instead.
+
 0.5.1
 * Add bash completion support
 * Fix a bug in the user config file ~/.config/ddupdate.conf path.
