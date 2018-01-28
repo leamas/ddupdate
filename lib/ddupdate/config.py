@@ -302,7 +302,7 @@ def write_root_files(config, netrc_line):
                   os.path.expanduser('~ddupdate/.netrc'),
                   tmp_conf,
                   '/etc/ddupdate.conf',
-                  lambda p: ["/usr/bin/sudo", p])
+                  lambda p: ["su", "-c", p])
     os.unlink(tmp_conf)
 
 
