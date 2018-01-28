@@ -30,7 +30,6 @@ Dependencies
     and also available at https://pypi.python.org
   - python3-setuptools
   - The /usr/sbin/ip command is used in some plugins.
-  - The configuration script requires sudo.
 
 Installation
 ------------

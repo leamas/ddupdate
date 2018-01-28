@@ -14,7 +14,8 @@ ROOT = ROOT if ROOT else '.'
 DATA = [
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('/etc', ['ddupdate.conf']),
-    ('/etc/bash_completion.d', ['bash_completion.d/ddupdate']),
+    ('/usr/share/bash-completion/completions/',
+        ['bash_completion.d/ddupdate']),
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
@@ -41,7 +42,7 @@ class _ProjectClean(clean):
 
 setup(
     name='ddupdate',
-    version='0.5.1',
+    version='0.5.2',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
