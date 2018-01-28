@@ -165,7 +165,7 @@ def get_address_plugin(log, paths):
     except ValueError:
         raise _GoodbyeError("Illegal numeric input", 1)
     if ix == 1:
-        return 'web-default-ip'
+        return 'default-web-ip'
     elif ix == 2:
         return 'default-if'
     else:
@@ -249,8 +249,7 @@ def update_config(config, path):
     else:
         if "update" in parser:
             for key in config:
-                if key in parser['update']:
-                    config[key] = parser['update'][key]
+                parser['update'][key] = config[key]
     header = '# Created by ddupdate-config at %s\n' % time.asctime()
     with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
         f.write(header)
@@ -306,17 +305,27 @@ def write_root_files(config, netrc_line):
     os.unlink(tmp_conf)
 
 
+def start_service():
+    """Start dduppdate systemd service and display logs."""
+    print("Starting service and displaying logs")
+    cmd = 'systemctl daemon-reload'
+    cmd += ';systemctl start ddupdate.service'
+    cmd += ';systemctl status ddupdate.service'
+    cmd = ['su', '-c', cmd]
+    subprocess.run(cmd)
+    print('Use "journalctl -u ddupdate.service" to display logs.');
+
+
 def main():
     """Indeed: main function."""
     try:
         check_existing_files()
-        log = setup()[0]
-        log.setLevel(logging.WARNING)
+        log = setup(logging.WARNING)[0]
         load_paths = build_load_path(log)
         service_plugins = _load_services(log, load_paths)
         service = get_service_plugin(service_plugins)
         netrc = get_netrc(service)
-        hostname = input("[%s] Hostname: " % service.name())
+        hostname = input("[%s] hostname: " % service.name())
         address_plugin = get_address_plugin(log, load_paths)
         conf = {
             'address-plugin': address_plugin,
@@ -326,6 +335,7 @@ def main():
         write_config_files(conf, netrc)
         print("Patching as root: /etc/ddupdate.conf and ~ddupdate/.netrc")
         write_root_files(conf, netrc)
+        start_service()
     except _GoodbyeError as err:
         if err.exitcode != 0:
             sys.stderr.write("Fatal error: " + str(err) + "\n")
