@@ -60,9 +60,11 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/ddupdate*/*
 
 %pre
 getent group ddupdate >/dev/null || groupadd --system ddupdate
-getent passwd ddupdate >/dev/null || \
+getent passwd ddupdate >/dev/null || { \
     useradd --system -g ddupdate -d /var/lib/ddupdate -s /sbin/nologin \
-    --create-home -c "Updates dns info for dynamic ip address" ddupdate
+        --create-home -c "Updates dns info for dynamic ip address" ddupdate
+    chmod 700 /var/lib/ddupdate
+}
 
 %post
 %systemd_post ddupdate.timer
