@@ -26,8 +26,6 @@ Dependencies
 ------------
 
   - python3 (tested on 3.6 and 3.4)
-  - python3-straight.plugin. Packaged in most (all?) linux distributions
-    and also available at https://pypi.python.org
   - python3-setuptools
   - The /usr/sbin/ip command is used in some plugins.
 

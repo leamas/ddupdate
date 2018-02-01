@@ -1,8 +1,10 @@
-
-"""Update DNS data for dynamically ip addresses."""
+"""Update DNS data for dynamic ip addresses."""
 
 import argparse
 import configparser
+import glob
+import importlib
+import inspect
 import logging
 import math
 import os
@@ -11,10 +13,15 @@ import stat
 import sys
 import time
 
-from straight.plugin import load
-
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError
+
+# pylint: disable=ungrouped-imports
+if sys.version_info >= (3, 5):
+    import importlib.util
+else:
+    from importlib.machinery import SourceFileLoader
+
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -256,19 +263,57 @@ def log_options(log, args):
              (' '.join(args.address_options) if args.address_options else ''))
 
 
+def load_module(path):
+    """Load a module from from given path into sys.modules['name']."""
+    # pylint: disable=deprecated-method
+    name = os.path.basename(path).replace('.py', '')
+    if sys.version_info >= (3, 5):
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    else:
+        module = SourceFileLoader(name, path).load_module()
+    return module
+
+
+def load_plugin_dir(dirpath, parent_class):
+    """
+    Load all plugins in dirpath having a class derived from parent.
+
+    Parameters:
+      - dirpath: string, all path/*.py files are plugin candidates.
+      - parent_class: class, objects being a subclass of parent are loaded.
+
+    Returns:
+      List of instantiated plugins, all derived from parent_class.
+
+    """
+    found = []
+    for plugpath in glob.glob(os.path.join(dirpath, '*.py')):
+        try:
+            module = load_module(plugpath)
+        except ImportError:
+            continue
+        # pylint: disable=undefined-loop-variable
+        for member_class in [m[1] for m in inspect.getmembers(module)]:
+            if not inspect.isclass(member_class):
+                continue
+            if not issubclass(member_class, parent_class):
+                continue
+            if member_class == parent_class:
+                continue
+            instance = member_class()
+            instance.module = module
+            found.append(instance)
+    return found
+
+
 def load_plugins(path, log):
     """Load ip and service plugins into dicts keyed by name."""
-    sys.path.insert(0, path)
-    getters = load('plugins', subclasses=AddressPlugin)
-    getters = getters.produce()
+    setters = load_plugin_dir(os.path.join(path, 'plugins'), ServicePlugin)
+    getters = load_plugin_dir(os.path.join(path, 'plugins'), AddressPlugin)
     getters_by_name = {plug.name(): plug for plug in getters}
-    setters = load('plugins', ServicePlugin)
-    setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
-    sys.path.pop(0)
-    plugins = list(setters_by_name.values()) + list(getters_by_name.values())
-    for plugin in plugins:
-        plugin.srcdir = path
     log.debug("Loaded %d address and %d service plugins from %s",
               len(getters), len(setters), path)
     return getters_by_name, setters_by_name
@@ -289,7 +334,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     else:
         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
-    print("Source directory: " + plugin.srcdir + "\n")
+    print("Source file: " + plugin.module.__file__ + "\n")
     print(plugin.info())
 
 

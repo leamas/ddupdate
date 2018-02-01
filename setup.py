@@ -50,7 +50,6 @@ setup(
     url='http://github.com/leamas/ddupdate',
     author='Alec Leamas',
     author_email='alec.leamas@nowhere.net',
-    install_requires=['straight.plugin'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',

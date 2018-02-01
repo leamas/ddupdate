@@ -12,9 +12,7 @@ import sys
 import tempfile
 import time
 
-from straight.plugin import load
-
-from ddupdate.main import setup, build_load_path, envvar_default
+from ddupdate.main import setup, build_load_path, envvar_default, load_plugin_dir
 from ddupdate.ddplugin import ServicePlugin, AddressPlugin
 
 
@@ -88,13 +86,10 @@ def _load_plugins(log, paths, plugin_class):
     """
     plugins = {}
     for path in paths:
-        sys.path.insert(0, path)
-        these = load('plugins', plugin_class)
-        these = these.produce()
+        these = load_plugin_dir(os.path.join(path, 'plugins'), plugin_class)
         these_by_name = {plug.name(): plug for plug in these}
         for name, plugin in these_by_name.items():
             plugins.setdefault(name, plugin)
-        sys.path.pop(0)
         log.debug("Loaded %d plugins from %s", len(plugins), path)
     return plugins
 
@@ -312,7 +307,7 @@ def start_service():
     cmd += ';systemctl status ddupdate.service'
     cmd = ['su', '-c', cmd]
     subprocess.run(cmd)
-    print('Use "journalctl -u ddupdate.service" to display logs.');
+    print('Use "journalctl -u ddupdate.service" to display logs.')
 
 
 def main():

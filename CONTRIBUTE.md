@@ -94,8 +94,7 @@ ddupdate has a multitude of packaging:
     sources from the ubuntu ppa and rebuilding them::
 
         # First-time setup
-        $ sudo apt-get install \
-            devscripts build-essential python3-straight.plugin
+        $ sudo apt-get install devscripts build-essential
         $ ppa="http://ppa.launchpad.net/leamas-alec/ddupdate/ubuntu"
         $ echo "deb-src $ppa xenial main" | sudo tee -a /etc/apt/sources.list
         $ sudo apt-key \
