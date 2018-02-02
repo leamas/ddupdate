@@ -1,3 +1,5 @@
+%global __python __python3
+
 %global gittag      0.5.2
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
@@ -7,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.5.2
-Release:        2%{?commit:.%{shortcommit}}%{?dist}
+Release:        3%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -56,6 +58,7 @@ sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 %install
 %py3_install
 rm -rf $RPM_BUILD_ROOT%{_docdir}/ddupdate*/*
+%py_byte_compile %{__python3} %{buildroot}%{_datadir}/ddupdate/plugins
 
 
 %pre
@@ -92,6 +95,9 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Fri Feb 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-3
+- Fix plugins being bytecompiled using python 2.7
+
 * Thu Feb 01 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-2
 - Add upstream patch removing straight.plugin dependency.
 
