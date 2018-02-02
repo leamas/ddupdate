@@ -245,14 +245,13 @@ def update_config(config, path):
     try:
         parser.read(path)
     except configparser.Error:
-        pass
-    else:
-        if "update" in parser:
-            for key in config:
-                parser['update'][key] = config[key]
-    header = '# Created by ddupdate-config at %s\n' % time.asctime()
+        parser.clear()
+    parser.setdefault('update', {})
+    parser['update'].setdefault('ip-version', 'v4')
+    parser['update'].setdefault('loglevel', 'info')
+    parser['update'].update(config)
     with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
-        f.write(header)
+        f.write('# Created by ddupdate-config at %s\n' % time.asctime())
         parser.write(f)
         if ('service-options' or 'address-options') not in parser:
             f.write(_CONFIG_TRAILER)
