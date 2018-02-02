@@ -7,7 +7,7 @@
 
 Name:           ddupdate
 Version:        0.5.2
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -15,12 +15,12 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
+Patch1:         0001-Drop-straight.plugin-dependency-load-them-manually.patch
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
 BuildRequires:  systemd
 Requires(pre):  shadow-utils
-Requires:       python%{python3_pkgversion}-straight-plugin
 Requires:       /usr/sbin/ip
 
 %{?systemd_requires}
@@ -92,6 +92,9 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Thu Feb 01 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-2
+- Add upstream patch removing straight.plugin dependency.
+
 * Sun Jan 28 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-1
 - New upstream release
 - Patches dropped
