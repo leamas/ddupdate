@@ -1,4 +1,4 @@
-From a976f534716c40553dd130dffb0232d68d0cb5a9 Mon Sep 17 00:00:00 2001
+From 4ba19bc04c5e22ca038cc27bf020211c6df466ba Mon Sep 17 00:00:00 2001
 From: Alec Leamas <leamas.alec@gmail.com>
 Date: Thu, 1 Feb 2018 12:26:20 +0100
 Subject: [PATCH 2/3] Drop straight.plugin dependency - load them manually.
@@ -7,9 +7,9 @@ Subject: [PATCH 2/3] Drop straight.plugin dependency - load them manually.
  CONTRIBUTE.md          |  3 +--
  README.md              |  2 --
  lib/ddupdate/config.py | 11 +++-----
- lib/ddupdate/main.py   | 71 +++++++++++++++++++++++++++++++++++++++++---------
+ lib/ddupdate/main.py   | 73 ++++++++++++++++++++++++++++++++++++++++----------
  setup.py               |  1 -
- 5 files changed, 63 insertions(+), 25 deletions(-)
+ 5 files changed, 63 insertions(+), 27 deletions(-)
 
 diff --git a/CONTRIBUTE.md b/CONTRIBUTE.md
 index dbbd2dd..6dc4344 100644
@@ -39,7 +39,7 @@ index 1b68879..e675bf0 100644
    - The /usr/sbin/ip command is used in some plugins.
  
 diff --git a/lib/ddupdate/config.py b/lib/ddupdate/config.py
-index 89bae87..f4ba2aa 100755
+index 4275be6..3018c81 100755
 --- a/lib/ddupdate/config.py
 +++ b/lib/ddupdate/config.py
 @@ -12,9 +12,7 @@ import sys
@@ -68,7 +68,7 @@ index 89bae87..f4ba2aa 100755
          log.debug("Loaded %d plugins from %s", len(plugins), path)
      return plugins
  
-@@ -317,7 +312,7 @@ def start_service():
+@@ -312,7 +307,7 @@ def start_service():
      cmd += ';systemctl status ddupdate.service'
      cmd = ['su', '-c', cmd]
      subprocess.run(cmd)
@@ -78,10 +78,13 @@ index 89bae87..f4ba2aa 100755
  
  def main():
 diff --git a/lib/ddupdate/main.py b/lib/ddupdate/main.py
-index 1b677da..c2c9c73 100755
+index 1b677da..9522c22 100755
 --- a/lib/ddupdate/main.py
 +++ b/lib/ddupdate/main.py
-@@ -3,6 +3,9 @@
+@@ -1,8 +1,10 @@
+-
+-"""Update DNS data for dynamically ip addresses."""
++"""Update DNS data for dynamic ip addresses."""
  
  import argparse
  import configparser
@@ -91,7 +94,7 @@ index 1b677da..c2c9c73 100755
  import logging
  import math
  import os
-@@ -11,11 +14,16 @@ import stat
+@@ -11,11 +13,16 @@ import stat
  import sys
  import time
  
@@ -110,13 +113,14 @@ index 1b677da..c2c9c73 100755
  if 'XDG_CACHE_HOME' in os.environ:
      CACHE_DIR = os.environ['XDG_CACHE_HOME']
  else:
-@@ -256,19 +264,58 @@ def log_options(log, args):
+@@ -256,19 +263,57 @@ def log_options(log, args):
               (' '.join(args.address_options) if args.address_options else ''))
  
  
-+def load_module(name, path):
++def load_module(path):
 +    """Load a module from from given path into sys.modules['name']."""
 +    # pylint: disable=deprecated-method
++    name = os.path.basename(path).replace('.py', '')
 +    if sys.version_info >= (3, 5):
 +        spec = importlib.util.spec_from_file_location(name, path)
 +        module = importlib.util.module_from_spec(spec)
@@ -126,7 +130,7 @@ index 1b677da..c2c9c73 100755
 +    return module
 +
 +
-+def plugin_loader(dirpath, parent_class):
++def load_plugin_dir(dirpath, parent_class):
 +    """
 +    Load all plugins in dirpath having a class derived from parent.
 +
@@ -140,9 +144,8 @@ index 1b677da..c2c9c73 100755
 +    """
 +    found = []
 +    for plugpath in glob.glob(os.path.join(dirpath, '*.py')):
-+        basename = os.path.basename(plugpath).replace('.py', '')
 +        try:
-+            module = load_module(basename, plugpath)
++            module = load_module(plugpath)
 +        except ImportError:
 +            continue
 +        # pylint: disable=undefined-loop-variable
@@ -156,7 +159,6 @@ index 1b677da..c2c9c73 100755
 +            instance = member_class()
 +            instance.module = module
 +            found.append(instance)
-+        del module
 +    return found
 +
 +
@@ -165,8 +167,8 @@ index 1b677da..c2c9c73 100755
 -    sys.path.insert(0, path)
 -    getters = load('plugins', subclasses=AddressPlugin)
 -    getters = getters.produce()
-+    setters = plugin_loader(os.path.join(path, 'plugins'), ServicePlugin)
-+    getters = plugin_loader(os.path.join(path, 'plugins'), AddressPlugin)
++    setters = load_plugin_dir(os.path.join(path, 'plugins'), ServicePlugin)
++    getters = load_plugin_dir(os.path.join(path, 'plugins'), AddressPlugin)
      getters_by_name = {plug.name(): plug for plug in getters}
 -    setters = load('plugins', ServicePlugin)
 -    setters = setters.produce()
@@ -178,7 +180,7 @@ index 1b677da..c2c9c73 100755
      log.debug("Loaded %d address and %d service plugins from %s",
                len(getters), len(setters), path)
      return getters_by_name, setters_by_name
-@@ -289,7 +336,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
+@@ -289,7 +334,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
      else:
          raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
      print("Name: " + plugin.name())

@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.5.2
-Release:        4%{?commit:.%{shortcommit}}%{?dist}
+Release:        5%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -97,6 +97,9 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Sat Feb 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-5
+- Fix horrible bug in patch for ddupdate-config in -4
+
 * Sat Feb 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-4
 - Update patch from -2
 - New patches fixed ddupdate-config bugs
