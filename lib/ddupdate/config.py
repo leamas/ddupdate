@@ -12,7 +12,8 @@ import sys
 import tempfile
 import time
 
-from ddupdate.main import setup, build_load_path, envvar_default, load_plugin_dir
+from ddupdate.main import \
+    setup, build_load_path, envvar_default, load_plugin_dir
 from ddupdate.ddplugin import ServicePlugin, AddressPlugin
 
 
@@ -168,11 +169,15 @@ def get_netrc(service):
     """
     Get .netrc line for service.
 
+    Looks into the service class documentation for a line starting
+    with 'machine' and returns it after substituting values in
+    angle brackets lke <username> with values supllied by user.
+
     Parameters:
       - service: Loaded service plugin.
 
     Return:
-      netrc line user, password, etc., as supplied by user.
+      netrc line with <user>, <password>, etc., as substituted by user.
 
     """
     lines = service.info().split('\n')
@@ -223,7 +228,7 @@ def merge_configs(netrc_line, netrc_path, config_src, config_dest, cmd):
 
 def update_config(config, path):
     """
-    Merge values from config dict into file.
+    Merge values from config dict and existing conf into tempfile.
 
     Parameters:
       - config: dict of new configuration options.

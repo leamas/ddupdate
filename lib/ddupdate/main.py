@@ -33,7 +33,8 @@ DEFAULTS = {
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
     'loglevel': 'info',
-    'options': None,
+    'service-options': None,
+    'address-options': None,
     'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
     'force': False
 }
@@ -231,16 +232,16 @@ def parse_options(conf):
         parser.print_help()
         raise _GoodbyeError()
     if not opts.address_options:
-        opts.address_options = conf['options']
+        opts.address_options = conf['address-options']
     if not opts.service_options:
-        opts.service_options = conf['options']
+        opts.service_options = conf['service-options']
     opts.loglevel = level_by_name[opts.loglevel]
     opts.ip_cache = conf['ip-cache']
     return opts
 
 
 def log_setup():
-    """Initialize the module log."""
+    """Initialize and return the module log."""
     log = logging.getLogger('ddupdate')
     log.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
@@ -264,7 +265,7 @@ def log_options(log, args):
 
 
 def load_module(path):
-    """Load a module from from given path into sys.modules['name']."""
+    """Return instantiated module loaded from given path."""
     # pylint: disable=deprecated-method
     name = os.path.basename(path).replace('.py', '')
     if sys.version_info >= (3, 5):
@@ -278,7 +279,7 @@ def load_module(path):
 
 def load_plugin_dir(dirpath, parent_class):
     """
-    Load all plugins in dirpath having a class derived from parent.
+    Load all plugins in dirpath having a class derived from parent_class.
 
     Parameters:
       - dirpath: string, all path/*.py files are plugin candidates.
@@ -294,8 +295,8 @@ def load_plugin_dir(dirpath, parent_class):
             module = load_module(plugpath)
         except ImportError:
             continue
-        # pylint: disable=undefined-loop-variable
         for member_class in [m[1] for m in inspect.getmembers(module)]:
+            # pylint: disable=undefined-loop-variable
             if not inspect.isclass(member_class):
                 continue
             if not issubclass(member_class, parent_class):
@@ -326,7 +327,7 @@ def list_plugins(plugins):
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
-    """Print full help for given plugin (noreturn)."""
+    """Print full help for given plugin."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
@@ -380,12 +381,11 @@ def get_plugins(log, opts):
     """
     Handles plugin listing, plugin help  or load plugins.
 
-    return: (ip plugins, service plugins).
+    return: (ip plugin, service plugin).
     """
     ip_plugins = {}
     service_plugins = {}
-    load_paths = build_load_path(log)
-    for path in load_paths:
+    for path in build_load_path(log):
         getters, setters = load_plugins(path, log)
         for name, plugin in getters.items():
             ip_plugins.setdefault(name, plugin)
