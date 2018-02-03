@@ -138,8 +138,7 @@ def get_address_plugin(log, paths):
 
     Parameters:
       - log: Standard python log instance.
-      - paths: List of strings, path candidates to load plugins from.
-      - options: List of --service-option options.
+      - paths: List of strings, directory paths to load plugins from.
 
     Return:
       Name of selected address plugin.
@@ -153,16 +152,14 @@ def get_address_plugin(log, paths):
     web_addr = web_default_ip.get_ip(log, {})
     print("1  Use address as seen from Internet [%s]" % web_addr.v4)
     print("2  Use address as seen on local network [%s]" % if_addr.v4)
-    text = input("Select address to register (1, 2) [1]: ")
-    text = text if text else '1'
-    try:
-        ix = int(text)
-    except ValueError:
-        raise _GoodbyeError("Illegal numeric input", 1)
-    if ix == 1:
-        return 'default-web-ip'
-    elif ix == 2:
-        return 'default-if'
+    print("3  Use address as decided by service")
+    ix = input("Select address to register (1, 2, 3) [1]: ").strip()
+    ix = ix if ix else '1'
+    plugin_by_ix = {
+        '1': 'default-web-ip', '2': 'default-if', '3': 'ip-disabled'
+    }
+    if ix in plugin_by_ix:
+        return plugin_by_ix[ix]
     else:
         raise _GoodbyeError("Illegal value", 1)
 
@@ -304,7 +301,7 @@ def start_service():
     print("Starting service and displaying logs")
     cmd = 'systemctl daemon-reload'
     cmd += ';systemctl start ddupdate.service'
-    cmd += ';systemctl status ddupdate.service'
+    cmd += ';journalctl --since -60s -u ddupdate.service'
     cmd = ['su', '-c', cmd]
     subprocess.run(cmd)
     print('Use "journalctl -u ddupdate.service" to display logs.')
