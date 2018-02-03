@@ -1,6 +1,6 @@
 _ddupdate()
 {
-    local cur prev opts
+    local cur prev opts plugins
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
