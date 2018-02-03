@@ -1,4 +1,4 @@
-From e153312bc3d6f44b37a77f1c1d20f233c7d82694 Mon Sep 17 00:00:00 2001
+From 6af30c2919a26eac892607b1c4b1787a32af756a Mon Sep 17 00:00:00 2001
 From: Alec Leamas <leamas.alec@gmail.com>
 Date: Sat, 3 Feb 2018 14:38:52 +0100
 Subject: [PATCH 3/3] config: Add alternative to get_address_plugin, cleanup.
@@ -8,7 +8,7 @@ Subject: [PATCH 3/3] config: Add alternative to get_address_plugin, cleanup.
  1 file changed, 10 insertions(+), 13 deletions(-)
 
 diff --git a/lib/ddupdate/config.py b/lib/ddupdate/config.py
-index 3018c81..493508e 100755
+index d6efc56..2c1ab48 100755
 --- a/lib/ddupdate/config.py
 +++ b/lib/ddupdate/config.py
 @@ -138,8 +138,7 @@ def get_address_plugin(log, paths):

@@ -19,7 +19,8 @@ BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
 Patch1:         0001-config-Fix-bug-merging-into-empty-config-files.patch
 Patch2:         0002-Drop-straight.plugin-dependency-load-them-manually.patch
-Patch3:         0003-config-main-Refactor-get_address_plugin-random-clean.patch
+Patch3:         0003-config-Add-alternative-to-get_address_plugin-cleanup.patch
+
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
