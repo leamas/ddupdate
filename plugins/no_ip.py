@@ -13,8 +13,8 @@ class NoAddressPlugin(ServicePlugin):
     """
     Update a dns entry on no-ip.com.
 
-    Does not require (but allows) an ip address, the ip-disabled plugin can
-    be used.
+    Supports most address plugins including default-web-ip, default-if and
+    ip-disabled. ipv6 is not supported.
 
     netrc: Use a line like
         machine dynupdate.no-ip.com login <username>  password <password>

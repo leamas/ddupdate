@@ -16,8 +16,8 @@ class SystemNsPlugin(ServicePlugin):
     Update a dns entry on system-ns.com.
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the ip-disabled
-    plugin can be used.
+    Supports most address plugins including default-web-ip, default-if and
+    ip-disabled. ipv6 is not supported.
 
     Access to the service requires an API token. This is available in the
     website account.

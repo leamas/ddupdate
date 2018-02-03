@@ -17,13 +17,12 @@ class NowDnsPlugin(ServicePlugin):
     Update a dns entry on now-dns.com.
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the ip-disabled
-    plugin can be used.
+    Supports most address plugins including default-web-ip, default-if
+    and ip-disabled. ipv6 address are supported by the site, but not
+    by this plugin.
 
-    Ipv6 address are supported by the site, but not bu this plugin.
-
-    now-dns uses an odd authentication without challenge. Using wget,
-    the --auth-no-challenge  is required. This code copes with this
+    now-dns uses an odd authentication scheme without challenge. Using
+    wget, the --auth-no-challenge is required. This code copes with this
     mess.
 
     netrc: Use a line like

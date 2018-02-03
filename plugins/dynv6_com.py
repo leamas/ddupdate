@@ -14,8 +14,8 @@ class Dynv6Plugin(ServicePlugin):
     Update a dns entry on dynv6.com.
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the ip-disabled
-    plugin can be used. dynv6 also supports ipv6 addresses.
+    Supports most address plugins including default-web-ip, default-if
+    and ip-disabled. dynv6 also supports ipv6 addresses.
 
     Access to the service requires an API token. This is available in the
     website account.
@@ -28,7 +28,7 @@ class Dynv6Plugin(ServicePlugin):
     """
 
     _name = 'dynv6.com'
-    _oneliner = 'Updates on http://dynv6.com [ipv6]'
+    _oneliner = 'Updates on http://dynv6.com'
     _url = "https://dynv6.com/api/update?hostname={0}&token={1}"
 
     def register(self, log, hostname, ip, options):
