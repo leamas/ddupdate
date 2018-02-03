@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.5.2
-Release:        3%{?commit:.%{shortcommit}}%{?dist}
+Release:        4%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,7 +17,9 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
-Patch1:         0001-Drop-straight.plugin-dependency-load-them-manually.patch
+Patch1:         0001-config-Fix-bug-merging-into-empty-config-files.patch
+Patch2:         0002-Drop-straight.plugin-dependency-load-them-manually.patch
+Patch3:         0003-config-main-Refactor-get_address_plugin-random-clean.patch
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -95,6 +97,10 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Sat Feb 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-4
+- Update patch from -2
+- New patches fixed ddupdate-config bugs
+
 * Fri Feb 02 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-3
 - Fix plugins being bytecompiled using python 2.7
 

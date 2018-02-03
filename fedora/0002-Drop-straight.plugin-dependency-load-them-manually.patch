@@ -1,0 +1,204 @@
+From a976f534716c40553dd130dffb0232d68d0cb5a9 Mon Sep 17 00:00:00 2001
+From: Alec Leamas <leamas.alec@gmail.com>
+Date: Thu, 1 Feb 2018 12:26:20 +0100
+Subject: [PATCH 2/3] Drop straight.plugin dependency - load them manually.
+
+---
+ CONTRIBUTE.md          |  3 +--
+ README.md              |  2 --
+ lib/ddupdate/config.py | 11 +++-----
+ lib/ddupdate/main.py   | 71 +++++++++++++++++++++++++++++++++++++++++---------
+ setup.py               |  1 -
+ 5 files changed, 63 insertions(+), 25 deletions(-)
+
+diff --git a/CONTRIBUTE.md b/CONTRIBUTE.md
+index dbbd2dd..6dc4344 100644
+--- a/CONTRIBUTE.md
++++ b/CONTRIBUTE.md
+@@ -94,8 +94,7 @@ ddupdate has a multitude of packaging:
+     sources from the ubuntu ppa and rebuilding them::
+ 
+         # First-time setup
+-        $ sudo apt-get install \
+-            devscripts build-essential python3-straight.plugin
++        $ sudo apt-get install devscripts build-essential
+         $ ppa="http://ppa.launchpad.net/leamas-alec/ddupdate/ubuntu"
+         $ echo "deb-src $ppa xenial main" | sudo tee -a /etc/apt/sources.list
+         $ sudo apt-key \
+diff --git a/README.md b/README.md
+index 1b68879..e675bf0 100644
+--- a/README.md
++++ b/README.md
+@@ -26,8 +26,6 @@ Dependencies
+ ------------
+ 
+   - python3 (tested on 3.6 and 3.4)
+-  - python3-straight.plugin. Packaged in most (all?) linux distributions
+-    and also available at https://pypi.python.org
+   - python3-setuptools
+   - The /usr/sbin/ip command is used in some plugins.
+ 
+diff --git a/lib/ddupdate/config.py b/lib/ddupdate/config.py
+index 89bae87..f4ba2aa 100755
+--- a/lib/ddupdate/config.py
++++ b/lib/ddupdate/config.py
+@@ -12,9 +12,7 @@ import sys
+ import tempfile
+ import time
+ 
+-from straight.plugin import load
+-
+-from ddupdate.main import setup, build_load_path, envvar_default
++from ddupdate.main import setup, build_load_path, envvar_default, plugin_loader
+ from ddupdate.ddplugin import ServicePlugin, AddressPlugin
+ 
+ 
+@@ -88,13 +86,10 @@ def _load_plugins(log, paths, plugin_class):
+     """
+     plugins = {}
+     for path in paths:
+-        sys.path.insert(0, path)
+-        these = load('plugins', plugin_class)
+-        these = these.produce()
++        these = plugin_loader(os.path.join(path, 'plugins'), plugin_class)
+         these_by_name = {plug.name(): plug for plug in these}
+         for name, plugin in these_by_name.items():
+             plugins.setdefault(name, plugin)
+-        sys.path.pop(0)
+         log.debug("Loaded %d plugins from %s", len(plugins), path)
+     return plugins
+ 
+@@ -317,7 +312,7 @@ def start_service():
+     cmd += ';systemctl status ddupdate.service'
+     cmd = ['su', '-c', cmd]
+     subprocess.run(cmd)
+-    print('Use "journalctl -u ddupdate.service" to display logs.');
++    print('Use "journalctl -u ddupdate.service" to display logs.')
+ 
+ 
+ def main():
+diff --git a/lib/ddupdate/main.py b/lib/ddupdate/main.py
+index 1b677da..c2c9c73 100755
+--- a/lib/ddupdate/main.py
++++ b/lib/ddupdate/main.py
+@@ -3,6 +3,9 @@
+ 
+ import argparse
+ import configparser
++import glob
++import importlib
++import inspect
+ import logging
+ import math
+ import os
+@@ -11,11 +14,16 @@ import stat
+ import sys
+ import time
+ 
+-from straight.plugin import load
+-
+ from ddupdate.ddplugin import AddressPlugin, AddressError
+ from ddupdate.ddplugin import ServicePlugin, ServiceError
+ 
++# pylint: disable=ungrouped-imports
++if sys.version_info >= (3, 5):
++    import importlib.util
++else:
++    from importlib.machinery import SourceFileLoader
++
++
+ if 'XDG_CACHE_HOME' in os.environ:
+     CACHE_DIR = os.environ['XDG_CACHE_HOME']
+ else:
+@@ -256,19 +264,58 @@ def log_options(log, args):
+              (' '.join(args.address_options) if args.address_options else ''))
+ 
+ 
++def load_module(name, path):
++    """Load a module from from given path into sys.modules['name']."""
++    # pylint: disable=deprecated-method
++    if sys.version_info >= (3, 5):
++        spec = importlib.util.spec_from_file_location(name, path)
++        module = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(module)
++    else:
++        module = SourceFileLoader(name, path).load_module()
++    return module
++
++
++def plugin_loader(dirpath, parent_class):
++    """
++    Load all plugins in dirpath having a class derived from parent.
++
++    Parameters:
++      - dirpath: string, all path/*.py files are plugin candidates.
++      - parent_class: class, objects being a subclass of parent are loaded.
++
++    Returns:
++      List of instantiated plugins, all derived from parent_class.
++
++    """
++    found = []
++    for plugpath in glob.glob(os.path.join(dirpath, '*.py')):
++        basename = os.path.basename(plugpath).replace('.py', '')
++        try:
++            module = load_module(basename, plugpath)
++        except ImportError:
++            continue
++        # pylint: disable=undefined-loop-variable
++        for member_class in [m[1] for m in inspect.getmembers(module)]:
++            if not inspect.isclass(member_class):
++                continue
++            if not issubclass(member_class, parent_class):
++                continue
++            if member_class == parent_class:
++                continue
++            instance = member_class()
++            instance.module = module
++            found.append(instance)
++        del module
++    return found
++
++
+ def load_plugins(path, log):
+     """Load ip and service plugins into dicts keyed by name."""
+-    sys.path.insert(0, path)
+-    getters = load('plugins', subclasses=AddressPlugin)
+-    getters = getters.produce()
++    setters = plugin_loader(os.path.join(path, 'plugins'), ServicePlugin)
++    getters = plugin_loader(os.path.join(path, 'plugins'), AddressPlugin)
+     getters_by_name = {plug.name(): plug for plug in getters}
+-    setters = load('plugins', ServicePlugin)
+-    setters = setters.produce()
+     setters_by_name = {plug.name(): plug for plug in setters}
+-    sys.path.pop(0)
+-    plugins = list(setters_by_name.values()) + list(getters_by_name.values())
+-    for plugin in plugins:
+-        plugin.srcdir = path
+     log.debug("Loaded %d address and %d service plugins from %s",
+               len(getters), len(setters), path)
+     return getters_by_name, setters_by_name
+@@ -289,7 +336,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
+     else:
+         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
+     print("Name: " + plugin.name())
+-    print("Source directory: " + plugin.srcdir + "\n")
++    print("Source file: " + plugin.module.__file__ + "\n")
+     print(plugin.info())
+ 
+ 
+diff --git a/setup.py b/setup.py
+index 4337a09..55a6eff 100644
+--- a/setup.py
++++ b/setup.py
+@@ -50,7 +50,6 @@ setup(
+     url='http://github.com/leamas/ddupdate',
+     author='Alec Leamas',
+     author_email='alec.leamas@nowhere.net',
+-    install_requires=['straight.plugin'],
+     classifiers=[
+         'Development Status :: 4 - Beta',
+         'Intended Audience :: End Users/Desktop',
+-- 
+2.13.6
+
