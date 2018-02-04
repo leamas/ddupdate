@@ -12,9 +12,8 @@ import sys
 import tempfile
 import time
 
-from straight.plugin import load
-
-from ddupdate.main import setup, build_load_path, envvar_default
+from ddupdate.main import \
+    setup, build_load_path, envvar_default, load_plugin_dir
 from ddupdate.ddplugin import ServicePlugin, AddressPlugin
 
 
@@ -88,13 +87,10 @@ def _load_plugins(log, paths, plugin_class):
     """
     plugins = {}
     for path in paths:
-        sys.path.insert(0, path)
-        these = load('plugins', plugin_class)
-        these = these.produce()
+        these = load_plugin_dir(os.path.join(path, 'plugins'), plugin_class)
         these_by_name = {plug.name(): plug for plug in these}
         for name, plugin in these_by_name.items():
             plugins.setdefault(name, plugin)
-        sys.path.pop(0)
         log.debug("Loaded %d plugins from %s", len(plugins), path)
     return plugins
 
@@ -143,8 +139,7 @@ def get_address_plugin(log, paths):
 
     Parameters:
       - log: Standard python log instance.
-      - paths: List of strings, path candidates to load plugins from.
-      - options: List of --service-option options.
+      - paths: List of strings, directory paths to load plugins from.
 
     Return:
       Name of selected address plugin.
@@ -158,16 +153,14 @@ def get_address_plugin(log, paths):
     web_addr = web_default_ip.get_ip(log, {})
     print("1  Use address as seen from Internet [%s]" % web_addr.v4)
     print("2  Use address as seen on local network [%s]" % if_addr.v4)
-    text = input("Select address to register (1, 2) [1]: ")
-    text = text if text else '1'
-    try:
-        ix = int(text)
-    except ValueError:
-        raise _GoodbyeError("Illegal numeric input", 1)
-    if ix == 1:
-        return 'default-web-ip'
-    elif ix == 2:
-        return 'default-if'
+    print("3  Use address as decided by service")
+    ix = input("Select address to register (1, 2, 3) [1]: ").strip()
+    ix = ix if ix else '1'
+    plugin_by_ix = {
+        '1': 'default-web-ip', '2': 'default-if', '3': 'ip-disabled'
+    }
+    if ix in plugin_by_ix:
+        return plugin_by_ix[ix]
     else:
         raise _GoodbyeError("Illegal value", 1)
 
@@ -176,11 +169,15 @@ def get_netrc(service):
     """
     Get .netrc line for service.
 
+    Looks into the service class documentation for a line starting
+    with 'machine' and returns it after substituting values in
+    angle brackets lke <username> with values supllied by user.
+
     Parameters:
       - service: Loaded service plugin.
 
     Return:
-      netrc line user, password, etc., as supplied by user.
+      netrc line with <user>, <password>, etc., as substituted by user.
 
     """
     lines = service.info().split('\n')
@@ -231,7 +228,7 @@ def merge_configs(netrc_line, netrc_path, config_src, config_dest, cmd):
 
 def update_config(config, path):
     """
-    Merge values from config dict into file.
+    Merge values from config dict and existing conf into tempfile.
 
     Parameters:
       - config: dict of new configuration options.
@@ -245,14 +242,13 @@ def update_config(config, path):
     try:
         parser.read(path)
     except configparser.Error:
-        pass
-    else:
-        if "update" in parser:
-            for key in config:
-                parser['update'][key] = config[key]
-    header = '# Created by ddupdate-config at %s\n' % time.asctime()
+        parser.clear()
+    parser.setdefault('update', {})
+    parser['update'].setdefault('ip-version', 'v4')
+    parser['update'].setdefault('loglevel', 'info')
+    parser['update'].update(config)
     with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
-        f.write(header)
+        f.write('# Created by ddupdate-config at %s\n' % time.asctime())
         parser.write(f)
         if ('service-options' or 'address-options') not in parser:
             f.write(_CONFIG_TRAILER)
@@ -310,10 +306,10 @@ def start_service():
     print("Starting service and displaying logs")
     cmd = 'systemctl daemon-reload'
     cmd += ';systemctl start ddupdate.service'
-    cmd += ';systemctl status ddupdate.service'
+    cmd += ';journalctl --since -60s -u ddupdate.service'
     cmd = ['su', '-c', cmd]
     subprocess.run(cmd)
-    print('Use "journalctl -u ddupdate.service" to display logs.');
+    print('Use "journalctl -u ddupdate.service" to display logs.')
 
 
 def main():

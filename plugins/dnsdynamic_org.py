@@ -14,9 +14,9 @@ class DynamicDnsPlugin(ServicePlugin):
     """
     Update a dns entry on dnsdynamic.org.
 
-    Does not support setting arbitrary ip address (despite documentation)
+    Despite documentation, does not support setting arbitrary ip address.
     The ip-disabled plugin should be used, and the address set is as seen
-    from dns-dynamic.org.
+    from dns-dynamic.org. ipv6 is not supported.
 
     netrc: Use a line like
         machine www.dnsdynamic.org login <username>  password <password>

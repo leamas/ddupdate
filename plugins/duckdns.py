@@ -14,8 +14,8 @@ class DuckdnsPlugin(ServicePlugin):
     Update a dns entry on duckdns.org.
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the ip-disabled
-    plugin can be used.
+    Supports most address plugins including default-web-ip, default-if
+    and ip-disabled. ipv6 is supported
 
     Access to the service requires an API token. This is available in the
     website account.
@@ -28,7 +28,7 @@ class DuckdnsPlugin(ServicePlugin):
     """
 
     _name = 'duckdns.org'
-    _oneliner = 'Updates on http://duckdns.org [ipv6]'
+    _oneliner = 'Updates on http://duckdns.org'
     _url = "https://www.duckdns.org/update?domains={0}&token={1}"
 
     def register(self, log, hostname, ip, options):

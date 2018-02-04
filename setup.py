@@ -19,12 +19,6 @@ DATA = [
     ('/lib/systemd/system', glob('systemd/*')),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
-    ('share/doc/ddupdate',
-        ['CONFIGURATION.md',
-         'CONTRIBUTE.md',
-         'README.md',
-         'LICENSE.txt',
-         'NEWS']),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
 ]
 
@@ -42,7 +36,7 @@ class _ProjectClean(clean):
 
 setup(
     name='ddupdate',
-    version='0.5.2',
+    version='0.5.3',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -50,7 +44,6 @@ setup(
     url='http://github.com/leamas/ddupdate',
     author='Alec Leamas',
     author_email='alec.leamas@nowhere.net',
-    install_requires=['straight.plugin'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',
