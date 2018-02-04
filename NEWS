@@ -1,3 +1,10 @@
+9.5.3
+* Remove the straight.plugins dependency.
+* config: Fix bug creating new config files like ~/.config/dduodate.conf
+* config: Add new address plugin option "Use address as of service".
+* build: Don't install documentation files (bad idea from beginning).
+* Miscellanaous cleanup and doc fixes.
+
 0.5.2
 * Multiple bugfixes in config script
 * Add missing commands and short options to completions
