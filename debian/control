@@ -18,12 +18,12 @@ Description: Tool updating DNS data for dynamic IP addresses
  DNS services such as changeip.com, duckdns.org or no-ip.com. This makes
  it possible to access a machine with a fixed name like myhost.duckdns.org
  even if the ip address changes. It is a linux-centric, user-friendly and
- secure alternative to the ubiquotious ddclient(8)
+ secure alternative to the  ubiquitous ddclient(8)
  .
  ddupdate has a plugin structure with plugins for obtaining the actual
  address (typically hardware-dependent) and to update it (service depen‐
  dent). It is distributed with systemd support to run at regular intervals
  and with NetworkManager templates to run when interfaces goes up or down.
  .
- The package also sports an interactive setup script which should be 
+ The package sports a simple interactive setup script which should be 
  suitable in most cases.
