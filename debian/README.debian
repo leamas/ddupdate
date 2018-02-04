@@ -1,4 +1,4 @@
-Under debian, the packaged version runs the ddupdate service under the
+Under Debian, the packaged version runs the ddupdate service under the
 user ddupdate, which is automatically created. As a consequence, the
 .netrc file used by the service is /var/lib/ddupdate/.netrc. This file
 needs to be updatet with credentials required to perform operations,
