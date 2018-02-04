@@ -105,8 +105,8 @@ ddupdate has a multitude of packaging:
         $ apt-get source --build ddupdate
         $ sudo dpkg -i ddupdate*.all.deb
 
-Creating a new version
-----------------------
+Creating a new version (maintianer work)
+----------------------------------------
 
   - Replace all occurrences of version string:
 
@@ -127,8 +127,8 @@ Creating a new version
 
   - Copy tarball and repo to debian and commit it on pristine-tar
 
-        git fetch upstream pristine-tar:pristine-tar
         git fetch upstream debian:debian
+        git fetch upstream pristine-tar:pristine-tar
         scp fedora/ddupdate-0.5.3.tar.gz sid:
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
@@ -137,6 +137,7 @@ Creating a new version
         mv ../ddupdate-0.5.3.tar.gz ddupdate_0.5.3.orig.tar.gz
         git clone -o upstream -b debian ../ddupdate.git ddupdate
         cd ddupdate
+        git remote add github git@github.com:leamas/ddupdate.git
         git fetch upstream pristine-tar:pristine-tar
         pristine-tar commit ../ddupdate_0.5.3.orig.tar.gz 0.5.3
 

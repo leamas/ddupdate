@@ -5,10 +5,10 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-for example DHCP. It makes it possible to access the system with
-a fixed dns name such as myhost.somewhere.net even if the IP address is
-changed. It is a linux-centric, user-friendly, flexible and maintainable
-alternative to the ubiquitous ddclient.
+for example DHCP. It makes it possible to access such a system with
+a fixed dns name like myhost.somewhere.net even if the IP address is
+changed. It is a linux-centric, user-friendly and secure alternative to
+the ubiquitous ddclient.
 
 Status
 ------
@@ -43,15 +43,17 @@ It is also possible to install as a pypi package using::
 
 See CONTRIBUTE.md for more info on using the pypi package.
 
-Fedora and Mageia users can install native rpm packages from
+ddupdate is part of Fedora from Fedora 28. Fedora 27, CentOS/EPEL and
+Mageia users can install native rpm packages from
 https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/.
 
 Ubuntu users can install native .deb packages using the PPA at
 https://launchpad.net/~leamas-alec/+archive/ubuntu/ddupdate
 
-CONTRIBUTE.md describes how to create Debian packages. Here is also more
-info on using the pypi package. Overall, using native packages is the
-preferred method on platforms supporting this.
+ddupdate is part of the Debian sid distribution. CONTRIBUTE.md describes
+how to create packages for other Debian distributions. Overall, using
+native packages is the preferred installation method on platforms
+supporting this.
 
 Configuration
 -------------
@@ -71,6 +73,9 @@ password (some sites just uses an API key).
 Then start the configuration script ```ddupdate-config```. The script
 guides you through the configuration and updates several files, notably
 */etc/ddupdate.conf* and *~ddupdate/.netrc*.
+
+After running the script systemd should be configured as described in
+CONFIGURE.md.
 
 Configuring systemd
 -------------------
