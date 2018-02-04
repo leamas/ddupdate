@@ -1,0 +1,35 @@
+From 33e519c3b23b984683f0a39f064595263e2270f7 Mon Sep 17 00:00:00 2001
+From: Alec Leamas <leamas.alec@gmail.com>
+Date: Sun, 4 Feb 2018 21:16:45 +0100
+Subject: [PATCH] systemd: Add documentation stanzas.
+
+---
+ systemd/ddupdate.service | 1 +
+ systemd/ddupdate.timer   | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/systemd/ddupdate.service b/systemd/ddupdate.service
+index 1f05c97..5fa70ac 100644
+--- a/systemd/ddupdate.service
++++ b/systemd/ddupdate.service
+@@ -1,5 +1,6 @@
+ [Unit]
+ Description=Update DNS  data for this host
++Documentation=man:ddupdate.8 http://github.com/leamas/ddupdate
+ After=network.target
+ 
+ [Service]
+diff --git a/systemd/ddupdate.timer b/systemd/ddupdate.timer
+index 17e818c..3867e65 100644
+--- a/systemd/ddupdate.timer
++++ b/systemd/ddupdate.timer
+@@ -1,5 +1,6 @@
+ [Unit]
+ Description=Run ddupdate hourly and on boot
++Documentation=man:ddupdate.8 http://github.com/leamas/ddupdate
+ 
+ [Timer]
+ OnBootSec=2min
+-- 
+2.13.6
+
