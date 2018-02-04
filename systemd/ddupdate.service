@@ -1,5 +1,6 @@
 [Unit]
 Description=Update DNS  data for this host
+Documentation=man:ddupdate.8 http://github.com/leamas/ddupdate
 After=network.target
 
 [Service]
