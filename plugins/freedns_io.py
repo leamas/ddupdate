@@ -15,8 +15,8 @@ class FreednsIoPlugin(ServicePlugin):
     Updates DNS data for host on freedns.io.
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the
-    ip-disabled plugin can be used.
+    Supports most address plugins including default-web-ip, default-if
+    and ip-disabled.
 
     The service offers more functionality not exposed here: ipv6
     addresses, TXT and MX records, etc. See https://freedns.io/api

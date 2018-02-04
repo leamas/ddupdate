@@ -1,38 +1,39 @@
+#
+#  Standard Makefile supports targets build, install and clean + static
+#  code checking. make install respects DESTDIR.
 
-GIT_COMMIT      = $(shell git log -1 --pretty=format:%h || echo UNKNOWN)
-GIT_DATE        = $(shell git log -1 --pretty=format:%cd || echo UNKNOWN)
-GIT_REFS        = $(shell git log -1 --pretty=format:%d || echo UNKNOWN)
-GIT_DATE_ISO    = $(shell git log -1 --pretty=format:%ci || date +"%F %T")
 
-PYTHON_SRC      =  plugins lib/ddupdate setup.py ddupdate
+ifeq ($(DESTDIR),)
+    DESTDIR     = $(CURDIR)/install
+endif
 
-pylint_template  = {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+PYTHON_SRC      = plugins lib/ddupdate setup.py ddupdate ddupdate-config
 
-all:
-	@echo "Use other for static code tests; plain make is undefined."
+# vim-compatible error reporting:
+pylint_template = {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
-pylint: .phony
-	-PYTHONPATH=$(CURDIR)/lib \
-	    python3-pylint \
-	        --rcfile=pylint.conf \
-	        --msg-template='$(pylint_template)' \
-	        $(PYTHON_SRC)
-pydocstyle:
-	pydocstyle $(PYTHON_SRC)
 
-pep8: $(PYTHON_SRC)
-	-python3-pep8 --config=pep8.conf $?
+all:	build
 
-ddupdate.8.html: ddupdate.8
-	man2html $? > $@
+build:
+	python3 setup.py --quiet build
 
-README.rst: README.md
-	cp $? $@
-
-dist: README.rst
-	python3 setup.py sdist
+install: .phony
+	python3 setup.py --quiet install --root=$(DESTDIR)
 
 clean: .phony
-	rm -rf install dist build *.egg-info lib/*.egg-info
+	python3 setup.py clean
+
+pylint: $(PYTHON_SRC)
+	-PYTHONPATH=$(CURDIR)/lib python3-pylint \
+	        --rcfile=pylint.conf \
+	        --msg-template='$(pylint_template)' \
+	        $?
+
+pydocstyle: $(PYTHON_SRC)
+	pydocstyle $?
+
+pycodestyle: $(PYTHON_SRC)
+	pycodestyle $?
 
 .phony:

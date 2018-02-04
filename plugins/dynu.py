@@ -13,8 +13,8 @@ class DynuPlugin(ServicePlugin):
     """
     Update a dns entry on dynu.com.
 
-    Supports ip address discovery and can thus work with the ip-disabled
-    plugin. As usual, any host updated must first be defined in the web UI
+    Supports most address plugins including default-wep-ip, default-if
+    and ip-disabled. ipv6 is supported.
 
     .netrc: Use a line like:
         machine api.dynu.com login <username> password <password>
@@ -24,7 +24,7 @@ class DynuPlugin(ServicePlugin):
     """
 
     _name = 'dynu.com'
-    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS [ipv6]'
+    _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS'
     _url = "http://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 

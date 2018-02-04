@@ -1,0 +1,42 @@
+_ddupdate()
+{
+    local cur prev opts plugins
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="--help --hostname --service-plugin --address-plugin --config-file"
+    opts="$opts --loglevel --ip-version --service-option --address-option"
+    opts="$opts --list-addressers --list-services"
+    case  "${prev}" in
+        --ip-version | -v)
+            COMPREPLY=( $(compgen -W "v4 v6 all" -- ${cur}) )
+            return 0
+            ;;
+        --loglevel | -l)
+            COMPREPLY=( $(compgen -W "error warning info debug" -- ${cur}) )
+            return 0
+            ;;
+        --config-file | -c)
+            COMPREPLY=( $(compgen -f -- ${cur}) )
+            return 0
+            ;;
+        --address-plugin | -a)
+            plugins=$(ddupdate --list-addressers -l error | awk '{print $1}')
+            COMPREPLY=( $(compgen -W "$plugins" -- ${cur}) )
+            return 0
+            ;;
+        --service-plugin | -s)
+            plugins=$(ddupdate --list-services -l error | awk '{print $1}')
+            COMPREPLY=( $(compgen -W "$plugins" -- ${cur}) )
+            return 0
+            ;;
+         *)
+	    ;;
+    esac
+    if [[ ${cur} == -* ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+}
+
+complete -F _ddupdate ddupdate

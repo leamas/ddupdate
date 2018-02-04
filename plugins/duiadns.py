@@ -39,8 +39,8 @@ class DuiadnsPlugin(ServicePlugin):
     Update a dns entry on duiadns.com.
 
     As usual, any host updated must first be defined in the web UI. Although
-    the server supports auto- detection of addresses this plugin does not;
-    the ip-disabled plugin cannot be used.
+    the server supports auto-detection of addresses this plugin does not;
+    the ip-disabled plugin can not be used. ipv6 is supported
 
     Access to the service requires an API token. This is available in the
     website account.
@@ -52,8 +52,6 @@ class DuiadnsPlugin(ServicePlugin):
 
     Also, it returns a needlessly complicated HTML-formatted reply.
 
-    This site is one of few supporting ipv6 addresses.
-
     netrc: Use a line like
         machine ip.duiadns.net password <API token from website>
 
@@ -62,7 +60,7 @@ class DuiadnsPlugin(ServicePlugin):
     """
 
     _name = 'duiadns.net'
-    _oneliner = 'Updates on https://www.duiadns.net [ipv6]'
+    _oneliner = 'Updates on https://www.duiadns.net'
     _url = 'https://ip.duiadns.net/dynamic.duia?host={0}&password={1}'
 
     def register(self, log, hostname, ip, options):

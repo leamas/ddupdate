@@ -1,8 +1,10 @@
-
-"""Update DNS data for dynamically ip addresses."""
+"""Update DNS data for dynamic ip addresses."""
 
 import argparse
 import configparser
+import glob
+import importlib
+import inspect
 import logging
 import math
 import os
@@ -11,10 +13,15 @@ import stat
 import sys
 import time
 
-from straight.plugin import load
-
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError
+
+# pylint: disable=ungrouped-imports
+if sys.version_info >= (3, 5):
+    import importlib.util
+else:
+    from importlib.machinery import SourceFileLoader
+
 
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
@@ -26,7 +33,8 @@ DEFAULTS = {
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
     'loglevel': 'info',
-    'options': None,
+    'service-options': None,
+    'address-options': None,
     'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
     'force': False
 }
@@ -95,7 +103,8 @@ def here(path):
 def parse_conffile(log):
     """Parse config file path, returns verified path or None."""
     path = envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
-    if not os.path.exists(os.path.join(path, 'ddupdate.conf')):
+    path = os.path.join(path, 'ddupdate.conf')
+    if not os.path.exists(path):
         path = '/etc/ddupdate.conf'
     for i in range(len(sys.argv)):
         arg = sys.argv[i]
@@ -217,22 +226,22 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.4.1"
+    parser.version = "0.5.3"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
         raise _GoodbyeError()
     if not opts.address_options:
-        opts.address_options = conf['options']
+        opts.address_options = conf['address-options']
     if not opts.service_options:
-        opts.service_options = conf['options']
+        opts.service_options = conf['service-options']
     opts.loglevel = level_by_name[opts.loglevel]
     opts.ip_cache = conf['ip-cache']
     return opts
 
 
 def log_setup():
-    """Initialize the module log."""
+    """Initialize and return the module log."""
     log = logging.getLogger('ddupdate')
     log.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
@@ -255,38 +264,70 @@ def log_options(log, args):
              (' '.join(args.address_options) if args.address_options else ''))
 
 
+def load_module(path):
+    """Return instantiated module loaded from given path."""
+    # pylint: disable=deprecated-method
+    name = os.path.basename(path).replace('.py', '')
+    if sys.version_info >= (3, 5):
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    else:
+        module = SourceFileLoader(name, path).load_module()
+    return module
+
+
+def load_plugin_dir(dirpath, parent_class):
+    """
+    Load all plugins in dirpath having a class derived from parent_class.
+
+    Parameters:
+      - dirpath: string, all path/*.py files are plugin candidates.
+      - parent_class: class, objects being a subclass of parent are loaded.
+
+    Returns:
+      List of instantiated plugins, all derived from parent_class.
+
+    """
+    found = []
+    for plugpath in glob.glob(os.path.join(dirpath, '*.py')):
+        try:
+            module = load_module(plugpath)
+        except ImportError:
+            continue
+        for member_class in [m[1] for m in inspect.getmembers(module)]:
+            # pylint: disable=undefined-loop-variable
+            if not inspect.isclass(member_class):
+                continue
+            if not issubclass(member_class, parent_class):
+                continue
+            if member_class == parent_class:
+                continue
+            instance = member_class()
+            instance.module = module
+            found.append(instance)
+    return found
+
+
 def load_plugins(path, log):
     """Load ip and service plugins into dicts keyed by name."""
-    sys.path.insert(0, path)
-    getters = load('plugins', subclasses=AddressPlugin)
-    getters = getters.produce()
+    setters = load_plugin_dir(os.path.join(path, 'plugins'), ServicePlugin)
+    getters = load_plugin_dir(os.path.join(path, 'plugins'), AddressPlugin)
     getters_by_name = {plug.name(): plug for plug in getters}
-    setters = load('plugins', ServicePlugin)
-    setters = setters.produce()
     setters_by_name = {plug.name(): plug for plug in setters}
-    sys.path.pop(0)
-    plugins = list(setters_by_name.values()) + list(getters_by_name.values())
-    for plugin in plugins:
-        plugin.srcdir = path
     log.debug("Loaded %d address and %d service plugins from %s",
               len(getters), len(setters), path)
     return getters_by_name, setters_by_name
 
 
-def list_plugins(ip_plugins, service_plugins, kind):
-    """List all loaded plugins (noreturn)."""
-    if kind == 'addressers':
-        for name, plugin in sorted(ip_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    elif kind == 'services':
-        for name, plugin in sorted(service_plugins.items()):
-            print("%-20s %s" % (name, plugin.oneliner()))
-    else:
-        assert False, "Illegal plugin list: " + kind
+def list_plugins(plugins):
+    """List given plugins."""
+    for name, plugin in sorted(plugins.items()):
+        print("%-20s %s" % (name, plugin.oneliner()))
 
 
 def plugin_help(ip_plugins, service_plugins, plugid):
-    """Print full help for given plugin (noreturn)."""
+    """Print full help for given plugin."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
@@ -294,7 +335,7 @@ def plugin_help(ip_plugins, service_plugins, plugid):
     else:
         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
-    print("Source directory: " + plugin.srcdir + "\n")
+    print("Source file: " + plugin.module.__file__ + "\n")
     print(plugin.info())
 
 
@@ -324,13 +365,13 @@ def build_load_path(log):
     return paths
 
 
-def setup():
+def setup(loglevel=None):
     """Return a standard log, arg_parser tuple."""
     log = log_setup()
     conffile_path = parse_conffile(log)
     conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
     opts = parse_options(conf)
-    log.handlers[0].setLevel(opts.loglevel)
+    log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
     log.debug('Using config file: %s', conffile_path)
     log_options(log, opts)
     return log, opts
@@ -340,22 +381,21 @@ def get_plugins(log, opts):
     """
     Handles plugin listing, plugin help  or load plugins.
 
-    return: (ip plugins, service plugins).
+    return: (ip plugin, service plugin).
     """
     ip_plugins = {}
     service_plugins = {}
-    load_paths = build_load_path(log)
-    for path in load_paths:
+    for path in build_load_path(log):
         getters, setters = load_plugins(path, log)
         for name, plugin in getters.items():
             ip_plugins.setdefault(name, plugin)
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
     if opts.list_services:
-        list_plugins(ip_plugins, service_plugins, 'services')
+        list_plugins(service_plugins)
         raise _GoodbyeError()
     if opts.list_addressers:
-        list_plugins(ip_plugins, service_plugins, 'addressers')
+        list_plugins(ip_plugins)
         raise _GoodbyeError()
     if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
@@ -398,7 +438,7 @@ def main():
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)
-        sys.stderr.write("Fatal error: " + str(err) + "\n")
+            sys.stderr.write("Fatal error: " + str(err) + "\n")
         sys.exit(err.exitcode)
     try:
         service_plugin.register(log, opts.hostname, ip, opts.service_options)

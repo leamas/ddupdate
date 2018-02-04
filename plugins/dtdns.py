@@ -13,11 +13,12 @@ class DtdnsPlugin(ServicePlugin):
     """
     Update a dns entry on dtdns.com.
 
-    Supports ip address discovery and can thus work with the ip-disabled
-    plugin. As usual any host updated must first be defined in the web UI
+    Supports most address plugins including default-web-ip, default-if and
+    ip-disabled. ipv6 is not supporterted. The number of hosts are limited
+    for free accounts, see website.
 
     .netrc: Use a line like:
-        machine www.dtdns.com login <user>  password <password>
+        machine www.dtdns.com login <username>  password <password>
 
     Options:
         none

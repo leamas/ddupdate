@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+''' ddupdate-config  main script, invokes ddupdate.config.main(). '''
+
+# pylint: disable=invalid-name
+
+import os.path
+import sys
+
+sys.path.pop(0)
+HERE = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(HERE, 'lib'))
+
+try:
+    import lib.ddupdate.config as config
+except ImportError:
+    import ddupdate.config as config
+
+config.main()

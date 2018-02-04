@@ -14,8 +14,8 @@ class MyOnlinePortalPlugin(ServicePlugin):
     Updates DNS data for host on myonlineportal.net  .
 
     As usual, any host updated must first be defined in the web UI.
-    Providing an ip address is optional but supported; the ip-disabled
-    plugin can be used.
+    Supports most address plugins including default-web-ip, default-if and
+    ip-disabled. ipv6 is  supported.
 
     netrc: Use a line like
         machine myonlineportal.net login <username> password <password>
@@ -25,7 +25,7 @@ class MyOnlinePortalPlugin(ServicePlugin):
     """
 
     _name = 'myonlineportal.net'
-    _oneliner = 'Updates on http://myonlineportal.net/ [ipv6]'
+    _oneliner = 'Updates on http://myonlineportal.net/'
     _url = 'https://myonlineportal.net/updateddns?hostname={0}'
 
     def register(self, log, hostname, ip, options):

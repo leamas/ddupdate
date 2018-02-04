@@ -1,3 +1,31 @@
+9.5.3
+* Remove the straight.plugins dependency.
+* config: Fix bug creating new config files like ~/.config/dduodate.conf
+* config: Add new address plugin option "Use address as of service".
+* build: Don't install documentation files (bad idea from beginning).
+* Miscellanaous cleanup and doc fixes.
+
+0.5.2
+* Multiple bugfixes in config script
+* Add missing commands and short options to completions
+* Move completions to proper /usr/share/bash-comletions/completions
+* Drop sudo usage, use plain su instead.
+
+0.5.1
+* Add bash completion support
+* Fix a bug in the user config file ~/.config/ddupdate.conf path.
+* Fix Respect XDG_CONFIG_HOME (#8).
+* Fix handle .netrc permissions correct (#7).
+* Clean up the Makefile build-install-clean targets.
+* Documentation re-organized and updated.
+
+0.5.0
+* Add ddupate-config configuration script.
+* Add missing ddupdate.conf.5 manpage
+* Static code checkers cleanup
+* Documentation updates
+* Fix bogus error message in --list-services/addressers.
+
 0.4.1
 * Documentation fixes
 

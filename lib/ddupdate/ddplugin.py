@@ -14,7 +14,7 @@ abstract AddressPlugin interface.
 All plugins shares the AbstractPlugin interface. This handles general
 aspects like name and documentation.
 
-The module also provides some use utility functions used in plugins.
+The module also provides some utility functions used in plugins.
 
 """
 
@@ -113,7 +113,7 @@ def get_netrc_auth(machine):
     Parameters:
       - machine: key while searching in netrc file.
     Returns:
-      - A (user, password) tuple. Password might be None.
+      - A (user, password) tuple. User might be None.
     Raises:
       - ServiceError if .netrc or password is not found.
     See:
@@ -221,7 +221,7 @@ class AbstractPlugin(object):
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.4.1'
+    __version__ = '0.5.3'
 
     def oneliner(self):
         """Return oneliner describing the plugin."""
@@ -271,7 +271,7 @@ class AddressPlugin(AbstractPlugin):
 
 
 class ServicePlugin(AbstractPlugin):
-    """An abstract plugin doing the actual update work using a service."""
+    """Abstract plugin doing the actual update work using a service."""
 
     _ip_cache_ttl = 120    # 2 hours, address cache timeout
 

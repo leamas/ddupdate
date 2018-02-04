@@ -14,8 +14,11 @@ class ChangeAddressPlugin(ServicePlugin):
     """
     Update a dns entry on changeip.com.
 
-    Does not require (but allows) an ip address, the ip-disabled plugin
-    can be used.
+    Supports using most address plugins including default-web-ip, default-if
+    and ip-disabled. ipv6 addresses are not supported.
+
+    Free accounts has limitations both to number of hosts and that unused
+    host are expired. See the website for more.
 
     netrc: Use a line like
         machine nic.ChangeIP.com login <username>  password <password>

@@ -1,0 +1,24 @@
+.TH DDUPDATE.CONF "8" "Last change: Jan 2018" "ddupdate-config" "System Administration Utilities"
+.SH NAME
+.P
+\fBdddupdate-config\fR - ddupdate configuration file setup tool.
+
+.SH SYNOPSIS
+\fBdddupdate-config\fR
+
+.SH DESCRIPTION
+A simple configuration script for \fBddupdate\fR. Script provides a way
+to define address-plugin, service-plugin and hostname in an interactive
+way.
+.P
+The set of available plugins loaded depends on environment variables.
+See PLUGIN LOADING in \fBddupdate(8)\fR.
+
+.SH BUGS
+Does not support  configuration of more advanced features like ipv6 and
+non-standard address-plugins beyond \fIweb-default-ip\fR and \fIdefault-if\fR.
+
+.SH SEE ALSO
+.TP 4
+.B ddupdate(8)
+
