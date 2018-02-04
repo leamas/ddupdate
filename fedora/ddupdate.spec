@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.5.2
+%global gittag      0.5.3
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,8 +8,8 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.5.2
-Release:        5%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.5.3
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,10 +17,6 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
-Patch1:         0001-config-Fix-bug-merging-into-empty-config-files.patch
-Patch2:         0002-Drop-straight.plugin-dependency-load-them-manually.patch
-Patch3:         0003-config-Add-alternative-to-get_address_plugin-cleanup.patch
-
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -60,7 +56,6 @@ sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 
 %install
 %py3_install
-rm -rf $RPM_BUILD_ROOT%{_docdir}/ddupdate*/*
 %py_byte_compile %{__python3} %{buildroot}%{_datadir}/ddupdate/plugins
 
 
@@ -98,6 +93,11 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Sun Feb 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.3-1
+- New upstream release
+- Drop upstream patches
+- New documentation installation scheme.
+
 * Sat Feb 03 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.2-5
 - Fix horrible bug in patch for ddupdate-config in -4
 
