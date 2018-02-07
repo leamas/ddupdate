@@ -8,6 +8,8 @@ here=$(dirname $(readlink -fn $0))
 sed -i '1,3s/[^ ]*;/xenial;/' debian/changelog
 sed -i '1,3s/)/~xenial'$rev')/' debian/changelog
 sed -i '/Standards-Version:/s/:.*/: 3.9.7/' debian/control
-sed -i 's/10/9/' debian/compat
-sed -i '/debhelper/s/10/9/' debian/control
+sed -i 's/11/9/' debian/compat
+sed -i '/debhelper/s/11/9/' debian/control
+sed -i '/python3-setuptools/s/$/, dh-systemd/' debian/control
+sed -i '/--with python3/s/$/,systemd/' debian/rules
 
