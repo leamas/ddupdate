@@ -72,33 +72,36 @@ password (some sites just uses an API key).
 
 Then start the configuration script ```ddupdate-config```. The script
 guides you through the configuration and updates several files, notably
-*/etc/ddupdate.conf* and *~ddupdate/.netrc*.
+*~/.config/ddupdate.conf* and *~/.netrc*.
 
-After running the script systemd should be configured as described below.
+After running the script it should be possible to run a plain
+```ddupdate -l debug``` without error messages.
+
+When this works, systemd should be configured as described below.
 
 
 Configuring systemd
 -------------------
 
-Start by testing the service::
+systemd is setup to run as a user service. Start by testing it::
 
-    $ sudo systemctl daemon-reload
-    $ sudo systemcl start ddupdate.service
-    $ sudo journalctl -u ddupdate.service
+    $ sudo systemctl --user daemon-reload
+    $ sudo systemctl --user start ddupdate.service
+    $ sudo journalctl --user -u ddupdate.service
 
 If all is fine make sure ddupdate is run hourly using::
 
-    $ sudo systemctl start ddupdate.timer
-    $ sudo systemctl enable ddupdate.timer
+    $ sudo systemctl --user start ddupdate.timer
+    $ sudo systemctl --user enable ddupdate.timer
 
-If there is trouble or you for example want to run ddupdate more often,
-do not not use the upstream systemd files. Instead, do::
+If you want the service to start as soon as the machine boots, and to
+continue even when you log out do:
 
-    $ sudo cp /lib/systemd/system/ddupdate.service /etc/systemd/system
-    $ sudo cp /lib/systemd/system/ddupdate.timer /etc/systemd/system
+    $ sudo  loginctl enable-linger $USER
 
-Check the two /etc files, in particular for paths. Test the service and
-the logged info as described above.
+If there is trouble or if you for example want to run ddupdate more often,
+edit the files *~/.config/systemd/user/ddupdate.service* and
+*~/.config/systemd/user/ddupdate.timer*
 
 Configuring NetworkManager
 --------------------------

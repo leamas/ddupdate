@@ -6,6 +6,7 @@ import logging
 import os
 import os.path
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -54,18 +55,15 @@ def check_existing_files():
     confdir = \
         envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
     files = [
-        '/etc/ddupdate.conf',
         os.path.expanduser('~/.netrc'),
         os.path.join(confdir, 'ddupdate.conf')
     ]
     files = [f for f in files if os.path.exists(f)]
     if not files:
         return
-    print("The following configuration files already exists:")
+    print("The following configuration file(s)s already exists:")
     for f in files:
         print("        " + f)
-    print("Script will also update (might exist):\n        "
-          + os.path.expanduser('~ddupdate/.netrc'))
     reply = input("OK to overwrite (Yes/No) [No]: ")
     if not reply or not reply.lower().startswith('y'):
         print("Please save these file(s) and try again.")
@@ -165,6 +163,21 @@ def get_address_plugin(log, paths):
         raise _GoodbyeError("Illegal value", 1)
 
 
+def copy_systemd_units():
+    """Copy system-wide templates to ~/.config/systemd/user."""
+    confdir = \
+        envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+    user_dir = os.path.join(confdir, 'systemd/user')
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)
+    path = os.path.join(user_dir, "ddupdate.service")
+    if not os.path.exists(path):
+        shutil.copy("/usr/share/ddupdate/systemd/ddupdate.service", path)
+    path = os.path.join(user_dir, "ddupdate.timer")
+    if not os.path.exists(path):
+        shutil.copy("/usr/share/ddupdate/systemd/ddupdate.timer", path)
+
+
 def get_netrc(service):
     """
     Get .netrc line for service.
@@ -258,7 +271,7 @@ def update_config(config, path):
 
 def write_config_files(config, netrc_line):
     """
-    Merge user config data into user config-files.
+    Merge user config data into user config files.
 
     Parameters:
       - config: dict with new configuration options.
@@ -281,42 +294,44 @@ def write_config_files(config, netrc_line):
     os.unlink(tmp_conf)
 
 
-def write_root_files(config, netrc_line):
-    """
-    Merge user config data into system-wide config-files as root.
-
-    Parameters:
-      - config: dict with new configuration options.
-      - netrc_line: Authentication line to merge into existing .netrc file.
-
-    Updates: /etc/ddupdate.conf and ~ddupdate/.netrc
-
-    """
-    tmp_conf = update_config(config, "/etc/ddupdate.conf")
-    merge_configs(netrc_line,
-                  os.path.expanduser('~ddupdate/.netrc'),
-                  tmp_conf,
-                  '/etc/ddupdate.conf',
-                  lambda p: ["su", "-c", p])
-    os.unlink(tmp_conf)
-
-
-def start_service():
-    """Start dduppdate systemd service and display logs."""
+def try_start_service():
+    """Start dduppdate systemd user service and display logs."""
     print("Starting service and displaying logs")
-    cmd = 'systemctl daemon-reload'
-    cmd += ';systemctl start ddupdate.service'
-    cmd += ';journalctl --since -60s -u ddupdate.service'
-    cmd = ['su', '-c', cmd]
+    cmd = 'systemctl --user daemon-reload'
+    cmd += ';systemctl --user start ddupdate.service'
+    cmd += ';journalctl -l --user --since -60s -u ddupdate.service'
+    cmd = ['sh', '-c', cmd]
     subprocess.run(cmd)
-    print('Use "journalctl -u ddupdate.service" to display logs.')
+    print('Use "journalctl --user -u ddupdate.service" to display logs.')
+
+
+def enable_service():
+    """Enable/start service and timer as user determines."""
+    reply = input("Shall I run service regularly (Yes/No) [No]: ")
+    do_start = reply and reply.lower().startswith('y')
+    if do_start:
+        cmd = 'systemctl --user start ddupdate.timer'
+        cmd += ';systemctl --user enable ddupdate.timer'
+        print("\nStarting and enabling ddupdate.timer")
+        subprocess.run(['sh', '-c', cmd])
+    else:
+        cmd = 'systemctl --user stop ddupdate.timer'
+        cmd += 'systemctl --user disable ddupdate.timer'
+        print("Stopping ddupdate.timer")
+        subprocess.run(['sh', '-c', cmd])
+        msg = "systemctl --user start ddupdate.timer"
+        msg += "; systemctl --user enable ddupdate.timer"
+        print('\nStart ddupdate using "%s"' % msg)
+    print("To run service from boot and after logout do "
+          + '"sudo loginctl enable-linger $USER"')
 
 
 def main():
     """Indeed: main function."""
     try:
-        check_existing_files()
         log = setup(logging.WARNING)[0]
+        check_existing_files()
+        copy_systemd_units()
         load_paths = build_load_path(log)
         service_plugins = _load_services(log, load_paths)
         service = get_service_plugin(service_plugins)
@@ -329,9 +344,8 @@ def main():
             'hostname': hostname
         }
         write_config_files(conf, netrc)
-        print("Patching as root: /etc/ddupdate.conf and ~ddupdate/.netrc")
-        write_root_files(conf, netrc)
-        start_service()
+        try_start_service()
+        enable_service()
     except _GoodbyeError as err:
         if err.exitcode != 0:
             sys.stderr.write("Fatal error: " + str(err) + "\n")

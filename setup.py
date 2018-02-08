@@ -12,14 +12,13 @@ ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
 
 DATA = [
-    ('share/ddupdate/plugins', glob('plugins/*.py')),
-    ('/etc', ['ddupdate.conf']),
-    ('/usr/share/bash-completion/completions/',
-        ['bash_completion.d/ddupdate']),
     ('/lib/systemd/system', glob('systemd/*')),
+    ('share/bash-completion/completions/', ['bash_completion.d/ddupdate']),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
-    ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
+    ('share/ddupdate/plugins', glob('plugins/*.py')),
+    ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate']),
+    ('share/ddupdate/systemd', glob('systemd/*'))
 ]
 
 
