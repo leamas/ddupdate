@@ -74,8 +74,8 @@ Then start the configuration script ```ddupdate-config```. The script
 guides you through the configuration and updates several files, notably
 */etc/ddupdate.conf* and *~ddupdate/.netrc*.
 
-After running the script systemd should be configured as described in
-CONFIGURE.md.
+After running the script systemd should be configured as described below.
+
 
 Configuring systemd
 -------------------

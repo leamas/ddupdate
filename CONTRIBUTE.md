@@ -26,6 +26,9 @@ existing plugins and pick solutions from them. Some hints:
     be unique. ```_oneliner``` is indeed the short summary displayed by
     for example *--list-services*.
 
+  - To test, create the directory *~/.local/share/ddupdate/plugins* and
+    drop the new plugin into it.
+
   - Authentication:
       - Some sites uses standard basic authentication. This is handled
         by *http_basic_auth_setup* in e. g., ```no_ip.py```

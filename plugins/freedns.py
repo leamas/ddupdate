@@ -19,7 +19,7 @@ class FreednsPlugin(ServicePlugin):
     so the ip address we provide using the ip plugin is actually not
     used. This means that afraid.org does not support internal addresses
     not visible from the net. For these reasons the ip-disabled plugin is
-    the recommended one for freedns.
+    the recommended one for freedns. Ipv6 is supported.
 
     netrc: Use a line like
         machine freedns.afraid.org login <username> password <password>
