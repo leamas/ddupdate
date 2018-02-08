@@ -9,7 +9,7 @@
 
 Name:           ddupdate
 Version:        0.5.3
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,6 +17,7 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
+Patch1:         0001-systemd-Add-documentation-stanzas.patch
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -93,6 +94,9 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Thu Feb 08 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.3-2
+- Add upstream patch: Documentation stanzas added to systemd units.
+
 * Sun Feb 04 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.3-1
 - New upstream release
 - Drop upstream patches
