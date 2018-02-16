@@ -2,6 +2,7 @@
 
 import shutil
 import os
+import subprocess
 
 from distutils.command.clean import clean
 from glob import glob
@@ -11,8 +12,18 @@ from setuptools import setup
 ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
 
+
+def systemd_unitdir():
+    """Return the official systemd unit dir path."""
+    cmd = 'pkg-config systemd --variable=systemdsystemunitdir'.split()
+    try:
+        return subprocess.check_output(cmd).decode().strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "/usr/lib/systemd/system"
+
+
 DATA = [
-    ('/lib/systemd/system', glob('systemd/*')),
+    (systemd_unitdir(), glob('systemd/*')),
     ('share/bash-completion/completions/', ['bash_completion.d/ddupdate']),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
