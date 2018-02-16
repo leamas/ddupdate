@@ -1,3 +1,12 @@
+0.6.0
+* New setup by ddupdate-config based on a user service. Nothing installed
+  as root, service runs as invoking user. Existing setups based on a
+  separate user running service continues to work, but must be maintained
+  manually.
+* New service plugin dnspark.com
+* New Hurricane Electric service plugin.
+* New pkg-config build dependency.
+
 9.5.3
 * Remove the straight.plugins dependency.
 * config: Fix bug creating new config files like ~/.config/dduodate.conf
