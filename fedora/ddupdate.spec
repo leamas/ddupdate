@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.5.3
+%global gittag      0.6.0
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,8 +8,8 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.5.3
-Release:        2%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.6.0
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,11 +17,12 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
-Patch1:         0001-systemd-Add-documentation-stanzas.patch
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
+BuildRequires:  pkg-config
 BuildRequires:  systemd
+
 Requires(pre):  shadow-utils
 Requires:       /usr/sbin/ip
 
@@ -47,8 +48,6 @@ and with NetworkManager templates to run when interfaces goes up or down.
 %prep
 %autosetup -p1 -n %{name}-%{srcdir}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
-sed -i '/User=/s/.*/User=ddupdate/' systemd/ddupdate.service
-sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 
 
 %build
@@ -60,30 +59,11 @@ sed -i 's|/lib/systemd/system|%{_unitdir}|' setup.py
 %py_byte_compile %{__python3} %{buildroot}%{_datadir}/ddupdate/plugins
 
 
-%pre
-getent group ddupdate >/dev/null || groupadd --system ddupdate
-getent passwd ddupdate >/dev/null || { \
-    useradd --system -g ddupdate -d /var/lib/ddupdate -s /sbin/nologin \
-        --create-home -c "Updates dns info for dynamic ip address" ddupdate
-    chmod 700 /var/lib/ddupdate
-}
-
-%post
-%systemd_post ddupdate.timer
-
-%preun
-%systemd_preun ddupdate.timer
-
-%postun
-%systemd_postun_with_restart ddupdate.timer
-
-
 %files
 %license LICENSE.txt
 %doc README.md NEWS CONTRIBUTE.md CONFIGURATION.md
 %{_bindir}/ddupdate
 %{_bindir}/ddupdate-config
-%config(noreplace) /etc/ddupdate.conf
 %{_unitdir}/ddupdate.*
 %{_datadir}/ddupdate
 %{_datadir}/bash-completion/completions/ddupdate
@@ -94,6 +74,10 @@ getent passwd ddupdate >/dev/null || { \
 
 
 %changelog
+* Fri Feb 16 2018 Alec Leamas <leamas.alec@gmail.com> - 0.6.0-1
+- New upstream release
+- Drop system-wide systemd services and config files.
+
 * Thu Feb 08 2018 Alec Leamas <leamas.alec@gmail.com> - 0.5.3-2
 - Add upstream patch: Documentation stanzas added to systemd units.
 
