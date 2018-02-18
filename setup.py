@@ -2,6 +2,7 @@
 
 import shutil
 import os
+import subprocess
 
 from distutils.command.clean import clean
 from glob import glob
@@ -11,15 +12,24 @@ from setuptools import setup
 ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
 
+
+def systemd_unitdir():
+    """Return the official systemd unit dir path."""
+    cmd = 'pkg-config systemd --variable=systemdsystemunitdir'.split()
+    try:
+        return subprocess.check_output(cmd).decode().strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "/usr/lib/systemd/system"
+
+
 DATA = [
-    ('share/ddupdate/plugins', glob('plugins/*.py')),
-    ('/etc', ['ddupdate.conf']),
-    ('/usr/share/bash-completion/completions/',
-        ['bash_completion.d/ddupdate']),
-    ('/lib/systemd/system', glob('systemd/*')),
+    (systemd_unitdir(), glob('systemd/*')),
+    ('share/bash-completion/completions/', ['bash_completion.d/ddupdate']),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
-    ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate'])
+    ('share/ddupdate/plugins', glob('plugins/*.py')),
+    ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate']),
+    ('share/ddupdate/systemd', glob('systemd/*'))
 ]
 
 
@@ -36,7 +46,7 @@ class _ProjectClean(clean):
 
 setup(
     name='ddupdate',
-    version='0.5.3',
+    version='0.6.0',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,

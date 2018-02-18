@@ -5,10 +5,10 @@ General
 -------
 
 ddupdate is a tool for automatically updating dns data for a system using
-for example DHCP. It makes it possible to access the system with
-a fixed dns name such as myhost.somewhere.net even if the IP address is
-changed. It is a linux-centric, user-friendly, flexible and maintainable
-alternative to the ubiquitous ddclient.
+for example DHCP. It makes it possible to access such a system with
+a fixed dns name like myhost.somewhere.net even if the IP address is
+changed. It is a linux-centric, user-friendly and secure alternative to
+the ubiquitous ddclient.
 
 Status
 ------
@@ -26,8 +26,9 @@ Dependencies
 ------------
 
   - python3 (tested on 3.6 and 3.4)
-  - python3-setuptools
   - The /usr/sbin/ip command is used in some plugins.
+  - python3-setuptools  (build)
+  - pkg-config  (build)
 
 Installation
 ------------
@@ -43,15 +44,17 @@ It is also possible to install as a pypi package using::
 
 See CONTRIBUTE.md for more info on using the pypi package.
 
-Fedora and Mageia users can install native rpm packages from
+ddupdate is part of Fedora from Fedora 28. Fedora 27, CentOS/EPEL and
+Mageia users can install native rpm packages from
 https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/.
 
 Ubuntu users can install native .deb packages using the PPA at
 https://launchpad.net/~leamas-alec/+archive/ubuntu/ddupdate
 
-CONTRIBUTE.md describes how to create Debian packages. Here is also more
-info on using the pypi package. Overall, using native packages is the
-preferred method on platforms supporting this.
+ddupdate is part of the Debian sid distribution. CONTRIBUTE.md describes
+how to create packages for other Debian distributions. Overall, using
+native packages is the preferred installation method on platforms
+supporting this.
 
 Configuration
 -------------
@@ -70,30 +73,36 @@ password (some sites just uses an API key).
 
 Then start the configuration script ```ddupdate-config```. The script
 guides you through the configuration and updates several files, notably
-*/etc/ddupdate.conf* and *~ddupdate/.netrc*.
+*~/.config/ddupdate.conf* and *~/.netrc*.
+
+After running the script it should be possible to run a plain
+```ddupdate -l debug``` without error messages.
+
+When this works, systemd should be configured as described below.
+
 
 Configuring systemd
 -------------------
 
-Start by testing the service::
+systemd is setup to run as a user service. Start by testing it::
 
-    $ sudo systemctl daemon-reload
-    $ sudo systemcl start ddupdate.service
-    $ sudo journalctl -u ddupdate.service
+    $ sudo systemctl --user daemon-reload
+    $ sudo systemctl --user start ddupdate.service
+    $ sudo journalctl --user -u ddupdate.service
 
 If all is fine make sure ddupdate is run hourly using::
 
-    $ sudo systemctl start ddupdate.timer
-    $ sudo systemctl enable ddupdate.timer
+    $ sudo systemctl --user start ddupdate.timer
+    $ sudo systemctl --user enable ddupdate.timer
 
-If there is trouble or you for example want to run ddupdate more often,
-do not not use the upstream systemd files. Instead, do::
+If you want the service to start as soon as the machine boots, and to
+continue even when you log out do:
 
-    $ sudo cp /lib/systemd/system/ddupdate.service /etc/systemd/system
-    $ sudo cp /lib/systemd/system/ddupdate.timer /etc/systemd/system
+    $ sudo  loginctl enable-linger $USER
 
-Check the two /etc files, in particular for paths. Test the service and
-the logged info as described above.
+If there is trouble or if you for example want to run ddupdate more often,
+edit the files *~/.config/systemd/user/ddupdate.service* and
+*~/.config/systemd/user/ddupdate.timer*
 
 Configuring NetworkManager
 --------------------------
