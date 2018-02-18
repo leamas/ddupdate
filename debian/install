@@ -5,5 +5,4 @@ usr/share/ddupdate
 usr/share/man/man8/ddupdate*
 usr/share/man/man5/ddupdate*
 usr/lib/python3/dist-packages/*
-etc/ddupdate.conf
 usr/share/bash-completion/completions/ddupdate

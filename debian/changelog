@@ -1,3 +1,12 @@
+ddupdate (0.6.0-1) sid; urgency=medium
+
+  * New upstream release
+  * Support for system-wide services dropped in favor of systemd
+    user services. Use ddupdate-config to reconfigure.
+  * Closes: #890121, control file description nit-picking.
+
+ -- Alec Leamas <leamas.alec@gmail.com>  Sun, 18 Feb 2018 20:05:37 +0100
+
 ddupdate (0.5.3-1) sid; urgency=medium
 
   * New upstream release

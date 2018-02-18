@@ -1,7 +1,10 @@
-Under Debian, the packaged version runs the ddupdate service under the
-user ddupdate, which is automatically created. As a consequence, the
-.netrc file used by the service is /var/lib/ddupdate/.netrc. This file
-needs to be updatet with credentials required to perform operations,
-see the README.md file.
+Prior to 0.6.0 ddupdate-config created a systemd service invoked as root
+but running as the user ddupdate. From 0.6.0,  ddupdate-config creates
+a systemd --user service which runs as the invoking user.
 
-Also, the file needs to be owned by ddupdate and have 600 permissions.
+As a consequence, ddupdate-config only maintains ~/.config/ddupdate.conf
+and ~/.netrc. 
+
+Services configured by ddupdate-config < 0.6.0 will continue to run but
+needs to be maintained manually. To reconfigure to the new setup just
+run ddupdate-config and disable/stop the system-wide ddupdate.timer.
