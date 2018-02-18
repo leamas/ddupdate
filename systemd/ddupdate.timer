@@ -1,5 +1,6 @@
 [Unit]
 Description=Run ddupdate hourly and on boot
+Documentation=man:ddupdate.8 http://github.com/leamas/ddupdate
 
 [Timer]
 OnBootSec=2min

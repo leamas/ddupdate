@@ -1,6 +1,16 @@
 #!/bin/sh
+#
+#
+# Example file for activating ddupdate when default interface is up.
+# Install into /etc/NetworkManager/dispatcher.d to activate.
+
+# The user which runs ddupdate.service.
+DDUSER=foo
 
 export LC_ALL=C
+
+systemctl="/usr/bin/systemctl"
+logger="/usr/bin/logger"
 
 if ! /usr/bin/systemctl is-enabled ddupdate.timer >/dev/null 2>&1; then
     exit 0
@@ -11,15 +21,14 @@ case "$2" in
         if /sbin/ip route ls | grep -q '^default'; then
 	    exit 0
 	fi
-	/usr/bin/logger "ddupdate: default interface down: stopping timer" || :
-        /usr/bin/systemctl stop ddupdate.timer || :
+	$logger "ddupdate: default interface down: stopping timer" || :
+        sudo -u $DDUSER $systemctl --user stop ddupdate.timer || :
 	;;
     "up")
         if /sbin/ip -o route show dev "$1" | grep -q '^default'
 	then
-	    /usr/bin/logger \
-		"ddupdate: default interface up: starting timer" || :
-            /usr/bin/systemctl start ddupdate.timer || :
+	    $logger "ddupdate: default interface up: starting timer" || :
+            sudo -u $DDUSER $systemctl --user start ddupdate.timer || :
 	fi
 	;;
     *)
