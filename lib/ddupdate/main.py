@@ -129,17 +129,17 @@ def parse_config(path, log):
     results = {}
     config = configparser.ConfigParser()
     config.read(path)
-    if 'update' not in config:
+    if 'update' in config:
+        items = config['update']
+    else:
         log.warning(
             'No [update] section found in %s, file ignored', path)
         items = {}
-    else:
-        items = config['update']
     for key in DEFAULTS:
-        if key not in items:
-            results[key] = DEFAULTS[key]
-        else:
+        if key in items:
             results[key] = items[key]
+        else:
+            results[key] = DEFAULTS[key]
     return results
 
 
@@ -379,9 +379,9 @@ def setup(loglevel=None):
 
 def get_plugins(log, opts):
     """
-    Handles plugin listing, plugin help  or load plugins.
+    Handles plugin listing, plugin help or load plugins.
 
-    return: (ip plugin, service plugin).
+    return: (ip plugin, service plugin) tuple.
     """
     ip_plugins = {}
     service_plugins = {}
