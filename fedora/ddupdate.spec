@@ -23,7 +23,6 @@ BuildRequires:  python%{python3_pkgversion}-setuptools
 BuildRequires:  /usr/bin/pkg-config
 BuildRequires:  systemd
 
-Requires(pre):  shadow-utils
 Requires:       /usr/sbin/ip
 
 %{?systemd_requires}
