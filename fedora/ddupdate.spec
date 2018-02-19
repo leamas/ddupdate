@@ -20,7 +20,7 @@ Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
-BuildRequires:  pkg-config
+BuildRequires:  /usr/bin/pkg-config
 BuildRequires:  systemd
 
 Requires(pre):  shadow-utils
@@ -74,7 +74,9 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 
 
 %changelog
-* Fri Feb 16 2018 Alec Leamas <leamas.alec@gmail.com> - 0.6.0-1
+
+
+* Sun Feb 18 2018 Alec Leamas <leamas.alec@gmail.com> - 0.6.0-1
 - New upstream release
 - Drop system-wide systemd services and config files.
 
