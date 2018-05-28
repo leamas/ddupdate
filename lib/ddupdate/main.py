@@ -433,7 +433,7 @@ def main():
         addr, age = ip_cache_data(opts)
         if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
             log.info("Update inhibited, cache is fresh (%d/%d min)",
-                     age, service_plugin.ip_cache_ttl)
+                     age, service_plugin.ip_cache_ttl())
             raise _GoodbyeError()
     except _GoodbyeError as err:
         if err.exitcode != 0:
