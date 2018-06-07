@@ -29,7 +29,7 @@ class FreednsPlugin(ServicePlugin):
 
     _name = 'freedns.afraid.org'
     _oneliner = 'Updates on https://freedns.afraid.org'
-    _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
+    _url = 'https://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
     def register(self, log, hostname, ip, options):
         """
