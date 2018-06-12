@@ -1,3 +1,9 @@
+0.6.1
+* Fix crash when logging updates disabled by caching (#11).
+* afraid.org: Use now available https url (#12).
+* afraid.org: Support user-supplied addresses (#13).
+* Misc cleanup.
+
 0.6.0
 * New setup by ddupdate-config based on a user service. Nothing installed
   as root, service runs as invoking user. Existing setups based on a
