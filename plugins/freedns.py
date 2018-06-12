@@ -45,8 +45,10 @@ class FreednsPlugin(ServicePlugin):
 
         shasum = build_shasum()
         url = self._url.format(shasum)
-        if ip:
-            url += "&address=" + str(ip)
+        if ip and ip.v6:
+            url += "&address=" + str(ip.v6)
+        elif ip and ip.v4:
+            url += "&address=" + str(ip.v4)
         html = get_response(log, url)
         update_url = None
         for line in html.split("\n"):
