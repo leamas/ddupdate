@@ -16,7 +16,7 @@ Status
 Beta. The plugin API will be kept stable up to 1.0.0, and there should be
 no incompatible CLI changes.
 
-At the time of writing 14 free services are supported. There are also 7
+At the time of writing 16 free services are supported. There are also 7
 address plugins. Together, this should cover most usecases based on freely
 available services.
 
@@ -29,6 +29,7 @@ Dependencies
   - The /usr/sbin/ip command is used in some plugins.
   - python3-setuptools  (build)
   - pkg-config  (build)
+  - The systemd package i. e., the systemd.pc file (build).
 
 Installation
 ------------
@@ -40,21 +41,28 @@ directory. To make it possible to run from anywhere make a symlink::
 
 It is also possible to install as a pypi package using::
 
-    $ sudo pip install ddupdate --prefix=/usr/local
+    $ sudo pip3 install ddupdate --prefix=/usr/local
 
 See CONTRIBUTE.md for more info on using the pypi package.
 
-ddupdate is part of Fedora from Fedora 28. Fedora 27, CentOS/EPEL and
-Mageia users can install native rpm packages from
-https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/.
+ddupdate is packaged in some distros:
 
-Ubuntu users can install native .deb packages using the PPA at
+  - Fedora 27 and later.
+  - EPEL7 addons for RHEL/CentOS
+  - Debian unstable/sid
+
+CONTRIBUTE.md describes how to create packages for **other Debian
+distributions**
+
+**Ubuntu** users can install native .deb packages using the PPA at
 https://launchpad.net/~leamas-alec/+archive/ubuntu/ddupdate
 
-ddupdate is part of the Debian sid distribution. CONTRIBUTE.md describes
-how to create packages for other Debian distributions. Overall, using
-native packages is the preferred installation method on platforms
-supporting this.
+**Mageia** users can install native rpm packages from
+https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. This site also
+contains pre-release updates for Fedora and EPEL.
+
+Overall, using native packages is the preferred installation method on
+platforms supporting this.
 
 Configuration
 -------------

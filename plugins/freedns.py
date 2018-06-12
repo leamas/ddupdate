@@ -15,11 +15,9 @@ class FreednsPlugin(ServicePlugin):
     """
     Updates DNS data for host on freedns.afraid.org.
 
-    Freedns will always use the external address as seen from afraid.org,
-    so the ip address we provide using the ip plugin is actually not
-    used. This means that afraid.org does not support internal addresses
-    not visible from the net. For these reasons the ip-disabled plugin is
-    the recommended one for freedns. Ipv6 is supported.
+    Freedns allows settings the IP address using an address plugin or
+    just using the address as seen from the internet using the ip-disabled
+    plugin. Ipv6 is supported.
 
     netrc: Use a line like
         machine freedns.afraid.org login <username> password <password>
@@ -29,7 +27,7 @@ class FreednsPlugin(ServicePlugin):
 
     _name = 'freedns.afraid.org'
     _oneliner = 'Updates on https://freedns.afraid.org'
-    _url = 'http://freedns.afraid.org/api/?action=getdyndns&sha={0}'
+    _url = 'https://freedns.afraid.org/api/?action=getdyndns&sha={0}'
 
     def register(self, log, hostname, ip, options):
         """
@@ -45,11 +43,12 @@ class FreednsPlugin(ServicePlugin):
             token = "{0}|{1}".format(user, password)
             return hashlib.sha1(token.encode()).hexdigest()
 
-        if ip:
-            log.warn("Ignoring supplied address, using freedns computed one")
-            log.info("Consider using the ip-disabled plugin with freedns")
         shasum = build_shasum()
         url = self._url.format(shasum)
+        if ip and ip.v6:
+            url += "&address=" + str(ip.v6)
+        elif ip and ip.v4:
+            url += "&address=" + str(ip.v4)
         html = get_response(log, url)
         update_url = None
         for line in html.split("\n"):

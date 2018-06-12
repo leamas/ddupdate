@@ -35,7 +35,6 @@ if test "{netrc_line}" != "machine dummy"; then
     echo {netrc_line} >> {netrc_path}
 fi
 chmod 600 {netrc_path}
-chown ddupdate {netrc_path} >/dev/null 2>&1 || :
 cp {config_src} {config_dest}
 
 """
