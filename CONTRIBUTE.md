@@ -108,7 +108,7 @@ ddupdate has a multitude of packaging:
         $ apt-get source --build ddupdate
         $ sudo dpkg -i ddupdate*.all.deb
 
-Creating a new version (maintianer work)
+Creating a new version (maintainer work)
 ----------------------------------------
 
   - Replace all occurrences of version string:
