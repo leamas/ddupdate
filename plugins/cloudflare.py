@@ -162,6 +162,9 @@ class CloudflarePlugin(ServicePlugin):
         self._init_auth()
         opts = dict_of_opts(options)
 
+        if 'zone' not in opts:
+            raise ServiceError('Required option zone= missing, giving up.')
+
         session = Session()
 
         opts['zone_id'] = self._get_zoneid(session, opts)
