@@ -11,21 +11,22 @@ export LC_ALL=C
 
 systemctl="/usr/bin/systemctl"
 logger="/usr/bin/logger"
+ip="/sbin/ip"
 
-if ! /usr/bin/systemctl is-enabled ddupdate.timer >/dev/null 2>&1; then
+if ! $systemctl is-enabled ddupdate.timer >/dev/null 2>&1; then
     exit 0
 fi
 
 case "$2" in
     "down")
-        if /sbin/ip route ls | grep -q '^default'; then
+        if $ip route ls | grep -q '^default'; then
 	    exit 0
 	fi
 	$logger "ddupdate: default interface down: stopping timer" || :
         sudo -u $DDUSER $systemctl --user stop ddupdate.timer || :
 	;;
     "up")
-        if /sbin/ip -o route show dev "$1" | grep -q '^default'
+        if $ip -o route show dev "$1" | grep -q '^default'
 	then
 	    $logger "ddupdate: default interface up: starting timer" || :
             sudo -u $DDUSER $systemctl --user start ddupdate.timer || :
