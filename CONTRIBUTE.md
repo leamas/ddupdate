@@ -71,26 +71,26 @@ ddupdate has a multitude of packaging:
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.6.0::
+    requires the *git* and *rpm-build* packages. To build version 0.6.2::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
         $ sudo dnf builddep ddupdate.spec
-        $ ./make-tarball 0.6.0
+        $ ./make-tarball 0.6.2
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
         $ sudo rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.6.0 do::
+    and *git*  are required to build. To build current version 0.6.2 do::
 
         $ rm -rf ddupdate; mkdir ddupdate; cd ddupdate
         $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ gbp buildpackage --git-upstream-tag=0.6.0 -us -uc
-        $ sudo dpkg -i ../ddupdate_0.6.0*_all.deb
+        $ gbp buildpackage --git-upstream-tag=0.6.2 -us -uc
+        $ sudo dpkg -i ../ddupdate_0.6.2*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the
@@ -117,13 +117,13 @@ Creating a new version (maintainer work)
 
   - Update NEWS file.
 
-  - Commit and tag the release: git tag 0.6.0
+  - Commit and tag the release: git tag 0.6.2
 
   - Create fedora package:
 
         git checkout fedora
         cd fedora
-        ./make-tarball 0.6.0
+        ./make-tarball 0.6.2
         rpmdev-bumpspec *.spec , and edit it.
         rm -rf rpmbuild
         rpmbuild-here -ba *.spec
@@ -132,17 +132,17 @@ Creating a new version (maintainer work)
 
         git fetch upstream debian:debian
         git fetch upstream pristine-tar:pristine-tar
-        scp fedora/ddupdate-0.6.0.tar.gz sid:
+        scp fedora/ddupdate-0.6.2.tar.gz sid:
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
         ssh sid
         cd ddupdate; rm  -rf *
-        mv ../ddupdate-0.6.0.tar.gz ddupdate_0.6.0.orig.tar.gz
+        mv ../ddupdate-0.6.2.tar.gz ddupdate_0.6.2.orig.tar.gz
         git clone -o upstream -b debian ../ddupdate.git ddupdate
         cd ddupdate
         git remote add github git@github.com:leamas/ddupdate.git
         git fetch upstream pristine-tar:pristine-tar
-        pristine-tar commit ../ddupdate_0.6.0.orig.tar.gz 0.6.0
+        pristine-tar commit ../ddupdate_0.6.2.orig.tar.gz 0.6.2
 
   - Upload to pypi:
 
@@ -153,14 +153,14 @@ Creating a new version (maintainer work)
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ git merge -X theirs 0.6.0
-        $ dch -v 0.6.0-1
-        $ git commit -am "debian: 0.6.0-1"
+        $ git merge -X theirs 0.6.2
+        $ dch -v 0.6.2-1
+        $ git commit -am "debian: 0.6.2-1"
         $ Check systemd/ddupdate.service
         $ dpkg-source --commit
         $ git commit -a --amend
         $ git  clean -fd
-        $ gbp buildpackage --git-upstream-tag=0.6.0 -us -uc
+        $ gbp buildpackage --git-upstream-tag=0.6.2 -us -uc
         $ git clean -fd    # To be able to rebuild
 
   - Create fedora packages (above)
@@ -176,8 +176,8 @@ Creating a new version (maintainer work)
              -o upstream -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
          $ git fetch upstream pristine-tar:pristine-tar
-         $ pristine-tar checkout ddupdate_0.6.0.orig.tar.gz
-         $ mv ddupdate_0.6.0.orig.tar.gz ..
+         $ pristine-tar checkout ddupdate_0.6.2.orig.tar.gz
+         $ mv ddupdate_0.6.2.orig.tar.gz ..
          $ sudo mk-build-deps -i -r debian/control
 
          # Patch ubuntu stuff:
@@ -185,7 +185,7 @@ Creating a new version (maintainer work)
 
          # Build and install the binary package
          $ debuild -us -uc
-         $ sudo dpkg -i ../ddupdate_0.6.0_all.deb
+         $ sudo dpkg -i ../ddupdate_0.6.2_all.deb
 
          # Build and distribute source package (upstream only)
          $ debuild -S
