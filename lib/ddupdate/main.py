@@ -12,9 +12,11 @@ import os.path
 import stat
 import sys
 import time
+import ast
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError
+from ddupdate.ddplugin import IpAddr
 
 # pylint: disable=ungrouped-imports
 if sys.version_info >= (3, 5):
@@ -70,7 +72,7 @@ def ip_cache_clear(opts, log):
     os.unlink(path)
 
 
-def ip_cache_data(opts, default=("0.0.0.0", 100000)):
+def ip_cache_data(opts, log, default=(IpAddr(ipv4="0.0.0.0"), 100000)):
     """
     Return an (address, cache age in minute) tuple.
 
@@ -83,16 +85,23 @@ def ip_cache_data(opts, default=("0.0.0.0", 100000)):
     now = time.time()
     delta = math.floor((now - mtime) / 60)
     with open(path) as f:
-        addr = f.read().strip()
-    return addr, delta
+        astr = f.read().strip()
+    try:
+        ll = ast.literal_eval(astr)
+        ip = IpAddr(ipv4=ll[0], ipv6=ll[1])
+    except SyntaxError:
+        log.debug("SyntaxError while reading ip cache.")
+        ip_cache_clear(opts, log)
+        ip, delta = default
+    return ip, delta
 
 
-def ip_cache_set(opts, addr):
-    """Set the cached address to string addr."""
+def ip_cache_set(opts, ip):
+    """Set the cached address to IpAddr ip."""
     path = ip_cache_setup(opts)
-    addr = addr if addr else "0.0.0.0"
+    ip = ip if ip else IpAddr(ipv4="0.0.0.0")
     with open(path, "w") as f:
-        f.write(str(addr))
+        f.write(str(ip))
 
 
 def here(path):
@@ -430,8 +439,8 @@ def main():
             log.info("Using ip address: %s", ip)
         if opts.force:
             ip_cache_clear(opts, log)
-        addr, age = ip_cache_data(opts)
-        if age < service_plugin.ip_cache_ttl() and (addr == ip or not ip):
+        cached_ip, age = ip_cache_data(opts, log)
+        if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
             log.info("Update inhibited, cache is fresh (%d/%d min)",
                      age, service_plugin.ip_cache_ttl())
             raise _GoodbyeError()

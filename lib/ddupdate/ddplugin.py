@@ -150,9 +150,7 @@ class IpAddr(object):
         self.v6 = ipv6
 
     def __str__(self):
-        s1 = self.v4 if self.v4 else 'None'
-        s2 = self.v6 if self.v6 else 'None'
-        return '[%s, %s]' % (s1, s2)
+        return repr([self.v4, self.v6])
 
     def __eq__(self, obj):
         if not isinstance(obj, IpAddr):
