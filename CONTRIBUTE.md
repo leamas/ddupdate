@@ -146,7 +146,7 @@ Creating a new version (maintainer work)
 
   - Upload to pypi:
 
-        python3 setup.py sdist upload
+        $ twine upload dist/*
 
   - Create debian test huild on sid::
 
