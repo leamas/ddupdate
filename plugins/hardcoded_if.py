@@ -25,8 +25,7 @@ class HardcodedIfPlugin(AddressPlugin):
         """Implement AddressPlugin.get_ip()."""
         opts = dict_of_opts(options)
         if 'if' not in opts:
-            log.error("Required option if= missing, giving up.")
-            sys.exit(2)
+            raise AddressError('Required option if= missing, giving up.')
         if_ = opts['if']
         address = IpAddr()
         output = subprocess.getoutput('ip address show dev ' + if_)
