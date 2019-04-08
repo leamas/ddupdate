@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.6.1
+%global gittag      0.6.2
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,7 +8,7 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.6.1
+Version:        0.6.2
 Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
@@ -73,6 +73,9 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 
 
 %changelog
+* Mon Feb 18 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.2-1
+- New upstream version.
+
 * Tue Jun 12 2018 Alec Leamas <leamas.alec@gmail.com> - 0.6.1-1
 - New upstream maintenance release
 
