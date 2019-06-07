@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.6.2
+%global gittag      0.6.3
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,8 +8,8 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.6.2
-Release:        2%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.6.3
+Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -17,7 +17,6 @@ License:        MIT
 URL:            http://github.com/leamas/ddupdate
 BuildArch:      noarch
 Source0:        %{url}/archive/%{srcdir}/%{name}-%{shortdir}.tar.gz
-Patch1:         0001-main-Don-t-forget-to-parse-ip-version-21.patch
 
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -74,6 +73,10 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 
 
 %changelog
+* Fri Jun 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.3-1
+- New upstream release.
+- Dropped patch now in upstream.
+
 * Fri Jun 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.2-2
 - Fx upstream bug #21, broken ipv6 config file parsing.
 
