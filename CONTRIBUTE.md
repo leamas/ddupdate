@@ -145,7 +145,7 @@ Creating a new version (maintainer work)
         pristine-tar commit ../ddupdate_0.6.3.orig.tar.gz 0.6.3
 
   - Upload to pypi:
-
+        $ python setup.py sdist
         $ twine upload dist/*
 
   - Create debian test huild on sid::
