@@ -46,7 +46,7 @@ class _ProjectClean(clean):
 
 setup(
     name='ddupdate',
-    version='0.6.1',
+    version='0.6.3',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,

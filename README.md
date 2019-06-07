@@ -47,9 +47,9 @@ See CONTRIBUTE.md for more info on using the pypi package.
 
 ddupdate is packaged in some distros:
 
-  - Fedora 27 and later.
-  - EPEL7 addons for RHEL/CentOS
-  - Debian unstable/sid
+  - **Fedora** 27 and later.
+  - **EPEL7** addons for RHEL/CentOS
+  - **Debian** unstable/sid
 
 CONTRIBUTE.md describes how to create packages for **other Debian
 distributions**
@@ -94,19 +94,19 @@ Configuring systemd
 
 systemd is setup to run as a user service. Start by testing it::
 
-    $ sudo systemctl --user daemon-reload
-    $ sudo systemctl --user start ddupdate.service
-    $ sudo journalctl --user -u ddupdate.service
+    $ systemctl --user daemon-reload
+    $ systemctl --user start ddupdate.service
+    $ journalctl --user -u ddupdate.service
 
 If all is fine make sure ddupdate is run hourly using::
 
-    $ sudo systemctl --user start ddupdate.timer
-    $ sudo systemctl --user enable ddupdate.timer
+    $ systemctl --user start ddupdate.timer
+    $ systemctl --user enable ddupdate.timer
 
 If you want the service to start as soon as the machine boots, and to
 continue even when you log out do:
 
-    $ sudo  loginctl enable-linger $USER
+    $ sudo loginctl enable-linger $USER
 
 If there is trouble or if you for example want to run ddupdate more often,
 edit the files *~/.config/systemd/user/ddupdate.service* and
