@@ -26,7 +26,8 @@ class HardcodedIfPlugin(AddressPlugin):
         addr = IpAddr()
         opts = dict_of_opts(options)
         if 'ip' not in opts and 'ip6' not in opts:
-            raise AddressError('Required option ip= or ip6= missing, giving up.')
+            raise AddressError(
+                    'Required option ip= or ip6= missing, giving up.')
         if 'ip' in opts:
             addr.v4 = opts['ip']
         if 'ip6' in opts:

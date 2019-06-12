@@ -35,6 +35,7 @@ DEFAULTS = {
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
     'loglevel': 'info',
+    'ip-version': 'v4',
     'service-options': None,
     'address-options': None,
     'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
@@ -189,7 +190,7 @@ def get_parser(conf):
         "-v", "--ip-version", metavar='version',
         choices=['all', 'v6', 'v4'],
         help='Ip address version(s) to register (v6, v4, all) [v4]',
-        default='v4')
+        default='')
     normals.add_argument(
         "-o", "--service-option", metavar="plugin option",
         help='Service plugin option (enter multiple times if required)',
@@ -235,7 +236,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.6.2"
+    parser.version = "0.6.3"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -244,6 +245,8 @@ def parse_options(conf):
         opts.address_options = conf['address-options']
     if not opts.service_options:
         opts.service_options = conf['service-options']
+    if not opts.ip_version:
+        opts.ip_version = conf['ip-version']
     opts.loglevel = level_by_name[opts.loglevel]
     opts.ip_cache = conf['ip-cache']
     return opts
