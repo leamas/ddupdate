@@ -1,6 +1,7 @@
 ddupdate (0.6.3-1) sid; urgency=medium
 
   *  New upstream release
+  *  Bump Standards-Version
 
  -- Alec Leamas <leamas.alec@gmail.com>  Wed, 12 Jun 2019 16:33:26 -0400
 
