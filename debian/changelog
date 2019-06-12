@@ -1,3 +1,9 @@
+ddupdate (0.6.3-1) sid; urgency=medium
+
+  *  New upstream release
+
+ -- Alec Leamas <leamas.alec@gmail.com>  Wed, 12 Jun 2019 16:33:26 -0400
+
 ddupdate (0.6.1-2) sid; urgency=medium
 
   * Fix packaging glitches: standards-version, whitespace
