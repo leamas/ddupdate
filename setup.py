@@ -5,6 +5,8 @@ import os
 import subprocess
 
 from distutils.command.clean import clean
+from distutils.command.install import install
+
 from glob import glob
 from setuptools import setup
 
@@ -43,6 +45,34 @@ class _ProjectClean(clean):
             if os.path.exists(path):
                 shutil.rmtree(path)
 
+class _ProjectInstall(install):
+    """Log used installation paths."""
+
+    def run(self):
+        super().run()
+        from distutils.fancy_getopt import longopt_xlate
+        s = ""
+        install_lib = ""
+        for (option, _, _) in self.user_options:
+            option = option.translate(longopt_xlate)
+            if option[-1] == "=":
+                option = option[:-1]
+            try:
+                value = getattr(self, option)
+            except AttributeError:
+                continue
+            if option == "install_lib":
+                install_lib = value
+            s += option + " = " + (value if value else "") + "\n"
+        if not install_lib:
+            print("Warning: cannot create platform install paths file")
+            return
+        path = install_lib + "/ddupdate/install.conf"
+        print("Creating install config file " + path)
+        with open(path, "w") as f:
+            f.write("[install]\n")
+            f.write(s)
+
 
 setup(
     name='ddupdate',
@@ -66,5 +96,5 @@ setup(
     packages=['ddupdate'],
     scripts=['ddupdate', 'ddupdate-config'],
     data_files=DATA,
-    cmdclass={'clean': _ProjectClean}
+    cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
 )
