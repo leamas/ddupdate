@@ -113,8 +113,8 @@ continue even when you log out do:
     $ sudo loginctl enable-linger $USER
 
 If there is trouble or if you for example want to run ddupdate more often,
-edit the files *~/.config/systemd/user/ddupdate.service* and
-*~/.config/systemd/user/ddupdate.timer*
+use `systemctl --user edit ddupdate.service`or `systemctl --user edit
+ddupdate.timer`
 
 Configuring NetworkManager
 --------------------------
