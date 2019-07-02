@@ -242,9 +242,9 @@ def parse_options(conf):
         parser.print_help()
         raise _GoodbyeError()
     if not opts.address_options:
-        opts.address_options = conf['address-options']
+        opts.address_options = conf['address-options'].split()
     if not opts.service_options:
-        opts.service_options = conf['service-options']
+        opts.service_options = conf['service-options'].split()
     if not opts.ip_version:
         opts.ip_version = conf['ip-version']
     opts.loglevel = level_by_name[opts.loglevel]
