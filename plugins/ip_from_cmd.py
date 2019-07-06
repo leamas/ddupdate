@@ -38,7 +38,7 @@ class IpFromCmdPlugin(AddressPlugin):
 
     def get_ip(self, log, options):
         """Implement AddressPlugin.get_ip()."""
-        opts = dict_of_opts(options)
+        opts = dict_of_opts((options,))
         if 'cmd' not in opts:
             raise AddressError('Required option cmd= missing, giving up.')
         cmd = opts['cmd']

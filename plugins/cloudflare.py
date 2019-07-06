@@ -160,7 +160,7 @@ class CloudflarePlugin(ServicePlugin):
             raise ServiceError("IP must be defined.")
 
         self._init_auth()
-        opts = dict_of_opts(options)
+        opts = dict_of_opts(options.split(' '))
 
         if 'zone' not in opts:
             raise ServiceError('Required option zone= missing, giving up.')

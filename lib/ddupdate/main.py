@@ -271,9 +271,9 @@ def log_options(log, args):
     log.info("Using ip address plugin: " + args.address_plugin)
     log.info("Using service plugin: " + args.service_plugin)
     log.info("Service options: " +
-             (' '.join(args.service_options) if args.service_options else ''))
+             (args.service_options if args.service_options else ''))
     log.info("Address options: " +
-             (' '.join(args.address_options) if args.address_options else ''))
+             (args.address_options if args.address_options else ''))
 
 
 def load_module(path):

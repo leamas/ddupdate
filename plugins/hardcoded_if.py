@@ -23,7 +23,7 @@ class HardcodedIfPlugin(AddressPlugin):
 
     def get_ip(self, log, options):
         """Implement AddressPlugin.get_ip()."""
-        opts = dict_of_opts(options)
+        opts = dict_of_opts(options.split(' '))
         if 'if' not in opts:
             raise AddressError('Required option if= missing, giving up.')
         if_ = opts['if']
