@@ -1,9 +1,8 @@
 """
-ddupdate plugin using nsupdate
+ddupdate plugin using nsupdate.
 
 See: ddupdate(8)
 See: nsupdate(1)
-
 """
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError, dict_of_opts
@@ -13,9 +12,9 @@ import sys
 
 class nsupdatePlugin(ServicePlugin):
     """
-    Update a dns entry with nsupdate.
+    Update a dns entry with nsupdate(1).
 
-    Options:
+    Options (see manpage):
         server
         key
         zone
@@ -26,7 +25,6 @@ class nsupdatePlugin(ServicePlugin):
 
     def register(self, log, hostname, ip, options):
         """Implement ServicePlugin.register."""
-
         opts = dict_of_opts(options.split(' '))
         log.debug(opts)
         if 'server' not in opts:
