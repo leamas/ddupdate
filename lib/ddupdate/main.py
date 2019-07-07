@@ -35,6 +35,7 @@ DEFAULTS = {
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
     'loglevel': 'info',
+    'log-ip': False,
     'ip-version': 'v4',
     'service-options': None,
     'address-options': None,
@@ -211,6 +212,10 @@ def get_parser(conf):
         "-A", "--list-addressers",
         help='List plugins providing ip address. ',
         default=False, action='store_true')
+    others.add_argument(
+        "--log-ip",
+        help='Always log ip changes',
+        default=conf['log-ip'], action='store_true')
     others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
@@ -459,6 +464,8 @@ def main():
     except ServiceError as err:
         log.error("Cannot update DNS data: %s", err)
     else:
+        if (cached_ip != ip) and opts.log_ip:
+            print('IP address updated: {}'.format(ip))
         ip_cache_set(opts, ip)
         log.info("Update OK")
 
