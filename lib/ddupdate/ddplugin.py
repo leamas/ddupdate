@@ -174,15 +174,24 @@ class IpAddr(object):
           - AddressError if no address can be found in text
 
         """
-        use_next4 = False
-        use_next6 = False
-        for word in text.split():
-            if use_next4:
-                self.v4 = word.split('/')[0]
-            if use_next6:
-                self.v6 = word.split('/')[0]
-            use_next4 = word == 'inet'
-            use_next6 = word == 'inet6'
+        for line in text.split('\n'):
+            words = [ word for word in line.split(' ') if word is not '' ]
+            if words[0] == 'inet':
+                # use existing logic
+                self.v4 = words[1].split('/')[0]
+            elif words[0] == 'inet6':
+                if self.v6:
+                    # stop if we already have an address
+                    continue
+                addr = words[1].split('/')[0]
+                words = set(words[2:])
+                if ('link' in words) or ('0x20<link>' in words) :
+                    # don't use a link-local address
+                    continue
+                if 'deprecated' in words:
+                    # don't use a "deprecated" address
+                    continue
+                self.v6 = addr
         if self.empty():
             raise AddressError("Cannot find address for %s, giving up" % text)
 
@@ -219,7 +228,7 @@ class AbstractPlugin(object):
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.6.3'
+    __version__ = '0.6.4'
 
     def oneliner(self):
         """Return oneliner describing the plugin."""
