@@ -1,3 +1,11 @@
+0.6.4
+* Fix address-options and service-options parsing regression (#24).
+* Add new nsupdate(1) plugin (#29).
+* Install systemd files in correct user locations (#22).
+* Enhance ipv6 address parsing in address plugins (#28).
+* Patch ddupdate.service script path on installation.
+* Thanks to aerusso for nsupdate plugin, bugfixes and enhancements.
+
 0.6.3
 * Fix #21, broken ipv6 configuration file  parsing.
 * Documentation bugfixes.
