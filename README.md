@@ -10,6 +10,10 @@ a fixed dns name like myhost.somewhere.net even if the IP address is
 changed. It is a linux-centric, user-friendly and secure alternative to
 the ubiquitous ddclient.
 
+Compared to ddclient, ddupdate is much easier to configure for users. It's
+also more flexible and provides support for some hosts which are known to
+be problematic using ddclient.
+
 Status
 ------
 
@@ -109,8 +113,8 @@ continue even when you log out do:
     $ sudo loginctl enable-linger $USER
 
 If there is trouble or if you for example want to run ddupdate more often,
-edit the files *~/.config/systemd/user/ddupdate.service* and
-*~/.config/systemd/user/ddupdate.timer*
+use `systemctl --user edit ddupdate.service`or `systemctl --user edit
+ddupdate.timer`
 
 Configuring NetworkManager
 --------------------------
