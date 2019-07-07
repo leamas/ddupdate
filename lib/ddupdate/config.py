@@ -146,8 +146,8 @@ def get_address_plugin(log, paths):
     web_default_ip = plugins['default-web-ip']
     default_if = plugins['default-if']
     print("Probing for addresses, can take some time...")
-    if_addr = default_if.get_ip(log, {})
-    web_addr = web_default_ip.get_ip(log, {})
+    if_addr = default_if.get_ip(log, [])
+    web_addr = web_default_ip.get_ip(log, [])
     print("1  Use address as seen from Internet [%s]" % web_addr.v4)
     print("2  Use address as seen on local network [%s]" % if_addr.v4)
     print("3  Use address as decided by service")

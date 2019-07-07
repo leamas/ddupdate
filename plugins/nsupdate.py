@@ -25,7 +25,7 @@ class nsupdatePlugin(ServicePlugin):
 
     def register(self, log, hostname, ip, options):
         """Implement ServicePlugin.register."""
-        opts = dict_of_opts(options.split(' '))
+        opts = dict_of_opts(options)
         log.debug(opts)
         if 'server' not in opts:
             log.error("Required server option missing, giving up")
