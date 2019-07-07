@@ -7,9 +7,12 @@
 %global shortdir    %{?gittag}%{?shortcommit}
 %global srcdir      %{?gittag}%{?commit}
 
+# mageia 6- fix:
+%{!?_userunitdir: %global _userunitdir /usr/lib/systemd/system}
+
 Name:           ddupdate
 Version:        0.6.4
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Release:        2%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -74,6 +77,9 @@ sed -i '/cmdclass=/s/^/#/' setup.py
 
 
 %changelog
+* Sun Jul 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.4-2
+- Fix mageia builds (define %%_userunitdir)
+
 * Sun Jul 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.4-1
 - New upstream version
 
