@@ -175,6 +175,25 @@ def copy_systemd_units():
     path = os.path.join(user_dir, "ddupdate.timer")
     if not os.path.exists(path):
         shutil.copy("/usr/share/ddupdate/systemd/ddupdate.timer", path)
+    here = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+    installconf_path = os.path.join(here, "install.conf")
+    parser = configparser.SafeConfigParser()
+    try:
+        parser.read(installconf_path)
+    except configparser.Error:
+        parser.clear()
+    if 'install' in parser:
+        bindir = parser['install']['install_scripts']
+    else:
+        bindir = os.path.abspath(os.path.join(here, '..', '..'))
+    with open(os.path.join(user_dir, 'ddupdate.service')) as f:
+        lines = f.readlines();
+    with open(os.path.join(user_dir, 'ddupdate.service'), 'w')  as f:
+        for l in lines:
+            if l.startswith('ExecStart'):
+                f.write("ExecStart=" + bindir + "/ddupdate\n")
+            else:
+                f.write(l + "\n")
 
 
 def get_netrc(service):
