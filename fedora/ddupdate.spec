@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.6.3
+%global gittag      0.6.4
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -8,7 +8,7 @@
 %global srcdir      %{?gittag}%{?commit}
 
 Name:           ddupdate
-Version:        0.6.3
+Version:        0.6.4
 Release:        1%{?commit:.%{shortcommit}}%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
@@ -47,6 +47,7 @@ and with NetworkManager templates to run when interfaces goes up or down.
 %prep
 %autosetup -p1 -n %{name}-%{srcdir}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
+sed -i '/cmdclass=/s/^/#/' setup.py
 
 
 %build
@@ -63,7 +64,7 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 %doc README.md NEWS CONTRIBUTE.md CONFIGURATION.md
 %{_bindir}/ddupdate
 %{_bindir}/ddupdate-config
-%{_unitdir}/ddupdate.*
+%{_userunitdir}/ddupdate*
 %{_datadir}/ddupdate
 %{_datadir}/bash-completion/completions/ddupdate
 %{_mandir}/man8/ddupdate.8*
@@ -73,6 +74,9 @@ sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
 
 
 %changelog
+* Sun Jul 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.4-1
+- New upstream version
+
 * Fri Jun 07 2019 Alec Leamas <leamas.alec@gmail.com> - 0.6.3-1
 - New upstream release.
 - Dropped patch now in upstream.
