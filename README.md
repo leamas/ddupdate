@@ -10,6 +10,10 @@ a fixed dns name like myhost.somewhere.net even if the IP address is
 changed. It is a linux-centric, user-friendly and secure alternative to
 the ubiquitous ddclient.
 
+Compared to ddclient, ddupdate is much easier to configure for users. It's
+also more flexible and provides support for some hosts which are known to
+be problematic using ddclient.
+
 Status
 ------
 
