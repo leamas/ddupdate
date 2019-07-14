@@ -46,6 +46,7 @@ service by listing all available services (your list might differ)::
     dynu                 Updates DNS data on dynu.com
     freedns.afraid       Updates DNS data on freedns.afraid.org
     freedns.io           Updates DNS data on freedns.io
+    googledomains        Updates DNS data on domains.google.com
     no-ip                Updates DNS data on no-ip.com
     now-dns              Updates DNS data on now-dns.com
     system-ns            Updates DNS data on system-ns.com
