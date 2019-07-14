@@ -51,6 +51,7 @@ service by listing all available services (your list might differ)::
     dynv6.com            Updates on http://dynv6.com
     freedns.afraid.org   Updates on https://freedns.afraid.org
     freedns.io           Updates on https://freedns.io
+    googledomains        Updates DNS data on domains.google.com
     hurricane_electric   Updates on https://he.com
     myonlineportal.net   Updates on http://myonlineportal.net/
     no-ip.com            Updates on http://no-ip.com/
