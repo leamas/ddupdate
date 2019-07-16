@@ -9,7 +9,8 @@ import base64
 import urllib.request
 import urllib.error
 
-from ddupdate.ddplugin import ServicePlugin, ServiceError, get_netrc_auth
+from ddupdate.ddplugin import ServicePlugin, ServiceError, \
+    http_basic_auth_setup, get_response
 
 
 class NowDnsPlugin(ServicePlugin):
@@ -41,20 +42,7 @@ class NowDnsPlugin(ServicePlugin):
         url = self._url.format(hostname)
         if ip:
             url += '&myip=' + ip.v4
-        user, password = get_netrc_auth('now-dns.com')
-        credentials = '%s:%s' % (user, password)
-        encoded_credentials = base64.b64encode(credentials.encode('ascii'))
-        req = urllib.request.Request(url)
-        req.add_header('Authorization',
-                       'Basic %s' % encoded_credentials.decode("ascii"))
-        try:
-            with urllib.request.urlopen(req) as response:
-                code = response.getcode()
-                html = response.read().decode('ascii').strip()
-        except urllib.error.HTTPError as err:
-            raise ServiceError("Error reading %s :%s" % (url, err))
-        if code != 200:
-            raise ServiceError('Bad server reply code: ' + code)
+        http_basic_auth_setup(url)
+        html = get_response(log, request)
         if html not in ['good', 'nochg']:
             raise ServiceError('Bad server reply: ' + html)
-        log.info("Server reply: " + html)
