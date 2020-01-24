@@ -22,6 +22,16 @@ class DefaultIfPLugin(AddressPlugin):
     _name = 'default-if'
     _oneliner = 'Get ip address from default interface (linux)'
 
+    def find_device(self, words):
+        """Return first word following 'dev' or None."""
+        found = False
+        for word in words:
+            if word == "dev":
+                found = True
+            elif found:
+                return word
+        return None
+
     def get_ip(self, log, options):
         """
         Get default interface using ip route and address using ifconfig.
@@ -30,7 +40,7 @@ class DefaultIfPLugin(AddressPlugin):
         for line in subprocess.getoutput('ip route').split('\n'):
             words = line.split()
             if words[0] == 'default':
-                if_ = words[4]
+                if_ = self.find_device(words)
                 break
         if if_ is None:
             raise AddressError("Cannot find default interface, giving up")
