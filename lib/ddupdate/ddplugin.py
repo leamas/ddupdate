@@ -175,7 +175,7 @@ class IpAddr(object):
 
         """
         for line in text.split('\n'):
-            words = [ word for word in line.split(' ') if word is not '' ]
+            words = [ word for word in line.split(' ') if word != '' ]
             if words[0] == 'inet':
                 # use existing logic
                 self.v4 = words[1].split('/')[0]
