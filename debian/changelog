@@ -1,6 +1,7 @@
 ddupdate (0.6.4-2) UNRELEASED; urgency=medium
 
   * Bump debhelper from old 11 to 12.
+  * Set debhelper-compat version in Build-Depends.
 
  -- Debian Janitor <janitor@jelmer.uk>  Tue, 05 May 2020 13:37:33 +0000
 
