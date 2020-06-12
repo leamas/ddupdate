@@ -1,6 +1,23 @@
 This document is both some upstream notes and an introduction to
 maintaining ddupdate code.
 
+
+Design goals:
+-------------
+
+  - ddupdate should be easy to configure. Most users should just need to
+    run a simple configuration script (after registering with a DDNS
+    service).
+  - ddupdate should be secure, using standard tools to handle password
+    secrets. No root access should be required to configure or run it.
+  - ddupdate should be extensible, and thus being based on plugins.
+  - ddupdate should be flexible for programmers, making it possible to
+    write plugins for all sorts of sites including those ddclient cannot
+    handle.
+  - ddupdate should be linux-centric, using standard linux tools such as
+    systemd and NetworkManager where it is appropriate.
+
+
 Writing plugins
 ---------------
 
@@ -66,8 +83,8 @@ ddupdate has a multitude of packaging:
 
         $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
 
-    Using a virtualenv, configuration files like */etc/ddupdate.conf* and
-    *~/.netrc* are still used from their system-wide locations.
+    Using a virtualenv, configuration files like *~/.config/ddupdate.conf*
+    and *~/.netrc* are still used from their system-wide locations.
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
@@ -85,10 +102,10 @@ ddupdate has a multitude of packaging:
     and *git*  are required to build. To build current version 0.6.4 do::
 
         $ rm -rf ddupdate; mkdir ddupdate; cd ddupdate
-        $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
+        $ git clone -o origin -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
-        $ git fetch upstream pristine-tar:pristine-tar
+        $ git fetch origin pristine-tar:pristine-tar
         $ gbp buildpackage --git-upstream-tag=0.6.4 -us -uc
         $ sudo dpkg -i ../ddupdate_0.6.4*_all.deb
         $ git clean -fd             # To be able to rebuild
@@ -107,6 +124,7 @@ ddupdate has a multitude of packaging:
         $ sudo apt-get update
         $ apt-get source --build ddupdate
         $ sudo dpkg -i ddupdate*.all.deb
+
 
 Creating a new version (maintainer work)
 ----------------------------------------
@@ -145,6 +163,7 @@ Creating a new version (maintainer work)
         pristine-tar commit ../ddupdate_0.6.4.orig.tar.gz 0.6.4
 
   - Upload to pypi:
+
         $ python setup.py sdist
         $ twine upload dist/*
 

@@ -41,4 +41,4 @@ class Dynv6Plugin(ServicePlugin):
             url += "&ipv6=" + ip.v6
         html = get_response(log, url)
         if not ('updated' in html or 'unchanged' in html):
-            raise ServiceError("Update error, got: %s", html)
+            raise ServiceError("Update error, got: " + html)
