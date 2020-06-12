@@ -1,6 +1,13 @@
 ddupdate (0.6.5-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Bump debhelper from old 11 to 12.
+  * Set debhelper-compat version in Build-Depends.
+  * Set field Upstream-Contact in debian/copyright.
+  * Set upstream metadata fields: Bug-Submit, Repository.
+  * Remove obsolete fields Contact, Name from debian/upstream/metadata
+    (already present in machine-readable debian/copyright).
+  * Update standards version to 4.5.0, no changes needed.
   * Fix error running ddupdate-config (#41)
   * New plugin domains.google.com
   * Multiple python 3.9 fixes.

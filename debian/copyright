@@ -1,6 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/leamas/ddupdate.git
 Upstream-Name: ddupdate
+Upstream-Contact: https://github.com/leamas/ddupdate/issues
 
 Files: *
 Copyright: 2017, Alec Leamas
