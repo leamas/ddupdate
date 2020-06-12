@@ -1,3 +1,10 @@
+0.6.5
+* Fix ip route parsing (#35)
+* Fix python 3.9 syntax warnings (#38, #37)
+* New plugin domains.google.com -- googledomains.py
+* Error logging bugfixes (#4411454).
+Thanks to aerusso, LoganK and Hroncok
+
 0.6.4
 * Fix address-options and service-options parsing regression (#24).
 * Add new nsupdate(1) plugin (#29).

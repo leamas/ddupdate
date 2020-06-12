@@ -20,8 +20,8 @@ Status
 Beta. The plugin API will be kept stable up to 1.0.0, and there should be
 no incompatible CLI changes.
 
-At the time of writing 16 free services are supported. There are also 7
-address plugins. Together, this should cover most usecases based on freely
+At the time of writing 20 free services are supported. There is also 7
+address plugins. Together this should cover most usecases based on freely
 available services.
 
 Still, this is beta and there is most likely bugs out there.
@@ -53,7 +53,7 @@ ddupdate is packaged in some distros:
 
   - **Fedora** 27 and later.
   - **EPEL7** addons for RHEL/CentOS
-  - **Debian** unstable/sid
+  - **Debian** Buster/sid
 
 CONTRIBUTE.md describes how to create packages for **other Debian
 distributions**
