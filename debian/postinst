@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sed -i 's|debian/tmp/|/|' /usr/lib/python3/dist-packages/ddupdate/install.conf
+sed -i 's|debian/tmp$|/|' /usr/lib/python3/dist-packages/ddupdate/install.conf
+
