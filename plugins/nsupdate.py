@@ -33,7 +33,7 @@ class nsupdatePlugin(ServicePlugin):
         args = ('nsupdate',)
         if 'key' in opts:
             args += ('-k',opts['key'].encode('ascii'))
-        p = Popen(args,stdout=PIPE,stdin=PIPE)
+        p = Popen(args,stdout=PIPE,stdin=PIPE,stderr=PIPE)
         p.stdin.write(b'server '+opts['server'].encode('ascii')+b'\n')
         try:
             p.stdin.write(b'zone '+opts['zone'].encode('ascii')+b'\n')
@@ -51,5 +51,5 @@ class nsupdatePlugin(ServicePlugin):
                 p.stdin.write(b'update add '+hostname+b' 60 AAAA '+addr+b'\n')
         p.stdin.write(b'send\n')
         stdout,err = p.communicate()
-        if not(err is None):
-            raise ServiceError("Bad update reply: " + stdout.decode('ascii'))
+        if len(err) > 0:
+            raise ServiceError("Bad update reply: " + err.decode('ascii'))
