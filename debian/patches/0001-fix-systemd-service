@@ -1,0 +1,26 @@
+From: Alec Leamas <leamas.alec@gmail.com>
+Date: Fri, 18 Sep 2020 12:05:10 +0200
+Subject: Patch systemd service to debian defaults
+
+Forwarded: not-needed
+
+ddupdate (0.6.1-1) sid; urgency=medium
+
+  * New upstream maintenance release
+---
+ systemd/ddupdate.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/systemd/ddupdate.service b/systemd/ddupdate.service
+index 5fa70ac..62ec852 100644
+--- a/systemd/ddupdate.service
++++ b/systemd/ddupdate.service
+@@ -5,7 +5,7 @@ After=network.target
+ 
+ [Service]
+ Type=oneshot
+-ExecStart=/usr/local/bin/ddupdate
++ExecStart=/usr/bin/ddupdate
+ Environment=PATH=/bin:/usr/bin:/sbin:/usr/sbin
+ # User=ddupdate
+ # Environment=http_proxy=my.proxy.domain:8888
