@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 export PYBUILD_NAME=ddupdate
-export PYBUILD_BEFORE_BUILD=echo  INSTALLPATH: {destdir}/{install_dir}
 export PYBUILD_AFTER_INSTALL= \
     sed -i 's|=.*/usr|= /usr|' {destdir}{install_dir}/ddupdate/install.conf
 
