@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
 
-sed -i 's|debian/tmp/|/|' /usr/lib/python3/dist-packages/ddupdate/install.conf || :
-sed -i 's|debian/tmp$|/|' /usr/lib/python3/dist-packages/ddupdate/install.conf || :
+sed -e 's|=.*/usr|= /usr|' \
+    < /usr/lib/python3/dist-packages/ddupdate/install.conf.in \
+    > /usr/lib/python3/dist-packages/ddupdate/install.conf || :
 
 #DEBHELPER#
 exit 0

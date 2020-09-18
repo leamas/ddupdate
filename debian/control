@@ -2,8 +2,8 @@ Source: ddupdate
 Section: net
 Priority: optional
 Maintainer: Alec Leamas <leamas.alec@gmail.com>
-Build-Depends: debhelper-compat (= 12),
-  dh-python, pkg-config, python3, python3-setuptools, systemd
+Build-Depends: debhelper-compat (= 12),  
+  dh-exec, dh-python, pkg-config, python3, python3-setuptools, systemd
 Standards-Version: 4.5.0
 Homepage: https://github.com/leamas/ddupdate
 Vcs-Git: https://github.com/leamas/ddupdate.git -b debian
