@@ -1,12 +1,6 @@
 #!/usr/bin/make -f
 
+export PYBUILD_NAME=ddupdate
+
 %:
-	dh $@  --with python3
-
-override_dh_auto_install:
-	python3 setup.py --quiet \
-	    install --root=debian/tmp --install-layout=deb
-	py3clean debian/tmp
-
-override_dh_missing:
-	dh_missing --fail-missing
+	dh $@  --with python3 --buildsystem=pybuild
