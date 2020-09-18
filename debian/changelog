@@ -8,7 +8,6 @@ ddupdate (0.6.5-2) unstable; urgency=medium
   * Drop temporary .pc files from debian git repo
   * New patches:
      - setup.py FTBS fix
-     - Remove .pc cruft from git repo.
 
  -- Alec Leamas <leamas.alec@gmail.com>  Fri, 18 Sep 2020 10:36:31 +0200
 
