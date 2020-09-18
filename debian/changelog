@@ -1,6 +1,14 @@
-ddupdate (0.6.5-2) UNRELEASED; urgency=medium
+ddupdate (0.6.5-2) unstable; urgency=medium
 
   * Fix config file handling causing piuparts complaints.
+  * Update Standards-Version -> 4.5.0, no changes.
+  * Add Rules-Requires-Root stanza in d/control.
+  * Update Dep-3 patch info.
+  * Use the buildsys=pybuild option in rules, simplify d/install
+  * Drop temporary .pc files from debian git repo
+  * New patches:
+     - setup.py FTBS fix
+     - Remove .pc cruft from git repo.
 
  -- Alec Leamas <leamas.alec@gmail.com>  Fri, 18 Sep 2020 10:36:31 +0200
 
