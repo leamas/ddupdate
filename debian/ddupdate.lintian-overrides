@@ -1,4 +1,0 @@
-# False positive:  These installation paths are perfectly sound.
-file-references-package-build-path usr/lib/python3/dist-packages/ddupdate/install.conf
-file-references-package-build-path usr/lib/python3/dist-packages/ddupdate/install.conf.in
-
