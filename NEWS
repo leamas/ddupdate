@@ -2,6 +2,8 @@ x.x.x
 * New `ip-version` is configurable using `ddupdate-config` command.
 * Update `update-config` does probe IPs from the selected service.
 * Update `update-config` is more robust to handle invalid selections.
+* New service plugin dnshome.de
+* New address plugin ip.dnshome.de
 
 0.6.5
 * Fix ip route parsing (#35)
