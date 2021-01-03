@@ -16,7 +16,8 @@ import time
 
 from ddupdate.main import \
     setup, build_load_path, envvar_default, load_plugin_dir
-from ddupdate.ddplugin import ServicePlugin, AddressPlugin, AddressError, IpVersion
+from ddupdate.ddplugin import \
+    ServicePlugin, AddressPlugin, AddressError, IpVersion
 
 _CONFIG_TRAILER = """
 #
@@ -166,18 +167,21 @@ def get_address_plugin(
     use_plugin = False
 
     for id_ in sorted(address_plugins):
-        print("%2d     %-18s     %s" % (ix, id_, address_plugins[id_].oneliner()))
+        print("%2d     %-18s     %s"
+              % (ix, id_, address_plugins[id_].oneliner()))
 
         plugins_by_ix[ix] = address_plugins[id_]
 
+        # Update default index based on the actual position of the default_plugin_id
         if default_plugin_id == id_:
-            default_plugin_ix = ix  # Update default index based on the actual position of the default_plugin_id
+            default_plugin_ix = ix
 
         ix += 1
 
     # Let the user continuously select until satisfied.
     while not use_plugin:
-        reply = input("Select address-plugin to resolve ip-addresses [%d]: " % default_plugin_ix).strip()
+        reply = input("Select address-plugin to resolve ip-addresses [%d]: "
+                      % default_plugin_ix).strip()
 
         try:
             ix = int(reply.strip() if reply else default_plugin_ix)
@@ -230,15 +234,17 @@ def get_ip_version(default_version: IpVersion = IpVersion.V4) -> str:
 
         versions_by_ix[ix] = version
 
+        # Update default index based on the actual position of the default_version
         if default_version is version:
-            default_version_ix = ix  # Update default index based on the actual position of the default_version
+            default_version_ix = ix
 
         ix += 1
 
     # Let the user continuously select until satisfied.
     ix = default_version_ix
     while not use_version:
-        reply = input("Select ip-version to update [%d]: " % default_version_ix).strip()
+        reply = input("Select ip-version to update [%d]: "
+                      % default_version_ix).strip()
 
         try:
             ix = int(reply.strip() if reply else default_version_ix)
