@@ -1,4 +1,3 @@
-
 """Simple, CLI configuration script for ddupdate."""
 
 import configparser
@@ -7,6 +6,8 @@ import os
 import os.path
 import re
 import shutil
+from typing import Dict
+
 import stat
 import subprocess
 import sys
@@ -15,8 +16,8 @@ import time
 
 from ddupdate.main import \
     setup, build_load_path, envvar_default, load_plugin_dir
-from ddupdate.ddplugin import ServicePlugin, AddressPlugin
-
+from ddupdate.ddplugin import \
+    ServicePlugin, AddressPlugin, AddressError, IpVersion
 
 _CONFIG_TRAILER = """
 #
@@ -115,51 +116,149 @@ def get_service_plugin(service_plugins):
     """
     ix = 1
     services_by_ix = {}
+    use_service = False
+
     for id_ in sorted(service_plugins):
         print("%2d     %-18s     %s" %
               (ix, id_, service_plugins[id_].oneliner()))
         services_by_ix[ix] = service_plugins[id_]
         ix += 1
-    text = input("Select service to use: ")
-    try:
-        ix = int(text)
-    except ValueError:
-        raise _GoodbyeError("Illegal number format", 1)
-    if ix not in range(1, len(services_by_ix) + 1):
-        raise _GoodbyeError("Illegal selection\n", 2)
+
+    while not use_service:
+        reply = input("Select service to use: ")
+
+        try:
+            ix = int(reply)
+        except ValueError:
+            ix = 0
+
+        if ix not in range(1, len(services_by_ix) + 1):
+            reply = input("Invalid option selected, try again? (Yes/No) [Yes]: ")
+            if reply and reply.lower().startswith('n'):
+                raise _GoodbyeError("Configuration aborted by user", 1)
+        else:
+            use_service = True
+
     return services_by_ix[ix]
 
 
-def get_address_plugin(log, paths):
+def get_address_plugin(
+        log: logging.Logger,
+        address_plugins: Dict[str, AddressPlugin],
+        address_options: [str],
+        default_plugin_id: str = 'default-web-ip') -> AddressPlugin:
     """
     Let user select address plugin.
 
     Parameters:
       - log: Standard python log instance.
-      - paths: List of strings, directory paths to load plugins from.
+      - address_plugins: Dict of loaded plugins keyed by plugin.name()
+      - address_options: Options from --address-options
+      - default_plugin_id: ID of the plugin to use by default if nothing is selected
 
     Return:
-      Name of selected address plugin.
+      A loaded plugin as selected by user.
 
     """
-    plugins = _load_addressers(log, paths)
-    web_default_ip = plugins['default-web-ip']
-    default_if = plugins['default-if']
-    print("Probing for addresses, can take some time...")
-    if_addr = default_if.get_ip(log, [])
-    web_addr = web_default_ip.get_ip(log, [])
-    print("1  Use address as seen from Internet [%s]" % web_addr.v4)
-    print("2  Use address as seen on local network [%s]" % if_addr.v4)
-    print("3  Use address as decided by service")
-    ix = input("Select address to register (1, 2, 3) [1]: ").strip()
-    ix = ix if ix else '1'
-    plugin_by_ix = {
-        '1': 'default-web-ip', '2': 'default-if', '3': 'ip-disabled'
-    }
-    if ix in plugin_by_ix:
-        return plugin_by_ix[ix]
-    else:
-        raise _GoodbyeError("Illegal value", 1)
+
+    ix = 1
+    plugins_by_ix = {}
+    default_plugin_ix = 1
+    use_plugin = False
+
+    for id_ in sorted(address_plugins):
+        print("%2d     %-18s     %s"
+              % (ix, id_, address_plugins[id_].oneliner()))
+
+        plugins_by_ix[ix] = address_plugins[id_]
+
+        # Update default index based on the actual position of the default_plugin_id
+        if default_plugin_id == id_:
+            default_plugin_ix = ix
+
+        ix += 1
+
+    # Let the user continuously select until satisfied.
+    while not use_plugin:
+        reply = input("Select address-plugin to resolve ip-addresses [%d]: "
+                      % default_plugin_ix).strip()
+
+        try:
+            ix = int(reply.strip() if reply else default_plugin_ix)
+        except ValueError:
+            ix = 0
+
+        if ix in plugins_by_ix:
+            print("Probing for addresses, can take some time...")
+            try:
+                # Probe IPs from selected service
+                ip = plugins_by_ix[ix].get_ip(log, address_options)
+                if not ip or ip.empty():
+                    print("Service did not respond with a ip-address.")
+                    reply = input("Use this service anyway? (Yes/No) [No]: ")
+                    use_plugin = reply and reply.lower().startswith('y')
+                else:
+                    print("Received IPv4-address: %s" % ip.v4)
+                    print("Received IPv6-address: %s" % ip.v6)
+                    reply = input("Use this service? (Yes/No) [Yes]: ")
+                    use_plugin = not reply or reply.lower().startswith('y')
+            except AddressError as err:
+                print("Error obtaining ip-addresses: %s" % err)
+                reply = input("Try another service? (Yes/No) [Yes]: ")
+                if reply and not reply.lower().startswith('n'):
+                    use_plugin = True
+        else:
+            reply = input("Invalid option selected, try again? (Yes/No) [Yes]: ")
+            if reply and reply.lower().startswith('n'):
+                raise _GoodbyeError("Configuration aborted by user", 1)
+
+    return plugins_by_ix[ix]
+
+
+def get_ip_version(default_version: IpVersion = IpVersion.V4) -> str:
+    """Let user select the ip-version.
+
+    Parameters:
+      - default_version: ip-version enum value to be used if none is selected.
+
+    Return:
+      The ip-version string as selected by the user.
+
+    """
+    versions_by_ix = {}
+    default_version_ix = 1
+    use_version = False
+
+    for ix, version in enumerate(IpVersion, 1):
+        print("%2d     %s" % (ix, version.value))
+
+        versions_by_ix[ix] = version
+
+        # Update default index based on the actual position of the default_version
+        if default_version is version:
+            default_version_ix = ix
+
+        ix += 1
+
+    # Let the user continuously select until satisfied.
+    ix = default_version_ix
+    while not use_version:
+        reply = input("Select ip-version to update [%d]: "
+                      % default_version_ix).strip()
+
+        try:
+            ix = int(reply.strip() if reply else default_version_ix)
+        except ValueError:
+            ix = 0
+
+        if ix in versions_by_ix:
+            use_version = True
+        else:
+            reply = input("Invalid option selected, try again? (Yes/No) [Yes]: ")
+            if reply and reply.lower().startswith('n'):
+                raise _GoodbyeError("Configuration aborted by user", 1)
+
+    return versions_by_ix[ix].name.lower()
 
 
 def copy_systemd_units():
@@ -355,11 +454,14 @@ def main():
         service = get_service_plugin(service_plugins)
         netrc = get_netrc(service)
         hostname = input("[%s] hostname: " % service.name())
-        address_plugin = get_address_plugin(log, load_paths)
+        address_plugins = _load_addressers(log, load_paths)
+        address_plugin = get_address_plugin(log, address_plugins, [])
+        ip_version = get_ip_version()
         conf = {
-            'address-plugin': address_plugin,
+            'address-plugin': address_plugin.name(),
             'service-plugin': service.name(),
-            'hostname': hostname
+            'hostname': hostname,
+            'ip-version': ip_version,
         }
         write_config_files(conf, netrc)
         try_start_service()
@@ -372,6 +474,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 # vim: set expandtab ts=4 sw=4:

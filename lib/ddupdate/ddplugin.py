@@ -27,6 +27,8 @@ from urllib.parse import urlencode, urlparse
 from socket import timeout as timeoutError
 from netrc import netrc
 
+from enum import Enum
+
 URL_TIMEOUT = 120  # Default timeout in get_response()
 
 
@@ -175,7 +177,7 @@ class IpAddr(object):
 
         """
         for line in text.split('\n'):
-            words = [ word for word in line.split(' ') if word is not '' ]
+            words = [ word for word in line.split(' ') if word != '' ]
             if words[0] == 'inet':
                 # use existing logic
                 self.v4 = words[1].split('/')[0]
@@ -194,6 +196,16 @@ class IpAddr(object):
                 self.v6 = addr
         if self.empty():
             raise AddressError("Cannot find address for %s, giving up" % text)
+
+
+class IpVersion(Enum):
+    """Enum holding valid values for the ip-version option.
+    The actual values are the enum-value names to lower-case
+    while their value represent human readable format.
+    """
+    ALL = 'All (IPv4 and IPv6)'
+    V4 = 'Pv4 only'
+    V6 = 'IPv6 only'
 
 
 class AddressError(Exception):
@@ -228,7 +240,7 @@ class AbstractPlugin(object):
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.6.4'
+    __version__ = '0.6.5'
 
     def oneliner(self):
         """Return oneliner describing the plugin."""
