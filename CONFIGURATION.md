@@ -41,6 +41,7 @@ service by listing all available services (your list might differ)::
     cloudflare.com       Updates on https://cloudflare.com
     dnsdynamic.org       Updates on http://dnsdynamic.org/
     dnsexit.com          Updates on https://www.dnsexit.com
+    dnshome.de           Updates on https://www.dnshome.de
     dnspark.com          Updates on https://dnspark.com/
     dry-run              Debug dummy update plugin
     dtdns.com            Updates on https://www.dtdns.com
