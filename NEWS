@@ -1,3 +1,8 @@
+x.x.x
+* New `ip-version` is configurable using `ddupdate-config` command.
+* Update `update-config` does probe IPs from the selected service.
+* Update `update-config` is more robust to handle invalid selections.
+
 0.6.5
 * Fix ip route parsing (#35)
 * Fix python 3.9 syntax warnings (#38, #37)
