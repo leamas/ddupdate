@@ -96,5 +96,6 @@ setup(
     packages=['ddupdate'],
     scripts=['ddupdate', 'ddupdate-config'],
     data_files=DATA,
-    cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
+    cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall},
+    install_requires=['requests']
 )
