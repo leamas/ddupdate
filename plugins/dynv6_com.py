@@ -5,6 +5,8 @@ See: ddupdate(8)
 See: https://dynv6.com/docs/apis
 
 """
+import urllib.parse
+
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
@@ -29,20 +31,14 @@ class Dynv6Plugin(ServicePlugin):
 
     _name = 'dynv6.com'
     _oneliner = 'Updates on http://dynv6.com'
-    _url = "https://dynv6.com/api/update?hostname={0}&token={1}"
+    _url = "https://dynv6.com/api/update?"
 
     def register(self, log, hostname, ip, options):
         """Implement ServicePlugin.register()."""
         password = get_netrc_auth('dynv6.com')[1]
-        url = self._url.format(hostname, password)
-        if ip and ip.v4:
-            url += "&ipv4=" + ip.v4
-        else:
-            url += "&ipv4=auto"
-        if ip and ip.v6:
-            url += "&ipv6=" + ip.v6
-        else:
-            url += "&ipv6=auto"
-        html = get_response(log, url)
+        query = {"hostname": hostname, "token": password}
+        query['ipv4'] = ip.v4 if ip and ip.v4 else "auto"
+        query['ipv6'] = ip.v6 if ip and ip.v6 else "auto"
+        html = get_response(log, self._url + urllib.parse.urlencode(query))
         if not ('updated' in html or 'unchanged' in html):
             raise ServiceError("Update error, got: " + html)
