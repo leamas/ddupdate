@@ -37,8 +37,12 @@ class Dynv6Plugin(ServicePlugin):
         url = self._url.format(hostname, password)
         if ip and ip.v4:
             url += "&ipv4=" + ip.v4
+        else:
+            url += "&ipv4=auto"
         if ip and ip.v6:
             url += "&ipv6=" + ip.v6
+        else:
+            url += "&ipv6=auto"
         html = get_response(log, url)
         if not ('updated' in html or 'unchanged' in html):
             raise ServiceError("Update error, got: " + html)
