@@ -1,3 +1,9 @@
+0.6.6
+* Fix wrong path in systemd service file (#54).
+* Fix bad return value causing systemd problems (#53).
+* Graceful exist on missing python-requests (#48).
+Thanks to Teemo Ikonen
+
 0.6.5
 * Fix ip route parsing (#35)
 * Fix python 3.9 syntax warnings (#38, #37)

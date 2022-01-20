@@ -16,12 +16,12 @@ ROOT = ROOT if ROOT else '.'
 
 
 def systemd_unitdir():
-    """Return the official systemd user unit dir path."""
+    """Return the official systemd user unit dir path without leading /."""
     cmd = 'pkg-config systemd --variable=systemduserunitdir'.split()
     try:
-        return subprocess.check_output(cmd).decode().strip()
+        return subprocess.check_output(cmd).decode().strip()[1:]
     except (OSError, subprocess.CalledProcessError):
-        return "/usr/lib/systemd/user"
+        return  "usr/lib/systemd/user"
 
 
 DATA = [
@@ -63,7 +63,7 @@ class _ProjectInstall(install):
                 continue
             if option == "install_lib":
                 install_lib = value
-            s += option + " = " + (value if value else "") + "\n"
+            s += option + " = " + (str(value) if value else "") + "\n"
         if not install_lib:
             print("Warning: cannot create platform install paths file")
             return
@@ -76,7 +76,7 @@ class _ProjectInstall(install):
 
 setup(
     name='ddupdate',
-    version='0.6.5',
+    version='0.6.6',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
