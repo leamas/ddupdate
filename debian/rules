@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
 export PYBUILD_NAME=ddupdate
+export PYBUILD_AFTER_CONFIGURE= \
+           sed -i '/glob/s|systemd_unitdir()|"lib/systemd/user"|' setup.py
 export PYBUILD_AFTER_INSTALL= \
            sed -i -e 's|=.*/usr|= /usr|' -e '/^root/d' \
            {destdir}{install_dir}/ddupdate/install.conf
