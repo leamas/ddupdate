@@ -1,6 +1,6 @@
 %global __python __python3
 
-%global gittag      0.6.5
+%global gittag      0.6.6
 #global commit      eb302484417d85cbf497958ba2a651f738ad7420
 
 %global shortcommit %{?commit:%(c=%{commit}; echo ${c:0:7})}%{!?commit:%nil}
@@ -14,8 +14,8 @@
 %{!?python3_pkgversion:%global python3_pkgversion 3}
 
 Name:           ddupdate
-Version:        0.6.5
-Release:        1%{?commit:.%{shortcommit}}%{?dist}
+Version:        0.6.6
+Release:        1%{?dist}
 Summary:        Tool updating DNS data for dynamic IP addresses
 
 Group:          Applications/System
@@ -53,7 +53,7 @@ and with NetworkManager templates to run when interfaces goes up or down.
 %prep
 %autosetup -p1 -n %{name}-%{srcdir}
 sed -i '/ExecStart/s|/usr/local|/usr|' systemd/ddupdate.service
-sed -i '/cmdclass=/s/^/#/' setup.py
+sed -i '/glob/s|systemd_unitdir()|"lib/systemd/user"|' setup.py
 
 
 %build
@@ -63,6 +63,10 @@ sed -i '/cmdclass=/s/^/#/' setup.py
 %install
 %py3_install
 %py_byte_compile %{__python3} %{buildroot}%{_datadir}/ddupdate/plugins
+
+# Remove BUILDROOT prefix in installation paths in install.conf
+sed -i  's|\([^=]*= \).*BUILDROOT/[^/]*|\1|' \
+    %{buildroot}%{python3_sitelib}/ddupdate/install.conf
 
 
 %files
@@ -80,6 +84,10 @@ sed -i '/cmdclass=/s/^/#/' setup.py
 
 
 %changelog
+* Thu Jan 20 2022 Alec Leamas <leamas.alec@nowhere.net> - 0.6.6-1
+- New upstream version
+- Fix bad installation paths (upstream #54)
+
 * Fri Jun 12 2020 Alec Leamas <leamas.alec@nowhere.net> - 0.6.5-1
 - New upstream version
 
