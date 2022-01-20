@@ -5,8 +5,20 @@ See: ddupdate(8)
 See: https://api.cloudflare.com
 
 """
-from requests import Request, Session
-from requests.auth import AuthBase
+
+
+REQUESTS_NOT_FOUND = """
+The Cloudflare plugin uses the python3-requests package which cannot be found.
+Please install python-requests or python3-requests. Giving up.
+"""
+
+try:
+    from requests import Request, Session
+    from requests.auth import AuthBase
+except (ImportError, ModuleNotFoundError):
+    import sys
+    print(REQUESTS_NOT_FOUND, file = sys.stderr)
+    sys.exit(1)
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_netrc_auth, dict_of_opts
@@ -186,17 +198,14 @@ class CloudflarePlugin(ServicePlugin):
                     log.debug(
                         "method=update_A host=%s existing=%s expected=%s",
                         hostname, ipv4, ip.v4)
-                    ipv4_id, ipv4 = self._update_dnsrecord(session,
-                                                           ipv4_id,
-                                                           record,
-                                                           opts)
+                    ipv4_id, ipv4 = \
+                        self._update_dnsrecord(session, ipv4_id, record, opts)
                 else:
                     log.debug(
                         "method=create_A host=%s existing=%s expected=%s",
                         hostname, ipv4, ip.v4)
-                    ipv4_id, ipv4 = self._create_dnsrecord(session,
-                                                           record,
-                                                           opts)
+                    ipv4_id, ipv4 = \
+                        self._create_dnsrecord(session, record, opts)
                 log.debug("ipv4_id=%s updated_ipv4=%s", ipv4_id, ipv4)
             else:
                 log.info("Existing ipv4 record matches, skipping update")
@@ -212,17 +221,14 @@ class CloudflarePlugin(ServicePlugin):
                     log.debug(
                         "method=update_AAAA host=%s existing=%s expected=%s",
                         hostname, ipv6, ip.v6)
-                    ipv6_id, ipv6 = self._update_dnsrecord(session,
-                                                           ipv6_id,
-                                                           record,
-                                                           opts)
+                    ipv6_id, ipv6 = \
+                        self._update_dnsrecord(session, ipv6_id, record, opts)
                 else:
                     log.debug(
                         "method=create_AAAA host=%s existing=%s expected=%s",
                         hostname, ipv6, ip.v6)
-                    ipv6_id, ipv6 = self._create_dnsrecord(session,
-                                                           record,
-                                                           opts)
+                    ipv6_id, ipv6 = \
+                        self._create_dnsrecord(session, record, opts)
                 log.debug("ipv6_id=%s updated_ipv6=%s", ipv6_id, ipv6)
             else:
                 log.info("Existing ipv6 record matches, skipping update")
