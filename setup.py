@@ -16,12 +16,12 @@ ROOT = ROOT if ROOT else '.'
 
 
 def systemd_unitdir():
-    """Return the official systemd user unit dir path."""
+    """Return the official systemd user unit dir path without leading /."""
     cmd = 'pkg-config systemd --variable=systemduserunitdir'.split()
     try:
-        return subprocess.check_output(cmd).decode().strip()
+        return subprocess.check_output(cmd).decode().strip()[1:]
     except (OSError, subprocess.CalledProcessError):
-        return "/usr/lib/systemd/user"
+        return  "usr/lib/systemd/user"
 
 
 DATA = [
