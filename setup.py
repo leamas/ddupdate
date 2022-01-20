@@ -63,7 +63,7 @@ class _ProjectInstall(install):
                 continue
             if option == "install_lib":
                 install_lib = value
-            s += option + " = " + (value if value else "") + "\n"
+            s += option + " = " + (str(value) if value else "") + "\n"
         if not install_lib:
             print("Warning: cannot create platform install paths file")
             return
