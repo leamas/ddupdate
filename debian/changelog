@@ -1,3 +1,10 @@
+ddupdate (0.6.6-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+  * Drop upstreamed FTBFS setup.py patch
+
+ -- Alec Leamas <leamas.alec@gmail.com>  Thu, 20 Jan 2022 15:12:35 +0100
+
 ddupdate (0.6.5-2) unstable; urgency=medium
 
   * Fix config file handling causing piuparts complaints.
