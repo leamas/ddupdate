@@ -458,6 +458,7 @@ def main():
         service_plugin.register(log, opts.hostname, ip, opts.service_options)
     except ServiceError as err:
         log.error("Cannot update DNS data: %s", err)
+        sys.exit(4)
     else:
         ip_cache_set(opts, ip)
         log.info("Update OK")
