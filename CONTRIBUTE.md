@@ -1,6 +1,23 @@
 This document is both some upstream notes and an introduction to
 maintaining ddupdate code.
 
+
+Design goals:
+-------------
+
+  - ddupdate should be easy to configure. Most users should just need to
+    run a simple configuration script (after registering with a DDNS
+    service).
+  - ddupdate should be secure, using standard tools to handle password
+    secrets. No root access should be required to configure or run it.
+  - ddupdate should be extensible, and thus being based on plugins.
+  - ddupdate should be flexible for programmers, making it possible to
+    write plugins for all sorts of sites including those ddclient cannot
+    handle.
+  - ddupdate should be linux-centric, using standard linux tools such as
+    systemd and NetworkManager where it is appropriate.
+
+
 Writing plugins
 ---------------
 
@@ -66,31 +83,31 @@ ddupdate has a multitude of packaging:
 
         $ export  XDG_DATA_DIRS=$PWD/share:$XDG_DATA_DIRS
 
-    Using a virtualenv, configuration files like */etc/ddupdate.conf* and
-    *~/.netrc* are still used from their system-wide locations.
+    Using a virtualenv, configuration files like *~/.config/ddupdate.conf*
+    and *~/.netrc* are still used from their system-wide locations.
 
   - **fedora** is packaged in the *fedora* branch.  Pre-built packages are
     at https://copr.fedorainfracloud.org/coprs/leamas/ddupdate/. Building
-    requires the *git* and *rpm-build* packages. To build version 0.6.4::
+    requires the *git* and *rpm-build* packages. To build version 0.6.6::
 
         $ git clone -b fedora https://github.com/leamas/ddupdate.git
         $ cd ddupdate/fedora
         $ sudo dnf builddep ddupdate.spec
-        $ ./make-tarball 0.6.4
+        $ ./make-tarball 0.6.6
         $ rpmbuild -D "_sourcedir $PWD" -ba ddupdate.spec
         $ sudo rpm -U --force rpmbuild/RPMS/noarch/ddupdate*rpm
 
   - The **debian** packaging is based on gbp and lives in the *debian* and
     *pristine-tar* branches.  The packages *git-buildpackage*, *devscripts*
-    and *git*  are required to build. To build current version 0.6.4 do::
+    and *git*  are required to build. To build current version 0.6.6 do::
 
         $ rm -rf ddupdate; mkdir ddupdate; cd ddupdate
-        $ git clone -o upstream -b debian https://github.com/leamas/ddupdate.git
+        $ git clone -o origin -b debian https://github.com/leamas/ddupdate.git
         $ cd ddupdate
         $ sudo mk-build-deps -i -r  debian/control
-        $ git fetch upstream pristine-tar:pristine-tar
-        $ gbp buildpackage --git-upstream-tag=0.6.4 -us -uc
-        $ sudo dpkg -i ../ddupdate_0.6.4*_all.deb
+        $ git fetch origin pristine-tar:pristine-tar
+        $ gbp buildpackage --git-upstream-tag=0.6.6 -us -uc
+        $ sudo dpkg -i ../ddupdate_0.6.6*_all.deb
         $ git clean -fd             # To be able to rebuild
 
   - A simpler way to build **debian** packages is based on retreiving the
@@ -108,6 +125,7 @@ ddupdate has a multitude of packaging:
         $ apt-get source --build ddupdate
         $ sudo dpkg -i ddupdate*.all.deb
 
+
 Creating a new version (maintainer work)
 ----------------------------------------
 
@@ -117,13 +135,13 @@ Creating a new version (maintainer work)
 
   - Update NEWS file.
 
-  - Commit and tag the release: git tag 0.6.4
+  - Commit and tag the release: git tag 0.6.6
 
   - Create fedora package:
 
         git checkout fedora
         cd fedora
-        ./make-tarball 0.6.4
+        ./make-tarball 0.6.6
         rpmdev-bumpspec *.spec , and edit it.
         rm -rf rpmbuild
         rpmbuild-here -ba *.spec
@@ -132,19 +150,20 @@ Creating a new version (maintainer work)
 
         git fetch upstream debian:debian
         git fetch upstream pristine-tar:pristine-tar
-        scp fedora/ddupdate-0.6.4.tar.gz sid:
+        scp fedora/ddupdate-0.6.6.tar.gz sid:
         cd ..; ssh sid rm -rf ddupdate.git
         scp -rq ddupdate sid:ddupdate.git
         ssh sid
         cd ddupdate; rm  -rf *
-        mv ../ddupdate-0.6.4.tar.gz ddupdate_0.6.4.orig.tar.gz
+        mv ../ddupdate-0.6.6.tar.gz ddupdate_0.6.6.orig.tar.gz
         git clone -o upstream -b debian ../ddupdate.git ddupdate
         cd ddupdate
         git remote add github git@github.com:leamas/ddupdate.git
         git fetch upstream pristine-tar:pristine-tar
-        pristine-tar commit ../ddupdate_0.6.4.orig.tar.gz 0.6.4
+        pristine-tar commit ../ddupdate_0.6.6.orig.tar.gz 0.6.6
 
   - Upload to pypi:
+
         $ python setup.py sdist
         $ twine upload dist/*
 
@@ -153,14 +172,14 @@ Creating a new version (maintainer work)
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
         $ git fetch upstream pristine-tar:pristine-tar
-        $ git merge -X theirs 0.6.4
-        $ dch -v 0.6.4-1
-        $ git commit -am "debian: 0.6.4-1"
+        $ git merge -X theirs 0.6.6
+        $ dch -v 0.6.6-1
+        $ git commit -am "debian: 0.6.6-1"
         $ Check systemd/ddupdate.service
         $ dpkg-source --commit
         $ git commit -a --amend
         $ git  clean -fd
-        $ gbp buildpackage --git-upstream-tag=0.6.4 -us -uc
+        $ gbp buildpackage --git-upstream-tag=0.6.6 -us -uc
         $ git clean -fd    # To be able to rebuild
 
   - Create fedora packages (above)
@@ -176,8 +195,8 @@ Creating a new version (maintainer work)
              -o upstream -b debian https://github.com/leamas/ddupdate.git
          $ cd ddupdate
          $ git fetch upstream pristine-tar:pristine-tar
-         $ pristine-tar checkout ddupdate_0.6.4.orig.tar.gz
-         $ mv ddupdate_0.6.4.orig.tar.gz ..
+         $ pristine-tar checkout ddupdate_0.6.6.orig.tar.gz
+         $ mv ddupdate_0.6.6.orig.tar.gz ..
          $ sudo mk-build-deps -i -r debian/control
 
          # Patch ubuntu stuff:
@@ -185,7 +204,7 @@ Creating a new version (maintainer work)
 
          # Build and install the binary package
          $ debuild -us -uc
-         $ sudo dpkg -i ../ddupdate_0.6.4_all.deb
+         $ sudo dpkg -i ../ddupdate_0.6.6_all.deb
 
          # Build and distribute source package (upstream only)
          $ debuild -S

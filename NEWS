@@ -1,8 +1,22 @@
+0.6.6
+* Fix wrong path in systemd service file (#54).
+* Fix bad return value causing systemd problems (#53).
+* Graceful exist on missing python-requests (#48).
+Thanks to Teemo Ikonen
+
+0.6.5
+* Fix ip route parsing (#35)
+* Fix python 3.9 syntax warnings (#38, #37)
+* New plugin domains.google.com -- googledomains.py
+* Error logging bugfixes (#4411454).
+Thanks to aerusso, LoganK and Hroncok
+
 0.6.4
 * Fix address-options and service-options parsing regression (#24).
 * Add new nsupdate(1) plugin (#29).
 * Install systemd files in correct user locations (#22).
 * Enhance ipv6 address parsing in address plugins (#28).
+* Patch ddupdate.service script path on installation.
 * Thanks to aerusso for nsupdate plugin, bugfixes and enhancements.
 
 0.6.3

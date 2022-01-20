@@ -2,7 +2,7 @@ Complete, manual ddupdate configuration
 =======================================
 
 Before configuration, the software must be installed. See README.md.
-Please also note that the the manual steps descrobed here could
+Please also note that the the manual steps described here could
 be replaced by running *ddupdat-config* for most users.
 
 Configuration is basically about selecting a plugin for a specific ddns
@@ -37,18 +37,27 @@ After selecting the address plugin, start the process of selecting a
 service by listing all available services (your list might differ)::
 
     $ ddupdate --list-services
-    changeip             Updates DNS data on changeip.com
-    dnsexit              Updates DNS data on www.dnsexit.com
+    changeip.com         Updates on http://changeip.com/
+    cloudflare.com       Updates on https://cloudflare.com
+    dnsdynamic.org       Updates on http://dnsdynamic.org/
+    dnsexit.com          Updates on https://www.dnsexit.com
+    dnspark.com          Updates on https://dnspark.com/
     dry-run              Debug dummy update plugin
-    dtdns                Updates DNS data on dtdns.com
-    duckdns              Updates DNS data on duckdns.org
-    duiadns              Updates DNS data on duiadns.com
-    dynu                 Updates DNS data on dynu.com
-    freedns.afraid       Updates DNS data on freedns.afraid.org
-    freedns.io           Updates DNS data on freedns.io
-    no-ip                Updates DNS data on no-ip.com
-    now-dns              Updates DNS data on now-dns.com
-    system-ns            Updates DNS data on system-ns.com
+    dtdns.com            Updates on https://www.dtdns.com
+    duckdns.org          Updates on http://duckdns.org
+    duiadns.net          Updates on https://www.duiadns.net
+    dy.fi                Updates on https://www.dy.fi/
+    dynu.com             Updates on https://www.dynu.com/en-US/DynamicDNS
+    dynv6.com            Updates on http://dynv6.com
+    freedns.afraid.org   Updates on https://freedns.afraid.org
+    freedns.io           Updates on https://freedns.io
+    googledomains        Updates DNS data on domains.google.com
+    hurricane_electric   Updates on https://he.com
+    myonlineportal.net   Updates on http://myonlineportal.net/
+    no-ip.com            Updates on http://no-ip.com/
+    now-dns.com          Updates on http://now-dns.com
+    nsupdate             Update address via nsupdate
+    system-ns.com        Updates on https://system-ns.com
 
 Next, pick a service plugin and check the help info, here dynu::
 
@@ -78,10 +87,7 @@ will accept it). Do::
 
     $ chmod 600 ~/.netrc
 
-Now, let's select the plugin which provides the ip address to register.
-For the default case, the default-web-ip plugin generates the address as
-seen from the network. Test the service using the selected address plugin,
-something like::
+Test the service using the selected address plugins, something like::
 
     $ ./ddupdate --address-plugin default-web-ip --service-plugin dynu \
     --hostname myhost.dynu.net -l info
@@ -103,14 +109,4 @@ something like::
     loglevel = info
 
 After which it should be possible to just invoke *ddupdate* without any
-options.
-
-The final step is to create configuration files for the *ddupdate* user
-which are used when run by systemctl. Basically, this user needs access
-to the *.netrc* file. Do::
-
-    sudo cp ~/.netrc ~ddupdate
-    sudo chmod 600 ~ddupdate/.netrc
-    sudo chown ddupdate ~ddupdate/.netrc
-
-When done, proceed to Configuring systemd in README.md
+options. When done, proceed to Configuring systemd in README.md
