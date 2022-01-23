@@ -236,7 +236,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.6.4"
+    parser.version = "0.6.6"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -458,6 +458,7 @@ def main():
         service_plugin.register(log, opts.hostname, ip, opts.service_options)
     except ServiceError as err:
         log.error("Cannot update DNS data: %s", err)
+        sys.exit(4)
     else:
         ip_cache_set(opts, ip)
         log.info("Update OK")
