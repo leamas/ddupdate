@@ -13,6 +13,8 @@ Rules-Requires-Root: no
 Package: ddupdate
 Architecture: all
 Depends: iproute2, ${misc:Depends}, ${python3:Depends}
+# Cloudflare plugin:
+Recommends: python3-requests
 Description: Tool updating DNS data for dynamic IP addresses
  Updates dynamic IP addresses typically obtained using DHCP with dynamic
  DNS services such as changeip.com, duckdns.org or no-ip.com. This makes
