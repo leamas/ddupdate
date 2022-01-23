@@ -16,12 +16,12 @@ ROOT = ROOT if ROOT else '.'
 
 
 def systemd_unitdir():
-    """Return the official systemd user unit dir path without leading /."""
+    """Return the official systemd user unit dir path"""
     cmd = 'pkg-config systemd --variable=systemduserunitdir'.split()
     try:
-        return subprocess.check_output(cmd).decode().strip()[1:]
+        return subprocess.check_output(cmd).decode().strip()
     except (OSError, subprocess.CalledProcessError):
-        return  "usr/lib/systemd/user"
+        return  "/usr/lib/systemd/user"
 
 
 DATA = [
@@ -49,6 +49,12 @@ class _ProjectInstall(install):
     """Log used installation paths."""
 
     def run(self):
+        final_prefix = None
+        if 'FINAL_PREFIX' in  os.environ:
+            final_prefix = os.environ['FINAL_PREFIX']
+        if (final_prefix):
+            # Strip leading / in paths like /usr/lib/systemd
+            DATA[0] = (DATA[0][0][1:], DATA[0][1])
         super().run()
         from distutils.fancy_getopt import longopt_xlate
         s = ""
@@ -63,6 +69,8 @@ class _ProjectInstall(install):
                 continue
             if option == "install_lib":
                 install_lib = value
+            if final_prefix:
+                value = str(value).replace(self.root, final_prefix)
             s += option + " = " + (str(value) if value else "") + "\n"
         if not install_lib:
             print("Warning: cannot create platform install paths file")
@@ -72,7 +80,6 @@ class _ProjectInstall(install):
         with open(path, "w") as f:
             f.write("[install]\n")
             f.write(s)
-
 
 setup(
     name='ddupdate',
