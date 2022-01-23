@@ -30,6 +30,7 @@ BuildRequires:  /usr/bin/pkg-config
 BuildRequires:  systemd
 
 Requires:       /usr/sbin/ip
+Recommends:     python3-requests
 
 %{?systemd_requires}
 
