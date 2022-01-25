@@ -427,28 +427,39 @@ def get_plugins(log, opts):
     return ip_plugin, service_plugin
 
 
+def get_ip(ip_plugin, opts, log):
+    """ Try to get current ip address using the ip_plugin"""
+    try:
+        ip = ip_plugin.get_ip(log, opts.address_options)
+    except AddressError as err:
+        raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
+    if not ip or ip.empty():
+        log.info("Using ip address provided by update service")
+        ip = None
+    else:
+        ip = filter_ip(opts.ip_version, ip)
+        log.info("Using ip address: %s", ip)
+    return ip
+
+
+def check_ip_cache(ip, service_plugin, opts, log):
+    """ Throw a _GoodbyeError if ip is already in a fresh cache."""
+    if opts.force:
+        ip_cache_clear(opts, log)
+    cached_ip, age = ip_cache_data(opts, log)
+    if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
+        log.info("Update inhibited, cache is fresh (%d/%d min)",
+                 age, service_plugin.ip_cache_ttl())
+        raise _GoodbyeError()
+
+
 def main():
     """Indeed: main function."""
     try:
         log, opts = setup()
         ip_plugin, service_plugin = get_plugins(log, opts)
-        try:
-            ip = ip_plugin.get_ip(log, opts.address_options)
-        except AddressError as err:
-            raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
-        if not ip or ip.empty():
-            log.info("Using ip address provided by update service")
-            ip = None
-        else:
-            ip = filter_ip(opts.ip_version, ip)
-            log.info("Using ip address: %s", ip)
-        if opts.force:
-            ip_cache_clear(opts, log)
-        cached_ip, age = ip_cache_data(opts, log)
-        if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
-            log.info("Update inhibited, cache is fresh (%d/%d min)",
-                     age, service_plugin.ip_cache_ttl())
-            raise _GoodbyeError()
+        ip = get_ip(ip_plugin, opts, log)
+        check_ip_cache(ip, service_plugin, opts, log)
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)
