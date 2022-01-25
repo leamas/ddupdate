@@ -134,16 +134,16 @@ def parse_conffile(log):
     return path
 
 
-def parse_config(path, log):
+def parse_config(section, path, log):
     """Parse config file, return fully populated dict of key-values."""
     results = {}
     config = configparser.ConfigParser()
     config.read(path)
-    if 'update' in config:
-        items = config['update']
+    if section in config:
+        items = config[section]
     else:
         log.warning(
-            'No [update] section found in %s, file ignored', path)
+            'No [%s] section found in %s, file ignored', (section, path))
         items = {}
     for key in DEFAULTS:
         if key in items:
@@ -379,11 +379,12 @@ def build_load_path(log):
     return paths
 
 
-def setup(loglevel=None):
+def setup(section='update', loglevel=None):
     """Return a standard log, arg_parser tuple."""
     log = log_setup()
     conffile_path = parse_conffile(log)
-    conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
+    conf = parse_config('update', conffile_path, log) if conffile_path \
+            else DEFAULTS
     opts = parse_options(conf)
     log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
     log.debug('Using config file: %s', conffile_path)
@@ -456,7 +457,7 @@ def check_ip_cache(ip, service_plugin, opts, log):
 def main():
     """Indeed: main function."""
     try:
-        log, opts = setup()
+        log, opts = setup('update')
         ip_plugin, service_plugin = get_plugins(log, opts)
         ip = get_ip(ip_plugin, opts, log)
         check_ip_cache(ip, service_plugin, opts, log)
