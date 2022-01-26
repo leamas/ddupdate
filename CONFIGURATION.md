@@ -115,7 +115,7 @@ Adding more hosts
 -----------------
 
 It is possible to add more hosts to the configuration file. This means that
-ddupdate will update two or more services when run. This is an experimental 
+ddupdate will update two or more services when run. This is an experimental
 and purely manual procedure.
 
 The starting point could be a _~/.config/ddupdate.conf_ file like
@@ -150,6 +150,12 @@ It is also necessary to update ~/.netrc. A line with a user/password looks like
 
     machine www.duckdns.org login orvar@pelle password oskar
 
-The machine name is available in the plugin's \_url attribute. Services only 
+The machine name is available in the plugin's \_url attribute. Services only
 using and API key should omit the 'login' part and enter the API key
 as 'password'.
+
+The CLI support for multiple hosts:
+
+  - `-E` lists the available configurations sections.
+  - `-e <section>` can be used to only run a specific section when running
+    ddupdate manually on the command line.

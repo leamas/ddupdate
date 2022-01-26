@@ -52,6 +52,11 @@ class _GoodbyeError(Exception):
         self.msg = msg
 
 
+class _SectionFailError(Exception):
+    """General error, terminates section processing"""
+    pass
+
+
 def envvar_default(var, default=None):
     """Return var if found in environment, else default."""
     return os.environ[var] if var in os.environ else default
@@ -137,6 +142,8 @@ def parse_conffile(log):
 def parse_config(config, section, log):
     """Return dict with values from config backed by DEFAULTS"""
     results = {}
+    if not section in config:
+        raise _GoodbyeError("No such section: " + section, 2)
     items = config[section]
     for key in DEFAULTS:
         results[key] = items[key] if key in items else DEFAULTS[key]
@@ -210,6 +217,14 @@ def get_parser(conf):
         "-A", "--list-addressers",
         help='List plugins providing ip address. ',
         default=False, action='store_true')
+    others.add_argument(
+        "-E", "--list-sections",
+        help='List configuration file sections. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-e", "--execute-section",  metavar="section",
+        help='Update a given configuration file section [all sections]',
+        dest='execute_section', default="")
     others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
@@ -380,7 +395,7 @@ def build_load_path(log):
     return paths
 
 
-def get_plugins(opts, log):
+def get_plugins(opts, log, sections):
     """
     Handles plugin listing, plugin help or load plugins.
 
@@ -403,6 +418,9 @@ def get_plugins(opts, log):
     if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
         raise _GoodbyeError()
+    if opts.list_sections:
+        print("\n".join(sections))
+        raise _GoodbyeError()
     if opts.ip_plugin:
         raise _GoodbyeError(
             "--ip-plugin has been replaced by --address-plugin.")
@@ -421,7 +439,7 @@ def get_ip(ip_plugin, opts, log):
     try:
         ip = ip_plugin.get_ip(log, opts.address_options)
     except AddressError as err:
-        raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
+        raise _SectionFailError("Cannot obtain ip address: " + str(err))
     if not ip or ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
@@ -432,45 +450,51 @@ def get_ip(ip_plugin, opts, log):
 
 
 def check_ip_cache(ip, service_plugin, opts, log):
-    """ Throw a _GoodbyeError if ip is already in a fresh cache."""
+    """ Throw a _SectionFailError if ip is already in a fresh cache."""
     if opts.force:
         ip_cache_clear(opts, log)
     cached_ip, age = ip_cache_data(opts, log)
     if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
         log.info("Update inhibited, cache is fresh (%d/%d min)",
                  age, service_plugin.ip_cache_ttl())
-        raise _GoodbyeError()
+        raise _SectionFailError()
 
 
 def main():
     """Indeed: main function."""
-    log = log_setup()
-    config, sections = get_config(log)
-    for section in sections:
-        try:
-            conf = parse_config(config, section, log)
-            opts = parse_options(conf)
-            log_init(log, None, opts)
-            log.info("Processing configuration section: " + section)
-            ip_plugin, service_plugin = get_plugins(opts, log)
-            ip = get_ip(ip_plugin, opts, log)
-            check_ip_cache(ip, service_plugin, opts, log)
-        except _GoodbyeError as err:
-            if err.exitcode != 0:
-                log.error(err.msg)
-                sys.stderr.write("Fatal error: " + str(err) + "\n")
-            print("Skipping config entry: " + section)
-            continue
-        try:
-            service_plugin.register(
-                    log, opts.hostname, ip, opts.service_options)
-        except ServiceError as err:
-            log.error(
-                    "Cannot update DNS data: %s, skipping this section", err)
-            continue
-        else:
-            ip_cache_set(opts, ip)
-            log.info("Update OK")
+
+    try:
+        log = log_setup()
+        config, sections = get_config(log)
+        opts = parse_options(DEFAULTS)
+        get_plugins(opts, log, sections)
+        if opts.execute_section:
+            sections = [opts.execute_section]
+        for section in sections:
+            try:
+                conf = parse_config(config, section, log)
+                opts = parse_options(conf)
+                log_init(log, None, opts)
+                log.info("Processing configuration section: " + section)
+                ip_plugin, service_plugin = get_plugins(opts, log, sections)
+                ip = get_ip(ip_plugin, opts, log)
+                check_ip_cache(ip, service_plugin, opts, log)
+                service_plugin.register(
+                        log, opts.hostname, ip, opts.service_options)
+                ip_cache_set(opts, ip)
+                log.info("Update OK")
+            except _SectionFailError:
+                print("Skipping config section: " + section)
+                continue
+            except ServiceError as err:
+                log.error("Cannot update DNS data: %s", err)
+                log.info("Skipping config section: " + section)
+                continue
+    except _GoodbyeError as err:
+        if err.exitcode != 0:
+            log.error(err.msg)
+            sys.stderr.write("Fatal error: " + str(err) + "\n")
+        sys.exit(err.exitcode)
 
 
 if __name__ == '__main__':

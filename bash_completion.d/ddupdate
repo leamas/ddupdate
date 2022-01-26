@@ -30,6 +30,11 @@ _ddupdate()
             COMPREPLY=( $(compgen -W "$plugins" -- ${cur}) )
             return 0
             ;;
+        --execute-section | -e)
+            sections=$(ddupdate --list-sections)
+            COMPREPLY=( $(compgen -W "$sections" -- ${cur}) )
+            return 0
+            ;;
          *)
 	    ;;
     esac
