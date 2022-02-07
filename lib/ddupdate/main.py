@@ -52,6 +52,11 @@ class _GoodbyeError(Exception):
         self.msg = msg
 
 
+class _SectionFailError(Exception):
+    """General error, terminates section processing"""
+    pass
+
+
 def envvar_default(var, default=None):
     """Return var if found in environment, else default."""
     return os.environ[var] if var in os.environ else default
@@ -134,23 +139,24 @@ def parse_conffile(log):
     return path
 
 
-def parse_config(path, log):
-    """Parse config file, return fully populated dict of key-values."""
+def parse_config(config, section, log):
+    """Return dict with values from config backed by DEFAULTS"""
     results = {}
+    if not section in config:
+        raise _GoodbyeError("No such section: " + section, 2)
+    items = config[section]
+    for key in DEFAULTS:
+        results[key] = items[key] if key in items else DEFAULTS[key]
+    return results
+
+def get_config(log):
+    path = parse_conffile(log)
     config = configparser.ConfigParser()
     config.read(path)
-    if 'update' in config:
-        items = config['update']
-    else:
-        log.warning(
-            'No [update] section found in %s, file ignored', path)
-        items = {}
-    for key in DEFAULTS:
-        if key in items:
-            results[key] = items[key]
-        else:
-            results[key] = DEFAULTS[key]
-    return results
+    sections = list(config.keys())
+    if 'DEFAULT' in sections:
+        sections.remove('DEFAULT')
+    return config, sections
 
 
 def get_parser(conf):
@@ -212,6 +218,14 @@ def get_parser(conf):
         help='List plugins providing ip address. ',
         default=False, action='store_true')
     others.add_argument(
+        "-E", "--list-sections",
+        help='List configuration file sections. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-e", "--execute-section",  metavar="section",
+        help='Update a given configuration file section [all sections]',
+        dest='execute_section', default="")
+    others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
         default=False, action='store_true')
@@ -266,16 +280,18 @@ def log_setup():
     return log
 
 
-def log_options(log, args):
-    """Print some info on seledted options."""
-    log.info("Loglevel: " + logging.getLevelName(args.loglevel))
-    log.info("Using hostname: " + args.hostname)
-    log.info("Using ip address plugin: " + args.address_plugin)
-    log.info("Using service plugin: " + args.service_plugin)
+def log_init(log, loglevel, opts):
+    log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
+    log.debug('Using config file: %s', parse_conffile(log))
+    log.info("Loglevel: " + logging.getLevelName(opts.loglevel))
+    log.info("Using hostname: " + opts.hostname)
+    log.info("Using ip address plugin: " + opts.address_plugin)
+    log.info("Using service plugin: " + opts.service_plugin)
+
     log.info("Service options: " +
-             (' '.join(args.service_options) if args.service_options else ''))
+             (' '.join(opts.service_options) if opts.service_options else ''))
     log.info("Address options: " +
-             (' '.join(args.address_options) if args.address_options else ''))
+             (' '.join(opts.address_options) if opts.address_options else ''))
 
 
 def load_module(path):
@@ -379,19 +395,7 @@ def build_load_path(log):
     return paths
 
 
-def setup(loglevel=None):
-    """Return a standard log, arg_parser tuple."""
-    log = log_setup()
-    conffile_path = parse_conffile(log)
-    conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
-    opts = parse_options(conf)
-    log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
-    log.debug('Using config file: %s', conffile_path)
-    log_options(log, opts)
-    return log, opts
-
-
-def get_plugins(log, opts):
+def get_plugins(opts, log, sections):
     """
     Handles plugin listing, plugin help or load plugins.
 
@@ -414,6 +418,9 @@ def get_plugins(log, opts):
     if opts.help and opts.help != '-':
         plugin_help(ip_plugins, service_plugins, opts.help)
         raise _GoodbyeError()
+    if opts.list_sections:
+        print("\n".join(sections))
+        raise _GoodbyeError()
     if opts.ip_plugin:
         raise _GoodbyeError(
             "--ip-plugin has been replaced by --address-plugin.")
@@ -427,28 +434,62 @@ def get_plugins(log, opts):
     return ip_plugin, service_plugin
 
 
+def get_ip(ip_plugin, opts, log):
+    """ Try to get current ip address using the ip_plugin"""
+    try:
+        ip = ip_plugin.get_ip(log, opts.address_options)
+    except AddressError as err:
+        raise _SectionFailError("Cannot obtain ip address: " + str(err))
+    if not ip or ip.empty():
+        log.info("Using ip address provided by update service")
+        ip = None
+    else:
+        ip = filter_ip(opts.ip_version, ip)
+        log.info("Using ip address: %s", ip)
+    return ip
+
+
+def check_ip_cache(ip, service_plugin, opts, log):
+    """ Throw a _SectionFailError if ip is already in a fresh cache."""
+    if opts.force:
+        ip_cache_clear(opts, log)
+    cached_ip, age = ip_cache_data(opts, log)
+    if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
+        log.info("Update inhibited, cache is fresh (%d/%d min)",
+                 age, service_plugin.ip_cache_ttl())
+        raise _SectionFailError()
+
+
 def main():
     """Indeed: main function."""
+
     try:
-        log, opts = setup()
-        ip_plugin, service_plugin = get_plugins(log, opts)
-        try:
-            ip = ip_plugin.get_ip(log, opts.address_options)
-        except AddressError as err:
-            raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
-        if not ip or ip.empty():
-            log.info("Using ip address provided by update service")
-            ip = None
-        else:
-            ip = filter_ip(opts.ip_version, ip)
-            log.info("Using ip address: %s", ip)
-        if opts.force:
-            ip_cache_clear(opts, log)
-        cached_ip, age = ip_cache_data(opts, log)
-        if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
-            log.info("Update inhibited, cache is fresh (%d/%d min)",
-                     age, service_plugin.ip_cache_ttl())
-            raise _GoodbyeError()
+        log = log_setup()
+        config, sections = get_config(log)
+        opts = parse_options(DEFAULTS)
+        get_plugins(opts, log, sections)
+        if opts.execute_section:
+            sections = [opts.execute_section]
+        for section in sections:
+            try:
+                conf = parse_config(config, section, log)
+                opts = parse_options(conf)
+                log_init(log, None, opts)
+                log.info("Processing configuration section: " + section)
+                ip_plugin, service_plugin = get_plugins(opts, log, sections)
+                ip = get_ip(ip_plugin, opts, log)
+                check_ip_cache(ip, service_plugin, opts, log)
+                service_plugin.register(
+                        log, opts.hostname, ip, opts.service_options)
+                ip_cache_set(opts, ip)
+                log.info("Update OK")
+            except _SectionFailError:
+                print("Skipping config section: " + section)
+                continue
+            except ServiceError as err:
+                log.error("Cannot update DNS data: %s", err)
+                log.info("Skipping config section: " + section)
+                continue
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)

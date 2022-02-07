@@ -110,3 +110,52 @@ something like::
 
 After which it should be possible to just invoke *ddupdate* without any
 options. When done, proceed to Configuring systemd in README.md
+
+Adding more hosts
+-----------------
+
+It is possible to add more hosts to the configuration file. This means that
+ddupdate will update two or more services when run. This is an experimental
+and purely manual procedure.
+
+The starting point could be a _~/.config/ddupdate.conf_ file like
+
+
+    [update]
+    address-plugin = default-web-ip
+    service-plugin = dynu
+    hostname = myhost.dynu.net
+    loglevel = info
+
+
+After adding a new host it might look like
+
+    [dynu]
+    address-plugin = default-web-ip
+    service-plugin = dynu
+    hostname = myhost.dynu.net
+    loglevel = info
+
+
+    [duckdns]
+    address-plugin = default-web-ip
+    service-plugin = duckdns.org
+    hostname = myhost.duckdns.org
+    loglevel = info
+
+Note that the initial entry heading is changed from `[update]` to `[dynu]`
+to ease debugging.
+
+It is also necessary to update ~/.netrc. A line with a user/password looks like
+
+    machine www.duckdns.org login orvar@pelle password oskar
+
+The machine name is available in the plugin's \_url attribute. Services only
+using and API key should omit the 'login' part and enter the API key
+as 'password'.
+
+The CLI support for multiple hosts:
+
+  - `-E` lists the available configurations sections.
+  - `-e <section>` can be used to only run a specific section when running
+    ddupdate manually on the command line.

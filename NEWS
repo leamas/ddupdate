@@ -1,3 +1,8 @@
+
+0.7.0 TBD
+* Support multiple configuration sections in config file (#25)
+* Add FINAL_PREFIX environment variable support to ease packaging
+
 0.6.6
 * Fix wrong path in systemd service file (#54).
 * Fix bad return value causing systemd problems (#53).
