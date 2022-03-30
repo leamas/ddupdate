@@ -225,6 +225,10 @@ update service.
 Setting the XDG_CACHE_HOME environment variable relocates these files to
 $XDG_CACHE_HOME/ddupdate/*.
 
+.SH BUGS
+Passwords used must not contain characters which requires escaping.
+That is, use printable characters; not control chars, tabs, spaces, etc.
+
 .SH "SEE ALSO"
 .TP 4
 .B ddupdate.conf(5)
