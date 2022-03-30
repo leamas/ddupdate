@@ -27,38 +27,18 @@ class FreednsPlugin(ServicePlugin):
 
     _name = 'freedns.afraid.org'
     _oneliner = 'Updates on https://freedns.afraid.org'
-    _url = 'https://freedns.afraid.org/api/?action=getdyndns&sha={0}'
+    _url = 'https://sync.afraid.org/u/?u={0}&p={1}&h={2}'
 
     def register(self, log, hostname, ip, options):
         """
         Based on http://freedns.afraid.org/api/, needs _url below  to update.
-
-        The sha parameter is sha1sum of login|password.  This returns a list
-        of host|currentIP|updateURL lines.  Pick the line that matches myhost,
-        and fetch the URL.  word 'Updated' for success, 'fail' for failure.
         """
-        def build_shasum():
-            """Compute sha1sum('user|password') used in url."""
-            user, password = get_netrc_auth('freedns.afraid.org')
-            token = "{0}|{1}".format(user, password)
-            return hashlib.sha1(token.encode()).hexdigest()
-
-        shasum = build_shasum()
-        url = self._url.format(shasum)
+        user, password = get_netrc_auth('freedns.afraid.org')
+        url = self._url.format(user, password, hostname)
         if ip and ip.v6:
-            url += "&address=" + str(ip.v6)
+            url += "&ip=" + str(ip.v6)
         elif ip and ip.v4:
-            url += "&address=" + str(ip.v4)
+            url += "&ip=" + str(ip.v4)
         html = get_response(log, url)
-        update_url = None
-        for line in html.split("\n"):
-            log.debug("Got line: " + line)
-            tokens = line.split("|")
-            if tokens[0] == hostname:
-                update_url = tokens[2]
-                break
-        if not update_url:
-            raise ServiceError(
-                "Cannot see %s being set up at this account" % hostname)
-        log.debug("Contacting freedns for update on %s", update_url)
-        get_response(log, update_url)
+        if not 'Updated' in html:
+            raise ServiceError("Error updating %s" %  hostname)
