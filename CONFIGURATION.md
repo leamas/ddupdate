@@ -148,10 +148,10 @@ to ease debugging.
 
 It is also necessary to update ~/.netrc. A line with a user/password looks like
 
-    machine www.duckdns.org login orvar@pelle password oskar
+    machine myhost.duckdns.org login orvar@pelle password oskar
 
 The machine name is available in the plugin's \_url attribute. Services only
-using and API key should omit the 'login' part and enter the API key
+using an API key should omit the 'login' part and enter the API key
 as 'password'.
 
 The CLI support for multiple hosts:
