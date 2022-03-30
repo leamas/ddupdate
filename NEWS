@@ -1,7 +1,12 @@
-0.7.0 TBD
+0.7.0 
 * Support multiple configuration sections in config file (#25)
+* Experimental support for keyring password storage (#23)
 * Add FINAL_PREFIX environment variable support to ease packaging
 * Support multiple credentials for Google domains (#52)
+* New address plugin for OnHub/Google WiFi/Nest WiFi  (#58)
+* New dnshome.de address- and service plugins  (#47)
+* Plugins: freedns: Update to simplified https API.
+Thanks to m-jung, Alexey Grevtsev, Marcin Mielniczuk, Gabriel de Perthuis
 
 0.6.6
 * Fix wrong path in systemd service file (#54).
