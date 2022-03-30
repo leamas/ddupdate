@@ -97,6 +97,11 @@ See [FILES] below.
 Force \fBddupdate\fR to run even if the cached value is still valid.
 
 .TP 4
+\fB-e, --execute-section <section>\fR
+Only run the given section in configuration file.
+Use \fI\-\-list-sections\fR to list available sections.
+
+.TP 4
 \fB-h, --help [plugin]  \fR
 Print help. If given a plugin argument, prints help for this plugin.
 
@@ -107,6 +112,10 @@ List service provider plugins.
 .TP 4
 \fB-A, --list-addressers\fR
 List plugins providing one or more ip addresses
+
+.TP 4
+\fB-E, --list-sections\fR
+List available sections in configuration file.
 
 .TP 4
 \fB-V, --version\fR
@@ -138,7 +147,7 @@ by default \fI/usr/local/share:/usr/share\fR, are searched for
 .SH EXAMPLES
 .P
 Please note that the command line options are normally stored
-in \fI/etc/ddupdate.conf\fR, allowing an invocation without command line
+in \fI~/.config/ddupdate.conf\fR, allowing an invocation without command line
 options.
 .P
 Update on dyndns.com using the external address as seen from the
