@@ -40,7 +40,7 @@ class DefaultWebPlugin(AddressPlugin):
                     if response.getcode() != 200:
                         log.debug("Bad response at %s (ignored)" % url)
                         return None
-                    html = response.read().decode('ascii')
+                    html = response.read().decode('utf-8')
             except (urllib.error.HTTPError, urllib.error.URLError) as err:
                 raise AddressError("Error reading %s :%s" % (url, err))
             log.debug("Got response: %s", html)
