@@ -7,6 +7,7 @@ _ddupdate()
     opts="--help --hostname --service-plugin --address-plugin --config-file"
     opts="$opts --loglevel --ip-version --service-option --address-option"
     opts="$opts --list-addressers --list-services"
+    opts="$opts --auth-plugin --list-auth-plugins"
     case  "${prev}" in
         --ip-version | -v)
             COMPREPLY=( $(compgen -W "v4 v6 all" -- ${cur}) )
@@ -27,6 +28,11 @@ _ddupdate()
             ;;
         --service-plugin | -s)
             plugins=$(ddupdate --list-services -l error | awk '{print $1}')
+            COMPREPLY=( $(compgen -W "$plugins" -- ${cur}) )
+            return 0
+            ;;
+        --auth-plugin | -C)
+            plugins=$(ddupdate --list-auth-plugins -l error | awk '{print $1}')
             COMPREPLY=( $(compgen -W "$plugins" -- ${cur}) )
             return 0
             ;;
