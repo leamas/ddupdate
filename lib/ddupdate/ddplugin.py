@@ -29,6 +29,20 @@ from netrc import netrc
 
 URL_TIMEOUT = 120  # Default timeout in get_response()
 
+# Pesky,transitional  global for actual AuthPlugin
+auth_plugin = None
+
+
+def set_auth_plugin(plugin):
+    """ Define the actual AuthPlugin used. """
+    global auth_plugin
+    auth_plugin = plugin
+
+
+def get_auth_plugin():
+    """ Return actual AuthPlugin used. """
+    return auth_plugin
+
 
 def http_basic_auth_setup(url, host=None):
     """
@@ -120,18 +134,7 @@ def get_netrc_auth(machine):
       - netrc(5)
 
     """
-    if os.path.exists(os.path.expanduser('~/.netrc')):
-        path = os.path.expanduser('~/.netrc')
-    elif os.path.exists('/etc/netrc'):
-        path = '/etc/netrc'
-    else:
-        raise ServiceError("Cannot locate the netrc file (see manpage).")
-    auth = netrc(path).authenticators(machine)
-    if not auth:
-        raise ServiceError("No .netrc data found for " + machine)
-    if not auth[2]:
-        raise ServiceError("No password found for " + machine)
-    return auth[0], auth[2]
+    return auth_plugin.get_auth(machine)
 
 
 class IpAddr(object):
@@ -222,13 +225,18 @@ class ServiceError(AddressError):
 
     pass
 
+class AuthError(AddressError):
+    """General error in AuthPlugin."""
+
+    pass
+
 
 class AbstractPlugin(object):
     """Abstract base for all plugins."""
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.6.6'
+    __version__ = '0.7.0'
 
     def oneliner(self):
         """Return oneliner describing the plugin."""
@@ -305,3 +313,35 @@ class ServicePlugin(AbstractPlugin):
 
         """
         raise NotImplementedError("Attempt to invoke abstract register()")
+
+
+class AuthPlugin(AbstractPlugin):
+    """ Abstract plugin for managing credentials for a hostname. """
+
+    def get_auth(self, machine):
+        """
+        Retrieve credentials for a machine
+
+        Parameters:
+          - machine: Key while searching for credentials.
+        Returns:
+          - A (user, password) tuple. User might be None.
+        Raises:
+          - AuthError if credentials cannot be retrieved.
+
+        """
+        raise NotImplementedError("Attempt to invoke abstract get_auth()")
+
+    def set_password(self, machine, username, password):
+        """
+        Set username/password credentials for a machine.
+
+        Parameters:
+          - machine: Key for stored credentials
+          - username: Possibly empty reflecting machines using an API key.
+          - password: string
+        Raises:
+          - AuthError if credentials cannot be stored.
+
+        """
+        raise NotImplementedError("Attempt to invoke abstract get_auth()")

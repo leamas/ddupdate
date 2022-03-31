@@ -8,7 +8,7 @@ The \fBddupdate.conf\fR file holds default values for all \fBddupdate(8)\fR
 options. Since \fBddupdate\fR normally is invoked without command line
 parameters, this file then represents the used option values.
 
-.SH FILE FORMAT
+.SH BASIC FILE FORMAT
 The file is formatted according to the rules use by the python3 configparser
 module.
 Basically, this is a leading \fI[update]\fR line followed by
@@ -16,6 +16,12 @@ by \fI key = value\fR lines. The \fikey\fR represents the command line option,
 and \fIvalue\fR the value of said option.
 .P
 The actual options available are documented in \fBddupdate(8)\fR.
+
+.SH EXTENDED FORMAT FOR MULTIPLE HOSTS
+File has experimental support for updating multiple services. This is
+done using multiple \fI[hostname]\fR sections. The \fIhostname\fR is
+an arbitrary string without whitespace. Each section has the same syntax
+as the BASIC FILE FORMAT \fI[update]\fR section.
 
 .SH "SEE ALSO"
 .TP 4

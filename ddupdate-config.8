@@ -15,8 +15,13 @@ The set of available plugins loaded depends on environment variables.
 See PLUGIN LOADING in \fBddupdate(8)\fR.
 
 .SH BUGS
+Passwords given to ddupdate must use printable characters which does not
+require escaping. This is partly a limitation in the script code, partly
+due to the python netrc module capabilities.
+.P
 Does not support  configuration of more advanced features like ipv6 and
 non-standard address-plugins beyond \fIweb-default-ip\fR and \fIdefault-if\fR.
+
 
 .SH SEE ALSO
 .TP 4

@@ -15,8 +15,8 @@ import time
 import ast
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
-from ddupdate.ddplugin import ServicePlugin, ServiceError
-from ddupdate.ddplugin import IpAddr
+from ddupdate.ddplugin import ServicePlugin, ServiceError, IpAddr
+from ddupdate.ddplugin import AuthPlugin, AuthError, set_auth_plugin, get_auth_plugin
 
 # pylint: disable=ungrouped-imports
 if sys.version_info >= (3, 5):
@@ -34,6 +34,7 @@ DEFAULTS = {
     'hostname': 'host.nowhere.net',
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
+    'auth-plugin': 'netrc',
     'loglevel': 'info',
     'ip-version': 'v4',
     'service-options': None,
@@ -50,6 +51,11 @@ class _GoodbyeError(Exception):
         Exception.__init__(self, msg)
         self.exitcode = exitcode
         self.msg = msg
+
+
+class _SectionFailError(Exception):
+    """General error, terminates section processing"""
+    pass
 
 
 def envvar_default(var, default=None):
@@ -134,23 +140,24 @@ def parse_conffile(log):
     return path
 
 
-def parse_config(path, log):
-    """Parse config file, return fully populated dict of key-values."""
+def parse_config(config, section, log):
+    """Return dict with values from config backed by DEFAULTS"""
     results = {}
+    if not section in config:
+        raise _GoodbyeError("No such section: " + section, 2)
+    items = config[section]
+    for key in DEFAULTS:
+        results[key] = items[key] if key in items else DEFAULTS[key]
+    return results
+
+def get_config(log):
+    path = parse_conffile(log)
     config = configparser.ConfigParser()
     config.read(path)
-    if 'update' in config:
-        items = config['update']
-    else:
-        log.warning(
-            'No [update] section found in %s, file ignored', path)
-        items = {}
-    for key in DEFAULTS:
-        if key in items:
-            results[key] = items[key]
-        else:
-            results[key] = DEFAULTS[key]
-    return results
+    sections = list(config.keys())
+    if 'DEFAULT' in sections:
+        sections.remove('DEFAULT')
+    return config, sections
 
 
 def get_parser(conf):
@@ -176,10 +183,15 @@ def get_parser(conf):
         % conf['address-plugin'],
         default=conf['address-plugin'])
     normals.add_argument(
+        "-C", "--auth-plugin", metavar="plugin",
+        help='Plugin providing authentication credentials  [%s]'
+        % conf['auth-plugin'],
+        default=conf['auth-plugin'])
+    normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
         + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
-        + ':/etc/dupdate.conf]',
+        + ':/etc/ddupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
         "-l", "--loglevel", metavar='level',
@@ -212,6 +224,22 @@ def get_parser(conf):
         help='List plugins providing ip address. ',
         default=False, action='store_true')
     others.add_argument(
+        "-P", "--list-auth-plugins",
+        help='List plugins providing credentials. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-E", "--list-sections",
+        help='List configuration file sections. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-e", "--execute-section",  metavar="section",
+        help='Update a given configuration file section [all sections]',
+        dest='execute_section', default='')
+    others.add_argument(
+        "-p", "--set_password", nargs=3, metavar=('host', 'user', 'pw'),
+        help='Update username/password credentials for host. Use "" for empty username',
+        default="")
+    others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
         default=False, action='store_true')
@@ -236,7 +264,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.6.6"
+    parser.version = "0.7.0"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()
@@ -266,16 +294,18 @@ def log_setup():
     return log
 
 
-def log_options(log, args):
-    """Print some info on seledted options."""
-    log.info("Loglevel: " + logging.getLevelName(args.loglevel))
-    log.info("Using hostname: " + args.hostname)
-    log.info("Using ip address plugin: " + args.address_plugin)
-    log.info("Using service plugin: " + args.service_plugin)
+def log_init(log, loglevel, opts):
+    log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
+    log.debug('Using config file: %s', parse_conffile(log))
+    log.info("Loglevel: " + logging.getLevelName(opts.loglevel))
+    log.info("Using hostname: " + opts.hostname)
+    log.info("Using ip address plugin: " + opts.address_plugin)
+    log.info("Using service plugin: " + opts.service_plugin)
+
     log.info("Service options: " +
-             (' '.join(args.service_options) if args.service_options else ''))
+             (' '.join(opts.service_options) if opts.service_options else ''))
     log.info("Address options: " +
-             (' '.join(args.address_options) if args.address_options else ''))
+             (' '.join(opts.address_options) if opts.address_options else ''))
 
 
 def load_module(path):
@@ -327,11 +357,13 @@ def load_plugins(path, log):
     """Load ip and service plugins into dicts keyed by name."""
     setters = load_plugin_dir(os.path.join(path, 'plugins'), ServicePlugin)
     getters = load_plugin_dir(os.path.join(path, 'plugins'), AddressPlugin)
+    auths = load_plugin_dir(os.path.join(path, 'plugins'), AuthPlugin)
     getters_by_name = {plug.name(): plug for plug in getters}
     setters_by_name = {plug.name(): plug for plug in setters}
-    log.debug("Loaded %d address and %d service plugins from %s",
-              len(getters), len(setters), path)
-    return getters_by_name, setters_by_name
+    auths_by_name = {plug.name(): plug for plug in auths}
+    log.debug("Loaded %d address, %d service and %d auth plugins from %s",
+              len(getters), len(setters), len(auths), path)
+    return auths_by_name, getters_by_name, setters_by_name
 
 
 def list_plugins(plugins):
@@ -340,18 +372,25 @@ def list_plugins(plugins):
         print("%-20s %s" % (name, plugin.oneliner()))
 
 
-def plugin_help(ip_plugins, service_plugins, plugid):
+def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
     """Print full help for given plugin."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
         plugin = service_plugins[plugid]
+    elif plugid in auth_plugins:
+        plugin = auth_plugins[plugid]
     else:
         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
     print("Source file: " + plugin.module.__file__ + "\n")
     print(plugin.info())
 
+
+def set_password(opts):
+    auth_plugin = get_auth_plugin()
+    args = opts.set_password
+    auth_plugin.set_auth(args[0], args[1], args[2])
 
 def filter_ip(ip_version, ip):
     """Filter the ip address to match the --ip-version option."""
@@ -379,89 +418,122 @@ def build_load_path(log):
     return paths
 
 
-def setup(loglevel=None):
-    """Return a standard log, arg_parser tuple."""
-    log = log_setup()
-    conffile_path = parse_conffile(log)
-    conf = parse_config(conffile_path, log) if conffile_path else DEFAULTS
-    opts = parse_options(conf)
-    log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
-    log.debug('Using config file: %s', conffile_path)
-    log_options(log, opts)
-    return log, opts
-
-
-def get_plugins(log, opts):
+def get_plugins(opts, log, sections):
     """
     Handles plugin listing, plugin help or load plugins.
 
-    return: (ip plugin, service plugin) tuple.
+    Return: (auth_plugin, ip plugin, service plugin) tuple.
     """
     ip_plugins = {}
     service_plugins = {}
+    auth_plugins = {}
     for path in build_load_path(log):
-        getters, setters = load_plugins(path, log)
+        auths, getters, setters = load_plugins(path, log)
         for name, plugin in getters.items():
             ip_plugins.setdefault(name, plugin)
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
+        for name, plugin in auths.items():
+            auth_plugins.setdefault(name, plugin)
     if opts.list_services:
         list_plugins(service_plugins)
         raise _GoodbyeError()
     if opts.list_addressers:
         list_plugins(ip_plugins)
         raise _GoodbyeError()
+    if opts.list_auth_plugins:
+        list_plugins(auth_plugins)
+        raise _GoodbyeError()
     if opts.help and opts.help != '-':
-        plugin_help(ip_plugins, service_plugins, opts.help)
+        plugin_help(auth_plugins, ip_plugins, service_plugins, opts.help)
+        raise _GoodbyeError()
+    if opts.list_sections:
+        print("\n".join(sections))
         raise _GoodbyeError()
     if opts.ip_plugin:
         raise _GoodbyeError(
             "--ip-plugin has been replaced by --address-plugin.")
     elif opts.address_plugin not in ip_plugins:
         raise _GoodbyeError('No such ip plugin: ' + opts.address_plugin, 2)
+    elif opts.auth_plugin not in auth_plugins:
+        raise _GoodbyeError('No such auth plugin: ' + opts.auth_plugin, 2)
     elif opts.service_plugin not in service_plugins:
         raise _GoodbyeError(
             'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
     ip_plugin = ip_plugins[opts.address_plugin]
-    return ip_plugin, service_plugin
+    auth_plugin = auth_plugins[opts.auth_plugin]
+    if opts.set_password:
+        set_auth_plugin(auth_plugin)
+        set_password(opts)
+        raise _GoodbyeError()
+    return auth_plugin, ip_plugin, service_plugin
+
+
+def get_ip(ip_plugin, opts, log):
+    """ Try to get current ip address using the ip_plugin"""
+    try:
+        ip = ip_plugin.get_ip(log, opts.address_options)
+    except AddressError as err:
+        raise _SectionFailError("Cannot obtain ip address: " + str(err))
+    if not ip or ip.empty():
+        log.info("Using ip address provided by update service")
+        ip = None
+    else:
+        ip = filter_ip(opts.ip_version, ip)
+        log.info("Using ip address: %s", ip)
+    return ip
+
+
+def check_ip_cache(ip, service_plugin, opts, log):
+    """ Throw a _SectionFailError if ip is already in a fresh cache."""
+    if opts.force:
+        ip_cache_clear(opts, log)
+    cached_ip, age = ip_cache_data(opts, log)
+    if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
+        log.info("Update inhibited, cache is fresh (%d/%d min)",
+                 age, service_plugin.ip_cache_ttl())
+        raise _SectionFailError()
 
 
 def main():
     """Indeed: main function."""
+
     try:
-        log, opts = setup()
-        ip_plugin, service_plugin = get_plugins(log, opts)
-        try:
-            ip = ip_plugin.get_ip(log, opts.address_options)
-        except AddressError as err:
-            raise _GoodbyeError("Cannot obtain ip address: " + str(err), 3)
-        if not ip or ip.empty():
-            log.info("Using ip address provided by update service")
-            ip = None
-        else:
-            ip = filter_ip(opts.ip_version, ip)
-            log.info("Using ip address: %s", ip)
-        if opts.force:
-            ip_cache_clear(opts, log)
-        cached_ip, age = ip_cache_data(opts, log)
-        if age < service_plugin.ip_cache_ttl() and (cached_ip == ip or not ip):
-            log.info("Update inhibited, cache is fresh (%d/%d min)",
-                     age, service_plugin.ip_cache_ttl())
-            raise _GoodbyeError()
+        log = log_setup()
+        config, sections = get_config(log)
+        opts = parse_options(DEFAULTS)
+        get_plugins(opts, log, sections)
+        if opts.execute_section:
+            sections = [opts.execute_section]
+        for section in sections:
+            try:
+                conf = parse_config(config, section, log)
+                opts = parse_options(conf)
+                log_init(log, None, opts)
+                log.info("Processing configuration section: " + section)
+                auth_plugin, ip_plugin, service_plugin = get_plugins(
+                    opts, log, sections)
+                set_auth_plugin(auth_plugin)
+                log.debug("Using auth plugin: " + auth_plugin.name())
+                ip = get_ip(ip_plugin, opts, log)
+                check_ip_cache(ip, service_plugin, opts, log)
+                service_plugin.register(
+                        log, opts.hostname, ip, opts.service_options)
+                ip_cache_set(opts, ip)
+                log.info("Update OK")
+            except _SectionFailError:
+                print("Skipping config section: " + section)
+                continue
+            except (ServiceError, AuthError) as err:
+                log.error("Cannot update DNS data: %s", err)
+                log.info("Skipping config section: " + section)
+                continue
     except _GoodbyeError as err:
         if err.exitcode != 0:
             log.error(err.msg)
             sys.stderr.write("Fatal error: " + str(err) + "\n")
         sys.exit(err.exitcode)
-    try:
-        service_plugin.register(log, opts.hostname, ip, opts.service_options)
-    except ServiceError as err:
-        log.error("Cannot update DNS data: %s", err)
-        sys.exit(4)
-    else:
-        ip_cache_set(opts, ip)
-        log.info("Update OK")
 
 
 if __name__ == '__main__':

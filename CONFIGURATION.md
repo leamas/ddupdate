@@ -77,15 +77,10 @@ Next, pick a service plugin and check the help info, here dynu::
         none
 
 If all looks good, register on dynu.com. This will end up in a hostname,
-username and password. Using the .netrc info in the *ddupdate help
-<service>*, create an entry in the *~/.netrc*  file like::
+username and password. Add the host, username and password to the
+_~/.netrc_ file using
 
-    machine api.dynu.com login <username> password <secret>
-
-Note that this file must be protected for other users (otherwise no tools
-will accept it). Do::
-
-    $ chmod 600 ~/.netrc
+    $ ddupdate -C netrc -p api.dynu.com username password
 
 Test the service using the selected address plugins, something like::
 
@@ -107,6 +102,76 @@ something like::
     service-plugin = dynu
     hostname = myhost.dynu.net
     loglevel = info
+    auth-plugin = netrc
 
 After which it should be possible to just invoke *ddupdate* without any
 options. When done, proceed to Configuring systemd in README.md
+
+Adding more hosts
+=================
+
+It is possible to add more hosts to the configuration file. This means that
+ddupdate will update two or more services when run. This is an experimental
+and purely manual procedure.
+
+The starting point could be a _~/.config/ddupdate.conf_ file like
+
+
+    [update]
+    address-plugin = default-web-ip
+    service-plugin = dynu
+    hostname = myhost.dynu.net
+    loglevel = info
+
+
+After adding a new host it might look like
+
+    [dynu]
+    address-plugin = default-web-ip
+    service-plugin = dynu
+    hostname = myhost.dynu.net
+    loglevel = info
+
+
+    [duckdns]
+    address-plugin = default-web-ip
+    service-plugin = duckdns.org
+    hostname = myhost.duckdns.org
+    loglevel = info
+
+Note that the initial entry heading is changed from `[update]` to `[dynu]`
+to ease debugging.
+
+It is also necessary to update ~/.netrc. From version 0.7, this can be 
+done using the `-p' option using something like
+
+    $ ddupdate -C netrc -p  hostname username password
+
+The hostname is available in the plugin's \_url attribute. Services only
+using an API key should use "" as username and the API key as 'password'.
+
+The CLI support for multiple hosts:
+
+  - `-E` lists the available configurations sections.
+  - `-e <section>` can be used to only run a specific section when running
+    ddupdate manually on the command line.
+
+
+Using the keyring for passwords
+===============================
+
+Version 7.0 contains experimental support for storing passwords in the system
+keyring.  The basic parts
+
+  - Credentials are managed by a new type of auth plugins. Use `ddupdate -P`
+    to list available plugins.
+  - Set the _auth-plugin_ option in the config file to _keyring_ to activate
+    the keyring support.
+  - To set passwords for services use the new -p option to `ddupdate`. For 
+    example `ddupdate -C keyring  -p myhost username password`. For hosts
+    using an api key without username, use "" for username.
+  - The new script `ddupdate_netrc_to_keyring` migrates all entries in
+    _~/.netrc_ to the keyring. 
+
+There is yet not any support for the keyring in `ddupdate-config`, using it
+requires manual configuration.

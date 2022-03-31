@@ -25,7 +25,7 @@ class DynuPlugin(ServicePlugin):
 
     _name = 'dynu.com'
     _oneliner = 'Updates on https://www.dynu.com/en-US/DynamicDNS'
-    _url = "http://api.dynu.com" \
+    _url = "https://api.dynu.com" \
         + "/nic/update?hostname={0}&username={1}&password={2}"
 
     def register(self, log, hostname, ip, options):

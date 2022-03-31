@@ -37,12 +37,10 @@ class DefaultWebPlugin(AddressPlugin):
             log.debug('trying ' + url)
             try:
                 with urllib.request.urlopen(url) as response:
-                    if response.getcode() != 200:
-                        log.debug("Bad response at %s (ignored)" % url)
-                        return None
-                    html = response.read().decode('ascii')
+                    html = response.read().decode('utf-8')
             except (urllib.error.HTTPError, urllib.error.URLError) as err:
-                raise AddressError("Error reading %s :%s" % (url, err))
+                log.debug("Bad response at %s (ignored)" % url)
+                return None
             log.debug("Got response: %s", html)
             pat = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
             match = pat.search(html)

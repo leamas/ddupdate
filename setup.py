@@ -16,12 +16,12 @@ ROOT = ROOT if ROOT else '.'
 
 
 def systemd_unitdir():
-    """Return the official systemd user unit dir path without leading /."""
+    """Return the official systemd user unit dir path"""
     cmd = 'pkg-config systemd --variable=systemduserunitdir'.split()
     try:
-        return subprocess.check_output(cmd).decode().strip()[1:]
+        return subprocess.check_output(cmd).decode().strip()
     except (OSError, subprocess.CalledProcessError):
-        return  "usr/lib/systemd/user"
+        return  "/usr/lib/systemd/user"
 
 
 DATA = [
@@ -49,6 +49,14 @@ class _ProjectInstall(install):
     """Log used installation paths."""
 
     def run(self):
+        final_prefix = None
+        if 'FINAL_PREFIX' in  os.environ:
+            final_prefix = os.environ['FINAL_PREFIX']
+        if (final_prefix):
+            # Strip leading prefix in paths like /usr/lib/systemd,
+            # avoiding /usr/usr when applying the prefix
+            if DATA[0][0].startswith(self.prefix):
+                DATA[0] = (DATA[0][0][len(self.prefix) + 1:], DATA[0][1])
         super().run()
         from distutils.fancy_getopt import longopt_xlate
         s = ""
@@ -63,6 +71,11 @@ class _ProjectInstall(install):
                 continue
             if option == "install_lib":
                 install_lib = value
+            if final_prefix and self.root:
+                value = str(value).replace(self.root, final_prefix)
+            elif final_prefix and self.prefix:
+                value = str(value).replace(self.prefix, final_prefix)
+            value = str(value).replace('//', '/')
             s += option + " = " + (str(value) if value else "") + "\n"
         if not install_lib:
             print("Warning: cannot create platform install paths file")
@@ -73,10 +86,9 @@ class _ProjectInstall(install):
             f.write("[install]\n")
             f.write(s)
 
-
 setup(
     name='ddupdate',
-    version='0.6.6',
+    version='0.7.0',
     description='Update dns data for dynamic ip addresses',
     long_description=open(ROOT + '/README.md').read(),
     include_package_data=True,
@@ -94,7 +106,7 @@ setup(
     keywords=['dyndns', 'dhcp', 'dns'],
     package_dir={'': 'lib'},
     packages=['ddupdate'],
-    scripts=['ddupdate', 'ddupdate-config'],
+    scripts=['ddupdate', 'ddupdate-config', 'ddupdate_netrc_to_keyring'],
     data_files=DATA,
     cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
 )

@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+''' Move entries from netrc file to keyring. See auth_keyring plugin '''
+
+import os.path
+import sys
+
+sys.path.pop(0)
+HOME = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(HOME, 'lib'))
+
+try:
+    import ddupdate.netrc_to_keyring as main
+except ImportError:
+    import netrc_to_keyring.main as main
+
+main.main()
