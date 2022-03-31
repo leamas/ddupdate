@@ -264,7 +264,7 @@ def parse_options(conf):
         'debug': logging.DEBUG,
     }
     parser = get_parser(conf)
-    parser.version = "0.6.6"
+    parser.version = "0.7.0"
     opts = parser.parse_args()
     if opts.help == '-':
         parser.print_help()

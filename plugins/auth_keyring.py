@@ -27,7 +27,7 @@ class AuthKeyring(AuthPlugin):
 
     _name = 'keyring'
     _oneliner = 'Get credentials stored in the system keyring'
-    __version__ = '0.6.6'
+    __version__ = '0.7.0'
 
     def get_auth(self, machine):
         try:

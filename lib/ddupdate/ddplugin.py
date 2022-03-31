@@ -236,7 +236,7 @@ class AbstractPlugin(object):
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.6.6'
+    __version__ = '0.7.0'
 
     def oneliner(self):
         """Return oneliner describing the plugin."""

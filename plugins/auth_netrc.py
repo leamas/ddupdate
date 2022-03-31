@@ -11,7 +11,7 @@ class AuthNetrc(AuthPlugin):
     """ Get credentials stored in the .netrc(5) file """
     _name = 'netrc'
     _oneliner = 'Get credentials using .netrc'
-    __version__ = '0.6.6'
+    __version__ = '0.7.0'
 
 
     def get_auth(self, machine):
