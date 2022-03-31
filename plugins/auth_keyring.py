@@ -36,6 +36,15 @@ class AuthKeyring(AuthPlugin):
             raise AuthError("Cannot obtain credentials for: " + machine)
         if len(credentials) != 2:
             raise AuthError("Cannot parse credentials for: " + machine)
-        if credentials[0] == 'api_key':
+        if credentials[0] == 'api-key':
             credentials[0] = None
         return credentials[0], credentials[1]
+
+    def set_auth(self, machine, username, password):
+        if not username:
+            username = 'api-key'
+        credentials = username + '\t' + password
+        try:
+            keyring.set_password('ddupdate', machine, credentials)
+        except KeyringError:
+            raise AuthError("Cannot set credentials for: " + machine)

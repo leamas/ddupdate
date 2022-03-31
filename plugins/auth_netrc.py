@@ -30,4 +30,42 @@ class AuthNetrc(AuthPlugin):
         return auth[0], auth[2]
     
 
+    def set_auth(self, machine, username, password):
 
+        def update(lines):
+            """ Either update existing line matching machine or add a new """
+            line_found = False
+            new_lines = []
+            for line in lines:
+                words = line.split(' ')
+                for i in range(0, len(words) - 1):
+                    if words[i] == 'machine' and words[i+1] == machine:
+                        line_found = True
+                if not line_found:
+                    new_lines.append(line)
+                    continue
+                for i in range(0, len(words) - 1):
+                    if words[i] == 'password':
+                        words[i+1] = password
+                    if words[i] == 'login' and username:
+                        words[i+1] = username
+                new_lines.append(' '.join(words))
+            if not line_found:
+                line = 'machine ' + machine
+                if username:
+                    line += ' login ' + username
+                line += ' password ' + password
+                new_lines.append(line)
+            return new_lines
+
+        if os.path.exists(os.path.expanduser('~/.netrc')):
+            path = os.path.expanduser('~/.netrc')
+        elif os.path.exists('/etc/netrc'):
+            path = '/etc/netrc'
+        else:
+            raise AuthError("Cannot locate the netrc file (see manpage).")
+        with open(path, 'r') as f:
+            lines = f.readlines()
+        lines = update(lines)
+        with open(path, 'w') as f:
+            f.writelines(lines)

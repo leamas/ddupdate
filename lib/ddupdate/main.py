@@ -16,7 +16,7 @@ import ast
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError, IpAddr
-from ddupdate.ddplugin import AuthPlugin, AuthError, set_auth_plugin
+from ddupdate.ddplugin import AuthPlugin, AuthError, set_auth_plugin, get_auth_plugin
 
 # pylint: disable=ungrouped-imports
 if sys.version_info >= (3, 5):
@@ -234,7 +234,11 @@ def get_parser(conf):
     others.add_argument(
         "-e", "--execute-section",  metavar="section",
         help='Update a given configuration file section [all sections]',
-        dest='execute_section', default="")
+        dest='execute_section', default='')
+    others.add_argument(
+        "-p", "--set_password", nargs=3, metavar=('host', 'user', 'pw'),
+        help='Update username/password credentials for host. Use "" for empty username',
+        default="")
     others.add_argument(
         "-f", "--force",
         help='Force run even if the cache is fresh',
@@ -383,6 +387,11 @@ def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
     print(plugin.info())
 
 
+def set_password(opts):
+    auth_plugin = get_auth_plugin()
+    args = opts.set_password
+    auth_plugin.set_auth(args[0], args[1], args[2])
+
 def filter_ip(ip_version, ip):
     """Filter the ip address to match the --ip-version option."""
     if ip_version == 'v4':
@@ -454,6 +463,10 @@ def get_plugins(opts, log, sections):
     service_plugin = service_plugins[opts.service_plugin]
     ip_plugin = ip_plugins[opts.address_plugin]
     auth_plugin = auth_plugins[opts.auth_plugin]
+    if opts.set_password:
+        set_auth_plugin(auth_plugin)
+        set_password(opts)
+        raise _GoodbyeError()
     return auth_plugin, ip_plugin, service_plugin
 
 

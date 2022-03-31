@@ -316,7 +316,7 @@ class ServicePlugin(AbstractPlugin):
 
 
 class AuthPlugin(AbstractPlugin):
-    """ Abstract plugin for getting credentials for a hostname. """
+    """ Abstract plugin for managing credentials for a hostname. """
 
     def get_auth(self, machine):
         """
@@ -327,7 +327,21 @@ class AuthPlugin(AbstractPlugin):
         Returns:
           - A (user, password) tuple. User might be None.
         Raises:
-          - AuthError if .netrc or password is not found.
+          - AuthError if credentials cannot be retrieved.
+
+        """
+        raise NotImplementedError("Attempt to invoke abstract get_auth()")
+
+    def set_password(self, machine, username, password):
+        """
+        Set username/password credentials for a machine.
+
+        Parameters:
+          - machine: Key for stored credentials
+          - username: Possibly empty reflecting machines using an API key.
+          - password: string
+        Raises:
+          - AuthError if credentials cannot be stored.
 
         """
         raise NotImplementedError("Attempt to invoke abstract get_auth()")
