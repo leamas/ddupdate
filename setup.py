@@ -53,8 +53,10 @@ class _ProjectInstall(install):
         if 'FINAL_PREFIX' in  os.environ:
             final_prefix = os.environ['FINAL_PREFIX']
         if (final_prefix):
-            # Strip leading / in paths like /usr/lib/systemd
-            DATA[0] = (DATA[0][0][1:], DATA[0][1])
+            # Strip leading prefix in paths like /usr/lib/systemd,
+            # avoiding /usr/usr when applying the prefix
+            if DATA[0][0].startswith(self.prefix):
+                DATA[0] = (DATA[0][0][len(self.prefix) + 1:], DATA[0][1])
         super().run()
         from distutils.fancy_getopt import longopt_xlate
         s = ""
