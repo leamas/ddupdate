@@ -15,8 +15,8 @@ import time
 import ast
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
-from ddupdate.ddplugin import ServicePlugin, ServiceError
-from ddupdate.ddplugin import AuthPlugin, IpAddr
+from ddupdate.ddplugin import ServicePlugin, ServiceError, IpAddr
+from ddupdate.ddplugin import AuthPlugin, AuthError, set_auth_plugin
 
 # pylint: disable=ungrouped-imports
 if sys.version_info >= (3, 5):
@@ -501,6 +501,8 @@ def main():
                 log.info("Processing configuration section: " + section)
                 auth_plugin, ip_plugin, service_plugin = get_plugins(
                     opts, log, sections)
+                set_auth_plugin(auth_plugin)
+                log.debug("Using auth plugin: " + auth_plugin.name())
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
                 service_plugin.register(
@@ -510,7 +512,7 @@ def main():
             except _SectionFailError:
                 print("Skipping config section: " + section)
                 continue
-            except ServiceError as err:
+            except (ServiceError, AuthError) as err:
                 log.error("Cannot update DNS data: %s", err)
                 log.info("Skipping config section: " + section)
                 continue

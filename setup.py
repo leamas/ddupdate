@@ -101,7 +101,7 @@ setup(
     keywords=['dyndns', 'dhcp', 'dns'],
     package_dir={'': 'lib'},
     packages=['ddupdate'],
-    scripts=['ddupdate', 'ddupdate-config'],
+    scripts=['ddupdate', 'ddupdate-config', 'ddupdate_netrc_to_keyring'],
     data_files=DATA,
     cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
 )
