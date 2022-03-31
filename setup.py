@@ -69,8 +69,11 @@ class _ProjectInstall(install):
                 continue
             if option == "install_lib":
                 install_lib = value
-            if final_prefix:
+            if final_prefix and self.root:
                 value = str(value).replace(self.root, final_prefix)
+            elif final_prefix and self.prefix:
+                value = str(value).replace(self.prefix, final_prefix)
+            value = str(value).replace('//', '/')
             s += option + " = " + (str(value) if value else "") + "\n"
         if not install_lib:
             print("Warning: cannot create platform install paths file")
