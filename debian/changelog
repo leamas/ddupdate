@@ -1,3 +1,9 @@
+ddupdate (0.7.0-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Alec Leamas <leamas.alec@gmail.com>  Thu, 31 Mar 2022 16:02:58 +0200
+
 ddupdate (0.6.6-1) unstable; urgency=medium
 
   * New upstream bugfix release
