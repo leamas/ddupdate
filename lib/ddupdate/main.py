@@ -16,7 +16,7 @@ import ast
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError
-from ddupdate.ddplugin import IpAddr
+from ddupdate.ddplugin import AuthPlugin, IpAddr
 
 # pylint: disable=ungrouped-imports
 if sys.version_info >= (3, 5):
@@ -34,6 +34,7 @@ DEFAULTS = {
     'hostname': 'host.nowhere.net',
     'address-plugin': 'default-if',
     'service-plugin': 'dry-run',
+    'auth-plugin': 'netrc',
     'loglevel': 'info',
     'ip-version': 'v4',
     'service-options': None,
@@ -182,10 +183,15 @@ def get_parser(conf):
         % conf['address-plugin'],
         default=conf['address-plugin'])
     normals.add_argument(
+        "-C", "--auth-plugin", metavar="plugin",
+        help='Plugin providing authentication credentials  [%s]'
+        % conf['auth-plugin'],
+        default=conf['auth-plugin'])
+    normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
         + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
-        + ':/etc/dupdate.conf]',
+        + ':/etc/ddupdate.conf]',
         dest='config_file', default='/etc/ddupdate.conf')
     normals.add_argument(
         "-l", "--loglevel", metavar='level',
@@ -216,6 +222,10 @@ def get_parser(conf):
     others.add_argument(
         "-A", "--list-addressers",
         help='List plugins providing ip address. ',
+        default=False, action='store_true')
+    others.add_argument(
+        "-P", "--list-auth-plugins",
+        help='List plugins providing credentials. ',
         default=False, action='store_true')
     others.add_argument(
         "-E", "--list-sections",
@@ -343,11 +353,13 @@ def load_plugins(path, log):
     """Load ip and service plugins into dicts keyed by name."""
     setters = load_plugin_dir(os.path.join(path, 'plugins'), ServicePlugin)
     getters = load_plugin_dir(os.path.join(path, 'plugins'), AddressPlugin)
+    auths = load_plugin_dir(os.path.join(path, 'plugins'), AuthPlugin)
     getters_by_name = {plug.name(): plug for plug in getters}
     setters_by_name = {plug.name(): plug for plug in setters}
-    log.debug("Loaded %d address and %d service plugins from %s",
-              len(getters), len(setters), path)
-    return getters_by_name, setters_by_name
+    auths_by_name = {plug.name(): plug for plug in auths}
+    log.debug("Loaded %d address, %d service and %d auth plugins from %s",
+              len(getters), len(setters), len(auths), path)
+    return auths_by_name, getters_by_name, setters_by_name
 
 
 def list_plugins(plugins):
@@ -356,12 +368,14 @@ def list_plugins(plugins):
         print("%-20s %s" % (name, plugin.oneliner()))
 
 
-def plugin_help(ip_plugins, service_plugins, plugid):
+def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
     """Print full help for given plugin."""
     if plugid in ip_plugins:
         plugin = ip_plugins[plugid]
     elif plugid in service_plugins:
         plugin = service_plugins[plugid]
+    elif plugid in auth_plugins:
+        plugin = auth_plugins[plugid]
     else:
         raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
@@ -399,24 +413,30 @@ def get_plugins(opts, log, sections):
     """
     Handles plugin listing, plugin help or load plugins.
 
-    return: (ip plugin, service plugin) tuple.
+    Return: (auth_plugin, ip plugin, service plugin) tuple.
     """
     ip_plugins = {}
     service_plugins = {}
+    auth_plugins = {}
     for path in build_load_path(log):
-        getters, setters = load_plugins(path, log)
+        auths, getters, setters = load_plugins(path, log)
         for name, plugin in getters.items():
             ip_plugins.setdefault(name, plugin)
         for name, plugin in setters.items():
             service_plugins.setdefault(name, plugin)
+        for name, plugin in auths.items():
+            auth_plugins.setdefault(name, plugin)
     if opts.list_services:
         list_plugins(service_plugins)
         raise _GoodbyeError()
     if opts.list_addressers:
         list_plugins(ip_plugins)
         raise _GoodbyeError()
+    if opts.list_auth_plugins:
+        list_plugins(auth_plugins)
+        raise _GoodbyeError()
     if opts.help and opts.help != '-':
-        plugin_help(ip_plugins, service_plugins, opts.help)
+        plugin_help(auth_plugins, ip_plugins, service_plugins, opts.help)
         raise _GoodbyeError()
     if opts.list_sections:
         print("\n".join(sections))
@@ -426,12 +446,15 @@ def get_plugins(opts, log, sections):
             "--ip-plugin has been replaced by --address-plugin.")
     elif opts.address_plugin not in ip_plugins:
         raise _GoodbyeError('No such ip plugin: ' + opts.address_plugin, 2)
+    elif opts.auth_plugin not in auth_plugins:
+        raise _GoodbyeError('No such auth plugin: ' + opts.auth_plugin, 2)
     elif opts.service_plugin not in service_plugins:
         raise _GoodbyeError(
             'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
     ip_plugin = ip_plugins[opts.address_plugin]
-    return ip_plugin, service_plugin
+    auth_plugin = auth_plugins[opts.auth_plugin]
+    return auth_plugin, ip_plugin, service_plugin
 
 
 def get_ip(ip_plugin, opts, log):
@@ -476,7 +499,8 @@ def main():
                 opts = parse_options(conf)
                 log_init(log, None, opts)
                 log.info("Processing configuration section: " + section)
-                ip_plugin, service_plugin = get_plugins(opts, log, sections)
+                auth_plugin, ip_plugin, service_plugin = get_plugins(
+                    opts, log, sections)
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
                 service_plugin.register(

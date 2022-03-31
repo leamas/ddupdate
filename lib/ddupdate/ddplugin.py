@@ -222,6 +222,11 @@ class ServiceError(AddressError):
 
     pass
 
+class AuthError(AddressError):
+    """General error in AuthPlugin."""
+
+    pass
+
 
 class AbstractPlugin(object):
     """Abstract base for all plugins."""
@@ -305,3 +310,21 @@ class ServicePlugin(AbstractPlugin):
 
         """
         raise NotImplementedError("Attempt to invoke abstract register()")
+
+
+class AuthPlugin(AbstractPlugin):
+    """ Abstract plugin for getting credentials for a hostname. """
+
+    def get_auth(self, machine):
+        """
+        Retrieve credentials for a machine
+
+        Parameters:
+          - machine: Key while searching for credentials.
+        Returns:
+          - A (user, password) tuple. User might be None.
+        Raises:
+          - AuthError if .netrc or password is not found.
+
+        """
+        raise NotImplementedError("Attempt to invoke abstract get_auth()")
