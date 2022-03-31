@@ -53,7 +53,8 @@ ddupdate is packaged in some distros:
 
   - **Fedora** 27 and later.
   - **EPEL7** addons for RHEL/CentOS
-  - **Debian** Buster/sid
+  - **Debian** Buster and later
+  - **Ubuntu** Bionic and later
 
 CONTRIBUTE.md describes how to create packages for **other Debian
 distributions**
