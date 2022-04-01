@@ -30,7 +30,7 @@ class AuthNetrc(AuthPlugin):
         return auth[0], auth[2]
     
 
-    def set_auth(self, machine, username, password):
+    def set_password(self, machine, username, password):
 
         def update(lines):
             """ Either update existing line matching machine or add a new """
@@ -56,7 +56,8 @@ class AuthNetrc(AuthPlugin):
                     line += ' login ' + username
                 line += ' password ' + password
                 new_lines.append(line)
-            return new_lines
+            new_lines = [l.strip() for l in new_lines]
+            return '\n'.join(new_lines)
 
         if os.path.exists(os.path.expanduser('~/.netrc')):
             path = os.path.expanduser('~/.netrc')
