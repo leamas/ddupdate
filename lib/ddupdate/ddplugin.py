@@ -122,17 +122,15 @@ def get_response(log, url, **kwargs):
 
 def get_netrc_auth(machine):
     """
-    Retrieve data from  ~/-netrc or /etc/netrc.
+    Retrieve data from configured credentials source. The function name is
+    thus misleading but kept for legacy reasons.
 
     Parameters:
-      - machine: key while searching in netrc file.
+      - machine: key used to look up credentials.
     Returns:
       - A (user, password) tuple. User might be None.
     Raises:
-      - ServiceError if .netrc or password is not found.
-    See:
-      - netrc(5)
-
+       -AuthError if credentials cannot be retrieved.
     """
     return auth_plugin.get_auth(machine)
 
