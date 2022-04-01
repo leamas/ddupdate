@@ -25,10 +25,19 @@ import keyring.errors
 
 
 class AuthKeyring(AuthPlugin):
-    """ Implement credentials lookup using python3-keyring """
+    """ Implement credentials lookup using python3-keyring. This is a
+    reasonably secure way to handle the passwords. Before actually 
+    accessing the passwords the keyring must be unlocked. This makes this
+    backend less suited to servers but is no problem on for example a
+    notebook.
+
+    Prior to 0.7.0 all passwords was stored in the .netrc file. See the
+    ddupdate-netrc-to-keyring tool for migrating passwords from .netrc to
+    the keyring backend.
+    """
 
     _name = 'keyring'
-    _oneliner = 'Get credentials stored in the system keyring'
+    _oneliner = 'Store credentials in the system keyring'
     __version__ = '0.7.0'
 
     def get_auth(self, machine):
