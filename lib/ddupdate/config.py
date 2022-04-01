@@ -115,6 +115,35 @@ def get_service_plugin(service_plugins):
         raise _GoodbyeError("Illegal selection\n", 2)
     return services_by_ix[ix]
 
+def get_auth_plugin(plugins):
+    """
+    Present a menu with all auth plugins to user, let her select.
+
+    Parameters:
+      - plugins: Dict of loaded plugins keyed by plugin.name()
+
+    Return:
+      A loaded plugin as selected by user.
+
+    """
+    print("\nAvailable backends for storing passwords")
+    ix = 1
+    plugins_by_ix = {}
+    for id_ in sorted(plugins):
+        print("%2d     %-18s     %s" %
+              (ix, id_, plugins[id_].oneliner()))
+        plugins_by_ix[ix] = plugins[id_]
+        ix += 1
+    text = input("Select backend (use keyring if in doubt): ")
+    try:
+        ix = int(text)
+    except ValueError:
+        raise _GoodbyeError("Illegal number format", 1)
+    if ix not in range(1, len(plugins_by_ix) + 1):
+        raise _GoodbyeError("Illegal selection\n", 2)
+    return plugins_by_ix[ix]
+
+
 
 def get_address_plugin(log, paths):
     """
@@ -318,13 +347,14 @@ def main():
         service = get_service_plugin(service_plugins)
         netrc = get_netrc(service)
         auth_plugins = _load_auth_plugins(log, load_paths)
-        auth_plugin = auth_plugins["netrc"]
+        auth_plugin = get_auth_plugin(auth_plugins)
         hostname = input("[%s] hostname: " % service.name())
         address_plugin = get_address_plugin(log, load_paths)
         conf = {
             'address-plugin': address_plugin,
             'service-plugin': service.name(),
-            'hostname': hostname
+            'hostname': hostname,
+            'auth-plugin': auth_plugin.name()
         }
         write_credentials(auth_plugin, hostname, netrc)
         write_config_files(conf)
