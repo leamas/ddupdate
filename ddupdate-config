@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(HERE, 'lib'))
 
 try:
     import lib.ddupdate.config as config
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     import ddupdate.config as config
 
 config.main()
