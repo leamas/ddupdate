@@ -12,13 +12,16 @@ from ddupdate.ddplugin import get_netrc_auth
 
 class DesecPlugin(ServicePlugin):
     """
-    Update a dns entry on desec.io
+    Update a dns entry on https://desec.io
 
     Supports most address plugins including default-web-ip, default-if and
     ip-disabled. ipv6 is supported.
 
+    The site also supports several ways to authenticate. This plugin only
+    supports using the API token which is created during registration.
+
     netrc: Use a line like
-        machine update.dedyn.io login <username>  password <password>
+        machine update.dedyn.io password <API token>
 
     Options:
         none
