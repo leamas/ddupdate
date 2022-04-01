@@ -95,6 +95,7 @@ def get_response(log, url, **kwargs):
          - data: dict of post data. If data != None, get_response makes a
            http POST request, otherwise a http GET.
          - timeout: int, timeout in seconds. Defaults to 120.
+         - header: a (header, contents) tuple like ('api-key', 'xxxx')
     Returns:
       - Text read from url.
     Raises:
@@ -107,7 +108,10 @@ def get_response(log, url, **kwargs):
     if data:
         log.debug("Posting data: " + data.decode('ascii'))
     try:
-        with urllib.request.urlopen(url, data, timeout=to) as response:
+        request = urllib.request.Request(url)
+        if 'header' in  kwargs:
+            request.add_header(*kwargs['header'])
+        with urllib.request.urlopen(request, data, timeout=to) as response:
             code = response.getcode()
             html = response.read().decode('ascii')
     except timeoutError:
