@@ -21,6 +21,8 @@ try:
     import keyring
 except (ModuleNotFoundError, ImportError):
     raise(AuthError(KEYRING_MISSING_MSG))
+import keyring.errors
+
 
 class AuthKeyring(AuthPlugin):
     """ Implement credentials lookup using python3-keyring """
@@ -31,8 +33,11 @@ class AuthKeyring(AuthPlugin):
 
     def get_auth(self, machine):
         try:
-            credentials = keyring.get_password('ddupdate', machine).split('\t')
-        except KeyringError:
+            credentials = keyring.get_password('ddupdate', machine)
+            if not credentials:
+                raise AuthError("Cannot get authentication for: " + machine)
+            credentials = credentials.split('\t')
+        except keyring.errors.KeyringError:
             raise AuthError("Cannot obtain credentials for: " + machine)
         if len(credentials) != 2:
             raise AuthError("Cannot parse credentials for: " + machine)
@@ -40,11 +45,11 @@ class AuthKeyring(AuthPlugin):
             credentials[0] = None
         return credentials[0], credentials[1]
 
-    def set_auth(self, machine, username, password):
+    def set_password(self, machine, username, password):
         if not username:
             username = 'api-key'
         credentials = username + '\t' + password
         try:
             keyring.set_password('ddupdate', machine, credentials)
-        except KeyringError:
+        except keyring.errors.KeyringError:
             raise AuthError("Cannot set credentials for: " + machine)
