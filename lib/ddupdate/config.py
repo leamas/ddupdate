@@ -14,8 +14,8 @@ import tempfile
 import time
 
 from ddupdate.main import \
-    setup, build_load_path, envvar_default, load_plugin_dir
-from ddupdate.ddplugin import ServicePlugin, AddressPlugin
+    log_setup, build_load_path, envvar_default, load_plugin_dir
+from ddupdate.ddplugin import ServicePlugin, AddressPlugin, AuthPlugin
 
 
 _CONFIG_TRAILER = """
@@ -25,20 +25,6 @@ _CONFIG_TRAILER = """
 # service-options = foo bar
 # address-options = foo bar
 """
-
-_UPDATE_CONFIG = """
-#!/bin/sh
-if test -e {netrc_path}; then
-    sed -E -i '/machine[ ]+{machine}/d' {netrc_path}
-fi
-if test "{netrc_line}" != "machine dummy"; then
-    echo {netrc_line} >> {netrc_path}
-fi
-chmod 600 {netrc_path}
-cp {config_src} {config_dest}
-
-"""
-
 
 class _GoodbyeError(Exception):
     """General error, implies sys.exit()."""
@@ -53,14 +39,11 @@ def check_existing_files():
     """Check existing files and let user save them."""
     confdir = \
         envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
-    files = [
-        os.path.expanduser('~/.netrc'),
-        os.path.join(confdir, 'ddupdate.conf')
-    ]
+    files = [os.path.join(confdir, 'ddupdate.conf')]
     files = [f for f in files if os.path.exists(f)]
     if not files:
         return
-    print("The following configuration file(s)s already exists:")
+    print("The following configuration file(s) already exists:")
     for f in files:
         print("        " + f)
     reply = input("OK to overwrite (Yes/No) [No]: ")
@@ -101,6 +84,9 @@ def _load_addressers(log, paths):
     """Load address plugins from paths into dict keyed by name."""
     return _load_plugins(log, paths, AddressPlugin)
 
+def _load_auth_plugins(log, paths):
+    """Load auth plugins from paths into dict keyed by name."""
+    return _load_plugins(log, paths, AuthPlugin)
 
 def get_service_plugin(service_plugins):
     """
@@ -225,38 +211,6 @@ def get_netrc(service):
     return line
 
 
-def merge_configs(netrc_line, netrc_path, config_src, config_dest, cmd):
-    """
-    Merge netrc and config file options into current configuration.
-
-    Parameters:
-      - netrc_line: String, new netrc authentication line.
-      - netrc_path: String, path of netrc file.
-      - config_src: String, path of updated, temporary config file.
-      - config_dest: String, path of existing config file actually used.
-      - cmd: function(path) returning command executing path in a shell,
-             a list of strings.
-
-    Returns nothing.
-
-    """
-    netrc_line = netrc_line if netrc_line else "machine dummy"
-    script = _UPDATE_CONFIG.format(
-        netrc_line=netrc_line,
-        machine=netrc_line.split()[1],
-        netrc_path=netrc_path,
-        config_src=config_src,
-        config_dest=config_dest
-    )
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(script.encode())
-    os.chmod(f.name, stat.S_IRUSR | stat.S_IXUSR)
-    subprocess.run(cmd(f.name))
-    os.unlink(f.name)
-    print("Patched .netrc: " + netrc_path)
-    print("Patched config: " + config_dest)
-
-
 def update_config(config, path):
     """
     Merge values from config dict and existing conf into tempfile.
@@ -287,30 +241,39 @@ def update_config(config, path):
     return f.name
 
 
-def write_config_files(config, netrc_line):
+def write_config_files(config):
     """
-    Merge user config data into user config files.
+    Merge user config data into user config file.
 
     Parameters:
       - config: dict with new configuration options.
-      - netrc_line: Authentication line to merge into existing .netrc file.
 
     Updates:
-      ~/.config/ddupdate.conf and ~/.netrc, respecting XDG_CONFIG_HOME.
+      ~/.config/ddupdate.conf, respecting XDG_CONFIG_HOME.
 
     """
     confdir = \
         envvar_default('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
     if not os.path.exists(confdir):
         os.makedirs(confdir)
-    tmp_conf = update_config(config, os.path.join(confdir, "ddupdate.conf"))
-    merge_configs(netrc_line,
-                  os.path.expanduser('~/.netrc'),
-                  tmp_conf,
-                  os.path.join(confdir, "ddupdate.conf"),
-                  lambda p: ["/bin/sh", p])
+    dest = os.path.join(confdir, "ddupdate.conf")
+    tmp_conf = update_config(config, dest)
+    shutil.copyfile(tmp_conf, os.path.join(confdir, "ddupdate.conf"))
     os.unlink(tmp_conf)
+    print("Patched config file: " + dest)
 
+def write_credentials(auth_plugin, hostname, netrc):
+    """ Update credentials at auth_plugin with data from netrc. """
+    username = None
+    password = None
+    words = netrc.split(' ')
+    for i in range(0, len(words) - 1):
+        if words[i] == 'login':
+            username = words[i + 1]
+        if words[i] == 'password':
+            password = words[i + 1]
+    auth_plugin.set_password(hostname, username, password)
+    print("Updated password for user %s at %s" % (username, hostname))
 
 def try_start_service():
     """Start dduppdate systemd user service and display logs."""
@@ -347,13 +310,15 @@ def enable_service():
 def main():
     """Indeed: main function."""
     try:
-        log = setup(logging.WARNING)[0]
+        log = log_setup()
         check_existing_files()
         copy_systemd_units()
         load_paths = build_load_path(log)
         service_plugins = _load_services(log, load_paths)
         service = get_service_plugin(service_plugins)
         netrc = get_netrc(service)
+        auth_plugins = _load_auth_plugins(log, load_paths)
+        auth_plugin = auth_plugins["netrc"]
         hostname = input("[%s] hostname: " % service.name())
         address_plugin = get_address_plugin(log, load_paths)
         conf = {
@@ -361,7 +326,8 @@ def main():
             'service-plugin': service.name(),
             'hostname': hostname
         }
-        write_config_files(conf, netrc)
+        write_credentials(auth_plugin, hostname, netrc)
+        write_config_files(conf)
         try_start_service()
         enable_service()
     except _GoodbyeError as err:
