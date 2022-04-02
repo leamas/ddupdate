@@ -302,6 +302,9 @@ def write_credentials(auth_plugin, hostname, netrc):
     """ Update credentials at auth_plugin with data from netrc. """
     username = None
     password = None
+    if not netrc:
+        print("NOTE: No credentials defined")
+        return
     words = netrc.split(' ')
     for i in range(0, len(words) - 1):
         if words[i] == 'login':
