@@ -53,6 +53,7 @@ existing plugins and pick solutions from them. Some hints:
       - Hashed passwords are used in e. g., ```dynu.py```
       - API tokens are handled in e. g., ```duckdns.py```
       - Some have broken basic authentication, see ```now_dns.py```
+      - Some uses a separate header with the API token, see ```desec.io```
 
   - Most services uses a http GET request to set the data. See
     ```freedns_io.py``` for a http POST example.
