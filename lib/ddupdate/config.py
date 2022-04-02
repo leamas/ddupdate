@@ -185,12 +185,17 @@ def copy_systemd_units():
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
     path = os.path.join(user_dir, "ddupdate.service")
+    here = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+    srcdir = os.path.join(here, '..', '..', 'systemd')
+    if not os.path.exists(srcdir):
+        srcdir = "/usr/share/ddupdate/systemd"
+
     if not os.path.exists(path):
-        shutil.copy("/usr/share/ddupdate/systemd/ddupdate.service", path)
+        shutil.copy(os.path.join(srcdir, "ddupdate.service"), path)
     path = os.path.join(user_dir, "ddupdate.timer")
     if not os.path.exists(path):
-        shutil.copy("/usr/share/ddupdate/systemd/ddupdate.timer", path)
-    here = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+        shutil.copy(os.path.join(srcdir, "ddupdate.timer"), path)
+
     installconf_path = os.path.join(here, "install.conf")
     parser = configparser.SafeConfigParser()
     try:
@@ -203,12 +208,14 @@ def copy_systemd_units():
         bindir = os.path.abspath(os.path.join(here, '..', '..'))
     with open(os.path.join(user_dir, 'ddupdate.service')) as f:
         lines = f.readlines();
+    output = []
+    for l in lines:
+        if l.startswith('ExecStart'):
+            output.append("ExecStart=" + bindir + "/ddupdate")
+        else:
+            output.append(l)
     with open(os.path.join(user_dir, 'ddupdate.service'), 'w')  as f:
-        for l in lines:
-            if l.startswith('ExecStart'):
-                f.write("ExecStart=" + bindir + "/ddupdate\n")
-            else:
-                f.write(l + "\n")
+        f.write('\n'.join([l.strip() for l in output]))
 
 
 def get_netrc(service):
