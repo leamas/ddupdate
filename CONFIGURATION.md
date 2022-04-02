@@ -12,6 +12,9 @@ Some plugins needs specific plugin options.
 The address plugin to use is normally either *default-web-ip*
 or *default-if*.
 
+Address Plugin
+--------------
+
 The *default-web-ip* plugin should be used when the address to register is
 the external address visible on the internet - that is, if the registered
 host should be accessed from the internet. For most services *ip-disabled*
@@ -33,6 +36,8 @@ it using something like::
         v6 address: None
         hostname: host1.nowhere.net
 
+Service Plugin
+--------------
 After selecting the address plugin, start the process of selecting a
 service by listing all available services (your list might differ)::
 
@@ -112,10 +117,10 @@ Adding more hosts
 
 It is possible to add more hosts to the configuration file. This means that
 ddupdate will update two or more services when run. This is an experimental
-and purely manual procedure.
+procedure.
 
-The starting point could be a _~/.config/ddupdate.conf_ file like
-
+The starting point could be a _~/.config/ddupdate.conf_ file created by
+_ddupdate-config_ like::
 
     [update]
     address-plugin = default-web-ip
@@ -123,31 +128,34 @@ The starting point could be a _~/.config/ddupdate.conf_ file like
     hostname = myhost.dynu.net
     loglevel = info
 
-
-After adding a new host it might look like
+The first step is to replace '[update]' with a new name, for example
+'[dynu]'.  After this,  ddupdate-config can be run again creating::
 
     [dynu]
     address-plugin = default-web-ip
     service-plugin = dynu
+    auth-plugin = keyring
     hostname = myhost.dynu.net
     loglevel = info
 
-
-    [duckdns]
+    [update]
     address-plugin = default-web-ip
     service-plugin = duckdns.org
+    auth-plugin = keyring
     hostname = myhost.duckdns.org
     loglevel = info
 
-Note that the initial entry heading is changed from `[update]` to `[dynu]`
-to ease debugging.
+The process can be repeated to add more entries. New entries can also be 
+added manually.
 
-It is also necessary to update ~/.netrc. From version 0.7, this can be 
-done using the `-p' option using something like
+It is also necessary to update username/password credentials stored in
+~/.netrc or the keyring. From version 0.7, this can be done using the 
+`-p' option using something like
 
-    $ ddupdate -C netrc -p  hostname username password
+    $ ddupdate -C netrc <hostname> <username> <password>
 
-The hostname is available in the plugin's \_url attribute. Services only
+The _hostname_ is available in the plugin's .netrc help text as 'machine'.
+Use `-C keyring` when using the keyring credentials storage.  Services only
 using an API key should use "" as username and the API key as 'password'.
 
 The CLI support for multiple hosts:
@@ -173,5 +181,5 @@ keyring.  The basic parts
   - The new script `ddupdate_netrc_to_keyring` migrates all entries in
     _~/.netrc_ to the keyring. 
 
-There is yet not any support for the keyring in `ddupdate-config`, using it
-requires manual configuration.
+Note that the keyring needs to be unlocked before accessed making it less
+useful in servers.
