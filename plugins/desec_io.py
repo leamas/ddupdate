@@ -5,9 +5,8 @@ See: ddupdate(8)
 See: https://desec.readthedocs.io/en/latest/dyndns/update-api.html
 """
 
-from ddupdate.ddplugin import ServicePlugin
-from ddupdate.ddplugin import http_basic_auth_setup, get_response
-from ddupdate.ddplugin import get_netrc_auth
+from ddupdate.ddplugin import ServicePlugin, ServiceError
+from ddupdate.ddplugin import get_response, get_netrc_auth
 
 
 class DesecPlugin(ServicePlugin):
