@@ -42,7 +42,7 @@ class AuthKeyring(AuthPlugin):
 
     def get_auth(self, machine):
         try:
-            credentials = keyring.get_password('ddupdate', machine)
+            credentials = keyring.get_password('ddupdate', machine.lower())
             if not credentials:
                 raise AuthError("Cannot get authentication for: " + machine)
             credentials = credentials.split('\t')
@@ -59,6 +59,6 @@ class AuthKeyring(AuthPlugin):
             username = 'api-key'
         credentials = username + '\t' + password
         try:
-            keyring.set_password('ddupdate', machine, credentials)
+            keyring.set_password('ddupdate', machine.lower(), credentials)
         except keyring.errors.KeyringError:
             raise AuthError("Cannot set credentials for: " + machine)

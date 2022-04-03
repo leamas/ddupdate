@@ -43,7 +43,8 @@ class AuthNetrc(AuthPlugin):
             for line in lines:
                 words = line.split(' ')
                 for i in range(0, len(words) - 1):
-                    if words[i] == 'machine' and words[i+1] == machine:
+                    if words[i] == 'machine' and \
+                            words[i+1].lower() ==  machine.lower():
                         line_found = True
                 if not line_found:
                     new_lines.append(line)
@@ -55,7 +56,7 @@ class AuthNetrc(AuthPlugin):
                         words[i+1] = username
                 new_lines.append(' '.join(words))
             if not line_found:
-                line = 'machine ' + machine
+                line = 'machine ' + machine.lower()
                 if username:
                     line += ' login ' + username
                 line += ' password ' + password
