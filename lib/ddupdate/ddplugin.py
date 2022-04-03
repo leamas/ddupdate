@@ -136,7 +136,7 @@ def get_netrc_auth(machine):
     Raises:
        -AuthError if credentials cannot be retrieved.
     """
-    return auth_plugin.get_auth(machine)
+    return auth_plugin.get_auth(machine.lower())
 
 
 class IpAddr(object):

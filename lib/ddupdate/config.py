@@ -308,7 +308,7 @@ def write_credentials(auth_plugin, hostname, netrc):
     words = netrc.split(' ')
     for i in range(0, len(words) - 1):
         if words[i] == 'machine':
-            hostname = words[i + 1]
+            hostname = words[i + 1].lower()
         if words[i] == 'login':
             username = words[i + 1]
         if words[i] == 'password':
