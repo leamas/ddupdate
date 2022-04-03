@@ -8,9 +8,10 @@ See: https://now-dns.com/?p=clients
 import base64
 import urllib.request
 import urllib.error
+from urllib.parse import urlencode, urlparse
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError, \
-    http_basic_auth_setup, get_response
+     get_response, get_netrc_auth
 
 
 class NowDnsPlugin(ServicePlugin):
@@ -42,7 +43,11 @@ class NowDnsPlugin(ServicePlugin):
         url = self._url.format(hostname)
         if ip:
             url += '&myip=' + ip.v4
-        http_basic_auth_setup(url)
-        html = get_response(log, request)
+        api_host = urlparse(url).hostname
+        username, password = get_netrc_auth(api_host)
+        user_pw = ('%s:%s' % (username, password))
+        credentials = base64.b64encode(user_pw.encode('ascii'))
+        auth_header = ('Authorization', 'Basic ' + credentials.decode("ascii"))
+        html = get_response(log, url, header = auth_header)
         if html not in ['good', 'nochg']:
             raise ServiceError('Bad server reply: ' + html)
