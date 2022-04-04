@@ -389,8 +389,7 @@ def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
 
 def set_password(opts):
     auth_plugin = get_auth_plugin()
-    args = opts.set_password
-    auth_plugin.set_password(args[0], args[1], args[2])
+    auth_plugin.set_password(*opts.set_password)
 
 def filter_ip(ip_version, ip):
     """Filter the ip address to match the --ip-version option."""
