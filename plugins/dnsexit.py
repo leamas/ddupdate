@@ -34,18 +34,16 @@ class DnsexitPlugin(ServicePlugin):
     _name = 'dnsexit.com'
     _oneliner = 'Updates on https://www.dnsexit.com'
 
-    _update_host = 'http://update.dnsexit.com'
+    _api_host = 'https://update.dnsexit.com'
     _url = '{0}/RemoteUpdate.sv?login={1}&password={2}&host={3}'
     _ip_warning = \
         "service is not known to provide an address, use another ip plugin"
-
     def register(self, log, hostname, ip, options):
         """Implement AddressPlugin.get_ip()."""
         if not ip:
             log.warn(self._ip_warning)
         user, password = get_netrc_auth('update.dnsexit.com')
-        url = self._url.format(
-            self._update_host, user, password, hostname)
+        url = self._url.format(self._api_host, user, password, hostname)
         if ip:
             url += "&myip=" + ip.v4
         # if debugging:
