@@ -186,6 +186,11 @@ keyring.  The basic parts
     using an api key without username, use "" for username.
   - The new script `ddupdate_netrc_to_keyring` migrates all entries in
     _~/.netrc_ to the keyring.
+  - To check passwords in keyring::
+
+        $ python3
+        > import keyring
+        > keyring.get_password('ddupdate', 'myhost.tld')
 
 Note that the keyring needs to be unlocked before accessed making it less
 useful in servers.
