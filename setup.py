@@ -1,5 +1,7 @@
 """ddupdate install data."""
 
+# pylint: disable=bad-option-value, import-outside-toplevel, consider-using-with
+
 import shutil
 import os
 import subprocess
@@ -10,7 +12,6 @@ from distutils.command.install import install
 from glob import glob
 from setuptools import setup
 
-# pylint: disable=bad-continuation
 ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
 
@@ -52,7 +53,7 @@ class _ProjectInstall(install):
         final_prefix = None
         if 'FINAL_PREFIX' in  os.environ:
             final_prefix = os.environ['FINAL_PREFIX']
-        if (final_prefix):
+        if final_prefix:
             # Strip leading prefix in paths like /usr/lib/systemd,
             # avoiding /usr/usr when applying the prefix
             if DATA[0][0].startswith(self.prefix):
