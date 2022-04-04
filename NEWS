@@ -1,10 +1,18 @@
 0.7.1
-* Multiple bugfixes in new credentials backends.
+* Drop the dnsdynamic plugin, service is discontinued.
+* Drop the system-ns plugin, service is discontinued.
 * Add new plugin for desec.io (#36).
+* Handle expired certificate on duiadns server.
+* myonlineportal, dnsexit, dynu: Handle API updates.
+* Multiple bugfixes in new credentials backends.
+* Base64-encode passwords in auth_netrc to handle 'strange' characters (#49).
 * Add support for selecting auth plugin to ddupdate-config.
 * ddplugin: Add a new header kwarg argument to get_response(), used in
   desec.io to allow token based header authentication.
-* Various documentation polish
+* Add pyproject.toml, first step in distutils being dropped in 3.12
+* Various documentation polish.
+* Rename all address plugins using an addr_ prefix.
+* Fix pylint and pycodestyle diagnostics.
 
 
 0.7.0 
