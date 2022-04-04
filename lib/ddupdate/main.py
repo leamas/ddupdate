@@ -22,7 +22,6 @@ from ddupdate.ddplugin import AuthPlugin, AuthError
 from ddupdate.ddplugin import set_auth_plugin, get_auth_plugin
 
 
-
 if 'XDG_CACHE_HOME' in os.environ:
     CACHE_DIR = os.environ['XDG_CACHE_HOME']
 else:
@@ -139,12 +138,13 @@ def parse_conffile(log):
 def parse_config(config, section):
     """Return dict with values from config backed by DEFAULTS"""
     results = {}
-    if not section in config:
+    if section not in config:
         raise _GoodbyeError("No such section: " + section, 2)
     items = config[section]
-    for key, value  in DEFAULTS.items():
+    for key, value in DEFAULTS.items():
         results[key] = items[key] if key in items else value
     return results
+
 
 def get_config(log):
     """ Parse config file, return a (ConfigParser, list of sections) tuple."""
@@ -229,7 +229,7 @@ def get_parser(conf):
         help='List configuration file sections. ',
         default=False, action='store_true')
     others.add_argument(
-        "-e", "--execute-section",  metavar="section",
+        "-e", "--execute-section", metavar="section",
         help='Update a given configuration file section [all sections]',
         dest='execute_section', default='')
     others.add_argument(
@@ -387,6 +387,7 @@ def set_password(opts):
     auth_plugin = get_auth_plugin()
     auth_plugin.set_password(*opts.set_password)
 
+
 def filter_ip(ip_version, ip):
     """Filter the ip address to match the --ip-version option."""
     if ip_version == 'v4':
@@ -472,7 +473,7 @@ def get_ip(ip_plugin, opts, log):
         ip = ip_plugin.get_ip(log, opts.address_options)
     except AddressError as err:
         raise _SectionFailError("Cannot obtain ip address: " + str(err)) \
-                from err
+            from err
     if not ip or ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
@@ -516,7 +517,7 @@ def main():
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
                 service_plugin.register(
-                        log, opts.hostname, ip, opts.service_options)
+                    log, opts.hostname, ip, opts.service_options)
                 ip_cache_set(opts, ip)
                 log.info("Update OK")
             except _SectionFailError:

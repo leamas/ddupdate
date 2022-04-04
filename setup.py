@@ -1,6 +1,7 @@
 """ddupdate install data."""
 
-# pylint: disable=bad-option-value, import-outside-toplevel, consider-using-with
+# pylint: disable=bad-option-value, import-outside-toplevel
+# pylint: disable=consider-using-with
 
 import shutil
 import os
@@ -22,7 +23,7 @@ def systemd_unitdir():
     try:
         return subprocess.check_output(cmd).decode().strip()
     except (OSError, subprocess.CalledProcessError):
-        return  "/usr/lib/systemd/user"
+        return "/usr/lib/systemd/user"
 
 
 DATA = [
@@ -46,12 +47,13 @@ class _ProjectClean(clean):
             if os.path.exists(path):
                 shutil.rmtree(path)
 
+
 class _ProjectInstall(install):
     """Log used installation paths."""
 
     def run(self):
         final_prefix = None
-        if 'FINAL_PREFIX' in  os.environ:
+        if 'FINAL_PREFIX' in os.environ:
             final_prefix = os.environ['FINAL_PREFIX']
         if final_prefix:
             # Strip leading prefix in paths like /usr/lib/systemd,
@@ -86,6 +88,7 @@ class _ProjectInstall(install):
         with open(path, "w") as f:
             f.write("[install]\n")
             f.write(s)
+
 
 setup(
     name='ddupdate',

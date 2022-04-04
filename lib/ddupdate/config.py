@@ -24,6 +24,7 @@ _CONFIG_TRAILER = """
 # address-options = foo bar
 """
 
+
 class _GoodbyeError(Exception):
     """General error, implies sys.exit()."""
 
@@ -82,9 +83,11 @@ def _load_addressers(log, paths):
     """Load address plugins from paths into dict keyed by name."""
     return _load_plugins(log, paths, AddressPlugin)
 
+
 def _load_auth_plugins(log, paths):
     """Load auth plugins from paths into dict keyed by name."""
     return _load_plugins(log, paths, AuthPlugin)
+
 
 def get_service_plugin(service_plugins):
     """
@@ -113,6 +116,7 @@ def get_service_plugin(service_plugins):
         raise _GoodbyeError("Illegal selection\n", 2)
     return services_by_ix[ix]
 
+
 def get_auth_plugin(plugins):
     """
     Present a menu with all auth plugins to user, let her select.
@@ -140,7 +144,6 @@ def get_auth_plugin(plugins):
     if ix not in range(1, len(plugins_by_ix) + 1):
         raise _GoodbyeError("Illegal selection\n", 2) from None
     return plugins_by_ix[ix]
-
 
 
 def get_address_plugin(log, paths):
@@ -206,13 +209,13 @@ def copy_systemd_units():
     with open(os.path.join(user_dir, 'ddupdate.service')) as f:
         lines = f.readlines()
     output = []
-    for l in lines:
-        if l.startswith('ExecStart'):
+    for line in lines:
+        if line.startswith('ExecStart'):
             output.append("ExecStart=" + bindir + "/ddupdate")
         else:
-            output.append(l)
-    with open(os.path.join(user_dir, 'ddupdate.service'), 'w')  as f:
-        f.write('\n'.join([l.strip() for l in output]))
+            output.append(line)
+    with open(os.path.join(user_dir, 'ddupdate.service'), 'w') as f:
+        f.write(['\n'.join(elem.strip()) for elem in output])
 
 
 def get_netrc(service):
@@ -295,6 +298,7 @@ def write_config_files(config):
     os.unlink(tmp_conf)
     print("Patched config file: " + dest)
 
+
 def write_credentials(auth_plugin, hostname, netrc):
     """ Update credentials at auth_plugin with data from netrc. """
     username = None
@@ -313,6 +317,7 @@ def write_credentials(auth_plugin, hostname, netrc):
     auth_plugin.set_password(hostname, username, password)
     print("Updated password for user %s at %s" % (username, hostname))
 
+
 def try_start_service():
     """Start dduppdate systemd user service and display logs."""
     print("Starting service and displaying logs")
@@ -320,7 +325,7 @@ def try_start_service():
     cmd += ';systemctl --user start ddupdate.service'
     cmd += ';journalctl -l --user --since -60s -u ddupdate.service'
     cmd = ['sh', '-c', cmd]
-    subprocess.run(cmd, check = True)
+    subprocess.run(cmd, check=True)
     print('Use "journalctl --user -u ddupdate.service" to display logs.')
 
 
@@ -332,12 +337,12 @@ def enable_service():
         cmd = 'systemctl --user start ddupdate.timer'
         cmd += ';systemctl --user enable ddupdate.timer'
         print("\nStarting and enabling ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd], check = True)
+        subprocess.run(['sh', '-c', cmd], check=True)
     else:
         cmd = 'systemctl --user stop ddupdate.timer'
         cmd += 'systemctl --user disable ddupdate.timer'
         print("Stopping ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd], check = True)
+        subprocess.run(['sh', '-c', cmd], check=True)
         msg = "systemctl --user start ddupdate.timer"
         msg += "; systemctl --user enable ddupdate.timer"
         print('\nStart ddupdate using "%s"' % msg)

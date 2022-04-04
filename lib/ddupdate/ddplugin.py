@@ -43,6 +43,7 @@ def get_auth_plugin():
 
 # pylint: disable=duplicate-code
 
+
 def http_basic_auth_setup(url, host=None):
     """
     Configure urllib to provide basic authentication.
@@ -108,13 +109,13 @@ def get_response(log, url, **kwargs):
         log.debug("Posting data: " + data.decode('ascii'))
     try:
         request = urllib.request.Request(url)
-        if 'header' in  kwargs:
+        if 'header' in kwargs:
             request.add_header(*kwargs['header'])
         with urllib.request.urlopen(request, data, timeout=to) as response:
             code = response.getcode()
             html = response.read().decode('ascii')
     except timeoutError:
-        raise ServiceError("Timeout reading %s" % url)  from None
+        raise ServiceError("Timeout reading %s" % url) from None
     except (urllib.error.HTTPError, urllib.error.URLError) as err:
         raise ServiceError("Error reading %s :%s" % (url, err)) from err
     log.debug("Got response (%d) : %s", code, html)
@@ -179,7 +180,7 @@ class IpAddr:
 
         """
         for line in text.split('\n'):
-            words = [ word for word in line.split(' ') if word != '' ]
+            words = [word for word in line.split(' ') if word != '']
             if words[0] == 'inet':
                 # use existing logic
                 self.v4 = words[1].split('/')[0]
@@ -189,7 +190,7 @@ class IpAddr:
                     continue
                 addr = words[1].split('/')[0]
                 words = set(words[2:])
-                if ('link' in words) or ('0x20<link>' in words) :
+                if ('link' in words) or ('0x20<link>' in words):
                     # don't use a link-local address
                     continue
                 if 'deprecated' in words:
@@ -223,6 +224,7 @@ class AddressError(Exception):
 
 class ServiceError(AddressError):
     """General error in ServicePlugin."""
+
 
 class AuthError(AddressError):
     """General error in AuthPlugin."""

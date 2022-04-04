@@ -14,6 +14,6 @@ sys.path.insert(0, os.path.join(HERE, 'lib'))
 try:
     from lib.ddupdate import config
 except (ImportError, ModuleNotFoundError):
-    from  ddupdate import config
+    from ddupdate import config
 
 config.main()
