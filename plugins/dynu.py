@@ -6,7 +6,7 @@ See: https://www.dynu.com/Resources/API/Documentation
 
 """
 import base64
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlparse
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth

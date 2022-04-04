@@ -4,9 +4,7 @@ ddupdate plugin providing an ip address to use a from an interface option.
 See: ddupdate(8)
 """
 
-import sys
-
-from ddupdate.ddplugin import AddressPlugin, IpAddr, dict_of_opts
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr, dict_of_opts
 
 
 class HardcodedIfPlugin(AddressPlugin):

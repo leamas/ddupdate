@@ -5,18 +5,18 @@ See: ddupdate(8)
 See: https://www.dnshome.de/
 """
 
-from typing import AnyStr, Optional
+from typing import AnyStr
 from logging import Logger
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
-from ddupdate.ddplugin import http_basic_auth_setup, get_response
-from ddupdate.ddplugin import AddressPlugin, IpAddr
+from ddupdate.ddplugin import http_basic_auth_setup, get_response, IpAddr
 
 
 class DeDnsHomeAddressPlugin(ServicePlugin):
     """Update a dns entry on dnshome.de.
 
-    Supports using most address plugins including default-web-ip, default-if and ip-disabled.
+    Supports using most address plugins including default-web-ip, default-if
+    and ip-disabled.
 
     You cannot set the host explicitly using a parameter like `hostname`.
     Even though the hostname is included in the query, it simply gets ignored.
@@ -46,14 +46,16 @@ class DeDnsHomeAddressPlugin(ServicePlugin):
         Returns:
             true, if the response-body starts with
                 'good' - Update was successful
-                'nochg' - No change was performed, since records were already up to date.
+                'nochg' - No change was performed, since records were
+                          already up to date.
         """
 
         return response.startswith('good') or response.startswith('nochg')
 
     def register(self, log: Logger, hostname: str, ip: IpAddr, options):
         """Implement ServicePlugin.register.
-        Expects the `ip` to be filtered already according to the _global_ `--ip-version` option.
+        Expects the `ip` to be filtered already according to the _global_
+        `--ip-version` option.
         """
         url = self._url.format(hostname)
 

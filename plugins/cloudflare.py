@@ -12,6 +12,10 @@ The Cloudflare plugin uses the python3-requests package which cannot be found.
 Please install python-requests or python3-requests. Giving up.
 """
 
+# pylint: disable=wrong-import-position
+from ddupdate.ddplugin import ServicePlugin, ServiceError
+from ddupdate.ddplugin import get_netrc_auth, dict_of_opts
+
 try:
     from requests import Request, Session
     from requests.auth import AuthBase
@@ -20,8 +24,7 @@ except (ImportError, ModuleNotFoundError):
     print(REQUESTS_NOT_FOUND, file = sys.stderr)
     sys.exit(1)
 
-from ddupdate.ddplugin import ServicePlugin, ServiceError
-from ddupdate.ddplugin import get_netrc_auth, dict_of_opts
+
 
 
 def _call(session, request):
@@ -40,7 +43,7 @@ def _call(session, request):
         return json['result']
     except ValueError as err:
         raise ServiceError("Error parsing response %s: %s" %
-                           (request.url, err))
+                           (request.url, err)) from None
 
 
 def _get_ipv4_from_dnsrecords(dnsrecords):
@@ -72,7 +75,7 @@ class CloudflareAuth(AuthBase):
     Attaches a Cloudflare X-Auth-Email/Key authentication scheme to the given
     Request object.
     """
-
+    # pylint: disable=too-few-public-methods
     def __init__(self, email, auth_key):
         """Email and auth_key are required."""
         self.email = email

@@ -38,7 +38,7 @@ class DefaultWebPlugin(AddressPlugin):
             try:
                 with urllib.request.urlopen(url) as response:
                     html = response.read().decode('utf-8')
-            except (urllib.error.HTTPError, urllib.error.URLError) as err:
+            except (urllib.error.HTTPError, urllib.error.URLError):
                 log.debug("Bad response at %s (ignored)" % url)
                 return None
             log.debug("Got response: %s", html)

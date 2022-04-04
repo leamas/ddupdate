@@ -5,8 +5,6 @@ See: ddupdate(8)
 See: https://linuxaria.com/howto/dynamic-dns-with-bash-afraid-org
 """
 
-import hashlib
-
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 

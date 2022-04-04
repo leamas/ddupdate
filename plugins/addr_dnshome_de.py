@@ -12,7 +12,6 @@ from typing import AnyStr, Optional
 from enum import Enum
 from logging import Logger
 
-from ddupdate.ddplugin import http_basic_auth_setup, get_response
 from ddupdate.ddplugin import AddressPlugin, IpAddr
 
 TIMEOUT = 20
@@ -25,9 +24,10 @@ class DeDnshomeAddressURL(Enum):
 
 class DeDnshomeWebPlugin(AddressPlugin):
     """Get the external IPv4 and/or IPv6 address as seen from ip.dnshome.de.
-    Depending on the type of your connection one or the other address may be `None`.
-    Also the presence of an IPv4 address does not guarantee that inbound connections
-    can be instantiated from external endpoints (see: DS-Lite and IPv6 tunneling).
+    Depending on the type of your connection one or the other address may
+    be `None`.  Also the presence of an IPv4 address does not guarantee that
+    inbound connections can be instantiated from external endpoints (see:
+    DS-Lite and IPv6 tunneling).
 
     Relies on [ip4|ip6].dnshome.de
 
@@ -41,7 +41,8 @@ class DeDnshomeWebPlugin(AddressPlugin):
     @staticmethod
     def extract_ip(data: AnyStr) -> IpAddr:
         """Extracts the IPs from data
-        Expects `data` to be an UTF-8 string holding either an single IPv4 or an IPv6 address.
+        Expects `data` to be an UTF-8 string holding either an single
+        IPv4 or an IPv6 address.
 
         Args:
             data: Data to extract the IP from
@@ -57,7 +58,7 @@ class DeDnshomeWebPlugin(AddressPlugin):
                 return IpAddr(ip.exploded, None)
             if isinstance(ip, ipaddress.IPv6Address):
                 return IpAddr(None, ip.exploded)
-
+            return IpAddr(None, None)
         except ValueError:
             return IpAddr(None, None)
 

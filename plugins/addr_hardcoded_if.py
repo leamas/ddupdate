@@ -5,9 +5,8 @@ See: ddupdate(8)
 """
 
 import subprocess
-import sys
 
-from ddupdate.ddplugin import AddressPlugin, IpAddr, dict_of_opts
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr, dict_of_opts
 
 
 class HardcodedIfPlugin(AddressPlugin):

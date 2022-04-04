@@ -28,7 +28,7 @@ class OnHubPlugin(AddressPlugin):
         """Implement AddressPlugin.get_ip()."""
         # Documentation refers to testing on 3.4
         # f-strings are from 3.6 and exception chaining from 3.9
-        # pylint: disable=consider-using-f-string,raise-missing-from
+        # pylint: disable=raise-missing-from
         log.debug("trying " + _URL)
         try:
             with urllib.request.urlopen(_URL) as response:

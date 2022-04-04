@@ -1,5 +1,5 @@
 """
-Implement credentials lookup using python3-keyring. 
+Implement credentials lookup using python3-keyring.
 
 The keyring just provides a basic username -> password lookup. However,
 the get_auth() call should possibly return both username and password
@@ -10,23 +10,26 @@ For hosts using just an api key i. e., without a username the username
 field is set to 'api-key'
 """
 
+
 KEYRING_MISSING_MSG = """
 python keyring module not found. Please install python3-keyring
 using package manager or the keyring package using pip.
 """
 
-from ddupdate.ddplugin import AuthPlugin, AuthError
+# pylint: disable=wrong-import-position
 
+from ddupdate.ddplugin import AuthPlugin, AuthError
 try:
     import keyring
+    import keyring.errors
 except (ModuleNotFoundError, ImportError):
-    raise(AuthError(KEYRING_MISSING_MSG))
-import keyring.errors
+    raise AuthError(KEYRING_MISSING_MSG)  from None
+
 
 
 class AuthKeyring(AuthPlugin):
     """ Implement credentials lookup using python3-keyring. This is a
-    reasonably secure way to handle the passwords. Before actually 
+    reasonably secure way to handle the passwords. Before actually
     accessing the passwords the keyring must be unlocked. This makes this
     backend less suited to servers but is no problem on for example a
     notebook.
@@ -46,8 +49,9 @@ class AuthKeyring(AuthPlugin):
             if not credentials:
                 raise AuthError("Cannot get authentication for: " + machine)
             credentials = credentials.split('\t')
-        except keyring.errors.KeyringError:
-            raise AuthError("Cannot obtain credentials for: " + machine)
+        except keyring.errors.KeyringError as err:
+            raise AuthError("Cannot obtain credentials for: " + machine) \
+                    from err
         if len(credentials) != 2:
             raise AuthError("Cannot parse credentials for: " + machine)
         if credentials[0] == 'api-key':
@@ -60,5 +64,5 @@ class AuthKeyring(AuthPlugin):
         credentials = username + '\t' + password
         try:
             keyring.set_password('ddupdate', machine.lower(), credentials)
-        except keyring.errors.KeyringError:
-            raise AuthError("Cannot set credentials for: " + machine)
+        except keyring.errors.KeyringError as err:
+            raise AuthError("Cannot set credentials for: " + machine) from err

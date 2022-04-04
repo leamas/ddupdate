@@ -37,9 +37,8 @@ class DesecPlugin(ServicePlugin):
             url += "&myipv4=" + ip.v4
         if ip.v6:
             url += "&myipv6=" + ip.v6
-        username, password = get_netrc_auth(hostname)
+        password = get_netrc_auth(hostname)[1]
         hdr = ('Authorization', 'Token ' + password )
         reply = get_response(log, url, header  = hdr )
         if not ('good' in reply or 'throttled' in reply):
             raise ServiceError("Cannot update address: " + reply)
-

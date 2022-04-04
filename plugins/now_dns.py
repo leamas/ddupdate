@@ -6,9 +6,7 @@ See: https://now-dns.com/?p=clients
 
 """
 import base64
-import urllib.request
-import urllib.error
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlparse
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError, \
      get_response, get_netrc_auth

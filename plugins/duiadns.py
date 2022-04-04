@@ -5,20 +5,20 @@ See: ddupdate(8)
 See: https://www.duiadns.net/duiadns-url-update
 
 """
-import requests
 
 from html.parser import HTMLParser
+
+import requests
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
+def error( message):
+    """Implement HTMLParser.error()."""
+    raise ServiceError("HTML parser error: " + message)
 
 class DuiadnsParser(HTMLParser):
     """Dig out ip address and hostname in server HTML reply."""
-
-    def error(self, message):
-        """Implement HTMLParser.error()."""
-        raise ServiceError("HTML parser error: " + message)
 
     def __init__(self):
         """Default constructor."""
@@ -78,12 +78,12 @@ class DuiadnsPlugin(ServicePlugin):
             url += "&ip4=" + ip.v4
         if ip and ip.v6:
             url += "&ip6=" + ip.v6
-        try: 
+        try:
             html = get_response(log, url)
         except ServiceError:
             resp = requests.get(url, verify = False)
             if resp.status_code != 200:
-                raise ServiceError("Cannot access update url: " + url)
+                raise ServiceError("Cannot access update url: " + url) from None
             html = resp.content.decode('ascii')
         parser = DuiadnsParser()
         parser.feed(html)

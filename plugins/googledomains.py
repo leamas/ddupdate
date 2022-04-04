@@ -5,10 +5,9 @@ See: ddupdate(8)
 See: https://support.google.com/domains/answer/6147083?hl=en
 
 """
-import netrc
-import os.path
 import urllib.parse
 import urllib.request
+
 from ddupdate.ddplugin import ServiceError, ServicePlugin
 from ddupdate.ddplugin import AuthError, get_response, get_netrc_auth
 
@@ -16,6 +15,10 @@ from ddupdate.ddplugin import AuthError, get_response, get_netrc_auth
 # See https://github.com/leamas/ddupdate/pull/56
 # and https://github.com/leamas/ddupdate/issues/52
 # for why these functions are specialized here.
+
+# pylint: disable=duplicate-code
+# broken for now: https://github.com/PyCQA/pylint/issues/214
+
 def http_basic_auth_setup(url, *, providerhost=None, targethost=None):
     """
     Configure urllib to provide basic authentication.
