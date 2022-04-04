@@ -2,7 +2,7 @@
 #  Standard Makefile supports targets build, install and clean + static
 #  code checking. make install respects DESTDIR, build and install respects
 #  V=0 and V=1
-
+PYLINT          = pylint-3
 
 ifeq ($(DESTDIR),)
     DESTDIR     = $(CURDIR)/install
@@ -31,7 +31,7 @@ clean: .phony
 	python3 setup.py clean
 
 pylint: $(PYTHON_SRC)
-	-PYTHONPATH=$(CURDIR)/lib python3-pylint \
+	-PYTHONPATH=$(CURDIR)/lib $(PYLINT) \
 	        --rcfile=pylint.conf \
 	        --msg-template='$(pylint_template)' \
 	        $?
