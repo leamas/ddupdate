@@ -44,6 +44,6 @@ class DynuPlugin(ServicePlugin):
             url += "&myip=" + ip.v4
         if ip and ip.v6:
             url += "&myipv6=" + ip.v6
-        reply = get_response(log, url, header = auth_header)
+        reply = get_response(log, url, header=auth_header)
         if not ('good' in reply or 'nochg' in reply):
             raise ServiceError("Update error: " + reply)

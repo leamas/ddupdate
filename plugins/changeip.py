@@ -38,5 +38,5 @@ class ChangeAddressPlugin(ServicePlugin):
             url += "&ip=" + ip.v4
         http_basic_auth_setup(url)
         html = get_response(log, url)
-        if not 'uccessful' in html:
+        if 'uccessful' not in html:
             raise ServiceError("Bad update reply: " + html)

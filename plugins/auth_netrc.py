@@ -8,6 +8,7 @@ import os.path
 
 from ddupdate.ddplugin import AuthPlugin, AuthError
 
+
 class AuthNetrc(AuthPlugin):
     """ Get credentials stored in the .netrc(5) file
     This is the original storage used before 0.7.0. It is less secure
@@ -17,7 +18,6 @@ class AuthNetrc(AuthPlugin):
     _name = 'netrc'
     _oneliner = 'Store credentials in .netrc(5)'
     __version__ = '0.7.0'
-
 
     def get_auth(self, machine):
 
@@ -51,16 +51,16 @@ class AuthNetrc(AuthPlugin):
                 words = line.split(' ')
                 for i in range(0, len(words) - 1):
                     if words[i] == 'machine' and \
-                            words[i+1].lower() ==  machine.lower():
+                            words[i + 1].lower() == machine.lower():
                         line_found = True
                 if not line_found:
                     new_lines.append(line)
                     continue
                 for i in range(0, len(words) - 1):
                     if words[i] == 'password':
-                        words[i+1] = password
+                        words[i + 1] = password
                     if words[i] == 'login' and username:
-                        words[i+1] = username
+                        words[i + 1] = username
                 new_lines.append(' '.join(words))
             if not line_found:
                 line = 'machine ' + machine.lower()
@@ -68,7 +68,7 @@ class AuthNetrc(AuthPlugin):
                     line += ' login ' + username
                 line += ' password ' + password
                 new_lines.append(line)
-            new_lines = [l.strip() for l in new_lines]
+            new_lines = [element.strip() for element in new_lines]
             return '\n'.join(new_lines)
 
         if os.path.exists(os.path.expanduser('~/.netrc')):

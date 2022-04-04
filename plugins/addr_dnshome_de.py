@@ -16,6 +16,7 @@ from ddupdate.ddplugin import AddressPlugin, IpAddr
 
 TIMEOUT = 20
 
+
 class DeDnshomeAddressURL(Enum):
     """Enumeration of the available *.dnshome.de ip-resolver urls."""
     IP4 = 'https://ip4.dnshome.de'
@@ -36,7 +37,7 @@ class DeDnshomeWebPlugin(AddressPlugin):
     """
 
     _name = 'ip.dnshome.de'
-    _oneliner = 'Obtain external IPv4 and/or IPv6 address as seen by dnshome.de'
+    _oneliner = 'Obtain IPv4 and/or IPv6 address as seen by dnshome.de'
 
     @staticmethod
     def extract_ip(data: AnyStr) -> IpAddr:

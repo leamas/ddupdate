@@ -23,8 +23,7 @@ try:
     import keyring
     import keyring.errors
 except (ModuleNotFoundError, ImportError):
-    raise AuthError(KEYRING_MISSING_MSG)  from None
-
+    raise AuthError(KEYRING_MISSING_MSG) from None
 
 
 class AuthKeyring(AuthPlugin):
@@ -51,7 +50,7 @@ class AuthKeyring(AuthPlugin):
             credentials = credentials.split('\t')
         except keyring.errors.KeyringError as err:
             raise AuthError("Cannot obtain credentials for: " + machine) \
-                    from err
+                from err
         if len(credentials) != 2:
             raise AuthError("Cannot parse credentials for: " + machine)
         if credentials[0] == 'api-key':

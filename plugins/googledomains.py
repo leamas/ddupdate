@@ -43,6 +43,7 @@ def http_basic_auth_setup(url, *, providerhost=None, targethost=None):
     opener = urllib.request.build_opener(auth_handler)
     urllib.request.install_opener(opener)
 
+
 def get_auth(providerhost, targethost=None):
     """
     Retrieve credentials from configured source.
@@ -97,7 +98,7 @@ class GoogleDomainsPlugin(ServicePlugin):
         if ip:
             query['myip'] = ip.v6 or ip.v4
 
-        url="{}?{}".format(self._url, urllib.parse.urlencode(query))
+        url = "{}?{}".format(self._url, urllib.parse.urlencode(query))
         http_basic_auth_setup(url, targethost=hostname)
         request = urllib.request.Request(url=url, method='POST')
         html = get_response(log, request)

@@ -46,7 +46,7 @@ class MyOnlinePortalPlugin(ServicePlugin):
             url += "&ip=" + ip.v4
         if ip and ip.v6:
             url += "&ip6=" + ip.v6
-        html = get_response(log, url, header = auth_header)
+        html = get_response(log, url, header=auth_header)
         key = html.split()[0]
         if key not in ['OK', 'good', 'nochg']:
             raise ServiceError("Bad server reply: " + html)

@@ -21,10 +21,8 @@ try:
     from requests.auth import AuthBase
 except (ImportError, ModuleNotFoundError):
     import sys
-    print(REQUESTS_NOT_FOUND, file = sys.stderr)
+    print(REQUESTS_NOT_FOUND, file=sys.stderr)
     sys.exit(1)
-
-
 
 
 def _call(session, request):

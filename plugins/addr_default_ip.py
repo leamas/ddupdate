@@ -32,6 +32,7 @@ class DefaultIfPLugin(AddressPlugin):
 
     _name = 'default-if'
     _oneliner = 'Get ip address from default interface (linux)'
+
     def get_ip(self, log, options):
         """
         Get default interface using ip route and address using ifconfig.

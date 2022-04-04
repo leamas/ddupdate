@@ -9,7 +9,7 @@ import base64
 from urllib.parse import urlparse
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError, \
-     get_response, get_netrc_auth
+    get_response, get_netrc_auth
 
 
 class NowDnsPlugin(ServicePlugin):
@@ -46,6 +46,6 @@ class NowDnsPlugin(ServicePlugin):
         user_pw = ('%s:%s' % (username, password))
         credentials = base64.b64encode(user_pw.encode('ascii'))
         auth_header = ('Authorization', 'Basic ' + credentials.decode("ascii"))
-        html = get_response(log, url, header = auth_header)
+        html = get_response(log, url, header=auth_header)
         if html not in ['good', 'nochg']:
             raise ServiceError('Bad server reply: ' + html)

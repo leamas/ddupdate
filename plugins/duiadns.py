@@ -13,9 +13,11 @@ import requests
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
-def error( message):
+
+def error(message):
     """Implement HTMLParser.error()."""
     raise ServiceError("HTML parser error: " + message)
+
 
 class DuiadnsParser(HTMLParser):
     """Dig out ip address and hostname in server HTML reply."""
@@ -81,9 +83,10 @@ class DuiadnsPlugin(ServicePlugin):
         try:
             html = get_response(log, url)
         except ServiceError:
-            resp = requests.get(url, verify = False)
+            resp = requests.get(url, verify=False)
             if resp.status_code != 200:
-                raise ServiceError("Cannot access update url: " + url) from None
+                raise ServiceError("Cannot access update url: " + url) \
+                    from None
             html = resp.content.decode('ascii')
         parser = DuiadnsParser()
         parser.feed(html)

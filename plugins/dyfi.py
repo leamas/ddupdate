@@ -27,7 +27,7 @@ class DyFiPlugin(ServicePlugin):
     _name = 'dy.fi'
     _oneliner = 'Updates on https://www.dy.fi/'
     _url = 'https://www.dy.fi/nic/update?hostname={0}'
-    _ip_cache_ttl = 7200 # 5 days
+    _ip_cache_ttl = 7200  # 5 days
 
     def register(self, log, hostname, ip, options):
         """Implement ServicePlugin.register."""

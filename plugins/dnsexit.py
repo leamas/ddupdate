@@ -38,6 +38,7 @@ class DnsexitPlugin(ServicePlugin):
     _url = '{0}/RemoteUpdate.sv?login={1}&password={2}&host={3}'
     _ip_warning = \
         "service is not known to provide an address, use another ip plugin"
+
     def register(self, log, hostname, ip, options):
         """Implement AddressPlugin.get_ip()."""
         if not ip:

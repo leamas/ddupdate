@@ -39,4 +39,4 @@ class FreednsPlugin(ServicePlugin):
             url += "&ip=" + str(ip.v4)
         html = get_response(log, url)
         if not ('Updated' in html or 'skipping' in html):
-            raise ServiceError("Error updating %s" %  hostname)
+            raise ServiceError("Error updating %s" % hostname)
