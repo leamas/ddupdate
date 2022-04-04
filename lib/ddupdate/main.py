@@ -4,6 +4,7 @@ import argparse
 import configparser
 import glob
 import importlib
+import importlib.util
 import inspect
 import logging
 import math
@@ -14,15 +15,12 @@ import sys
 import time
 import ast
 
+
 from ddupdate.ddplugin import AddressPlugin, AddressError
 from ddupdate.ddplugin import ServicePlugin, ServiceError, IpAddr
-from ddupdate.ddplugin import AuthPlugin, AuthError, set_auth_plugin, get_auth_plugin
+from ddupdate.ddplugin import AuthPlugin, AuthError
+from ddupdate.ddplugin import set_auth_plugin, get_auth_plugin
 
-# pylint: disable=ungrouped-imports
-if sys.version_info >= (3, 5):
-    import importlib.util
-else:
-    from importlib.machinery import SourceFileLoader
 
 
 if 'XDG_CACHE_HOME' in os.environ:
@@ -55,7 +53,6 @@ class _GoodbyeError(Exception):
 
 class _SectionFailError(Exception):
     """General error, terminates section processing"""
-    pass
 
 
 def envvar_default(var, default=None):
@@ -122,8 +119,7 @@ def parse_conffile(log):
     path = os.path.join(path, 'ddupdate.conf')
     if not os.path.exists(path):
         path = '/etc/ddupdate.conf'
-    for i in range(len(sys.argv)):
-        arg = sys.argv[i]
+    for i, arg in enumerate(sys.argv):
         if arg.startswith('-c') or arg.startswith('--conf'):
             if arg.startswith('-c') and len(arg) > 2:
                 path = arg[2:]
@@ -140,17 +136,18 @@ def parse_conffile(log):
     return path
 
 
-def parse_config(config, section, log):
+def parse_config(config, section):
     """Return dict with values from config backed by DEFAULTS"""
     results = {}
     if not section in config:
         raise _GoodbyeError("No such section: " + section, 2)
     items = config[section]
-    for key in DEFAULTS:
-        results[key] = items[key] if key in items else DEFAULTS[key]
+    for key, value  in DEFAULTS.items():
+        results[key] = items[key] if key in items else value
     return results
 
 def get_config(log):
+    """ Parse config file, return a (ConfigParser, list of sections) tuple."""
     path = parse_conffile(log)
     config = configparser.ConfigParser()
     config.read(path)
@@ -237,7 +234,7 @@ def get_parser(conf):
         dest='execute_section', default='')
     others.add_argument(
         "-p", "--set_password", nargs=3, metavar=('host', 'user', 'pw'),
-        help='Update username/password credentials for host. Use "" for empty username',
+        help='Update username/password for host. Use "" for empty username',
         default="")
     others.add_argument(
         "-f", "--force",
@@ -295,6 +292,7 @@ def log_setup():
 
 
 def log_init(log, loglevel, opts):
+    """ Initiate the global log. """
     log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
     log.debug('Using config file: %s', parse_conffile(log))
     log.info("Loglevel: " + logging.getLevelName(opts.loglevel))
@@ -312,12 +310,9 @@ def load_module(path):
     """Return instantiated module loaded from given path."""
     # pylint: disable=deprecated-method
     name = os.path.basename(path).replace('.py', '')
-    if sys.version_info >= (3, 5):
-        spec = importlib.util.spec_from_file_location(name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-    else:
-        module = SourceFileLoader(name, path).load_module()
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
     return module
 
 
@@ -388,6 +383,7 @@ def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
 
 
 def set_password(opts):
+    """ Set password using selected auth plugin. """
     auth_plugin = get_auth_plugin()
     auth_plugin.set_password(*opts.set_password)
 
@@ -423,6 +419,7 @@ def get_plugins(opts, log, sections):
 
     Return: (auth_plugin, ip plugin, service plugin) tuple.
     """
+    # pylint: disable=too-many-branches
     ip_plugins = {}
     service_plugins = {}
     auth_plugins = {}
@@ -452,11 +449,11 @@ def get_plugins(opts, log, sections):
     if opts.ip_plugin:
         raise _GoodbyeError(
             "--ip-plugin has been replaced by --address-plugin.")
-    elif opts.address_plugin not in ip_plugins:
+    if opts.address_plugin not in ip_plugins:
         raise _GoodbyeError('No such ip plugin: ' + opts.address_plugin, 2)
-    elif opts.auth_plugin not in auth_plugins:
+    if opts.auth_plugin not in auth_plugins:
         raise _GoodbyeError('No such auth plugin: ' + opts.auth_plugin, 2)
-    elif opts.service_plugin not in service_plugins:
+    if opts.service_plugin not in service_plugins:
         raise _GoodbyeError(
             'No such service plugin: ' + opts.service_plugin, 2)
     service_plugin = service_plugins[opts.service_plugin]
@@ -474,7 +471,8 @@ def get_ip(ip_plugin, opts, log):
     try:
         ip = ip_plugin.get_ip(log, opts.address_options)
     except AddressError as err:
-        raise _SectionFailError("Cannot obtain ip address: " + str(err))
+        raise _SectionFailError("Cannot obtain ip address: " + str(err)) \
+                from err
     if not ip or ip.empty():
         log.info("Using ip address provided by update service")
         ip = None
@@ -507,14 +505,14 @@ def main():
             sections = [opts.execute_section]
         for section in sections:
             try:
-                conf = parse_config(config, section, log)
+                conf = parse_config(config, section)
                 opts = parse_options(conf)
                 log_init(log, None, opts)
-                log.info("Processing configuration section: " + section)
+                log.info("Processing configuration section: %s", section)
                 auth_plugin, ip_plugin, service_plugin = get_plugins(
                     opts, log, sections)
                 set_auth_plugin(auth_plugin)
-                log.debug("Using auth plugin: " + auth_plugin.name())
+                log.debug("Using auth plugin: %s", auth_plugin.name())
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
                 service_plugin.register(
@@ -522,11 +520,11 @@ def main():
                 ip_cache_set(opts, ip)
                 log.info("Update OK")
             except _SectionFailError:
-                print("Skipping config section: " + section)
+                print("Skipping config section: %s", section)
                 continue
             except (ServiceError, AuthError) as err:
                 log.error("Cannot update DNS data: %s", err)
-                log.info("Skipping config section: " + section)
+                log.info("Skipping config section: %s", section)
                 continue
     except _GoodbyeError as err:
         if err.exitcode != 0:

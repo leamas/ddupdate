@@ -2,12 +2,10 @@
 """Simple, CLI configuration script for ddupdate."""
 
 import configparser
-import logging
 import os
 import os.path
 import re
 import shutil
-import stat
 import subprocess
 import sys
 import tempfile
@@ -110,7 +108,7 @@ def get_service_plugin(service_plugins):
     try:
         ix = int(text)
     except ValueError:
-        raise _GoodbyeError("Illegal number format", 1)
+        raise _GoodbyeError("Illegal number format", 1) from None
     if ix not in range(1, len(services_by_ix) + 1):
         raise _GoodbyeError("Illegal selection\n", 2)
     return services_by_ix[ix]
@@ -138,9 +136,9 @@ def get_auth_plugin(plugins):
     try:
         ix = int(text)
     except ValueError:
-        raise _GoodbyeError("Illegal number format", 1)
+        raise _GoodbyeError("Illegal number format", 1) from None
     if ix not in range(1, len(plugins_by_ix) + 1):
-        raise _GoodbyeError("Illegal selection\n", 2)
+        raise _GoodbyeError("Illegal selection\n", 2) from None
     return plugins_by_ix[ix]
 
 
@@ -173,8 +171,7 @@ def get_address_plugin(log, paths):
     }
     if ix in plugin_by_ix:
         return plugin_by_ix[ix]
-    else:
-        raise _GoodbyeError("Illegal value", 1)
+    raise _GoodbyeError("Illegal value", 1)
 
 
 def copy_systemd_units():
@@ -207,7 +204,7 @@ def copy_systemd_units():
     else:
         bindir = os.path.abspath(os.path.join(here, '..', '..'))
     with open(os.path.join(user_dir, 'ddupdate.service')) as f:
-        lines = f.readlines();
+        lines = f.readlines()
     output = []
     for l in lines:
         if l.startswith('ExecStart'):
@@ -323,7 +320,7 @@ def try_start_service():
     cmd += ';systemctl --user start ddupdate.service'
     cmd += ';journalctl -l --user --since -60s -u ddupdate.service'
     cmd = ['sh', '-c', cmd]
-    subprocess.run(cmd)
+    subprocess.run(cmd, check = True)
     print('Use "journalctl --user -u ddupdate.service" to display logs.')
 
 
@@ -335,12 +332,12 @@ def enable_service():
         cmd = 'systemctl --user start ddupdate.timer'
         cmd += ';systemctl --user enable ddupdate.timer'
         print("\nStarting and enabling ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd])
+        subprocess.run(['sh', '-c', cmd], check = True)
     else:
         cmd = 'systemctl --user stop ddupdate.timer'
         cmd += 'systemctl --user disable ddupdate.timer'
         print("Stopping ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd])
+        subprocess.run(['sh', '-c', cmd], check = True)
         msg = "systemctl --user start ddupdate.timer"
         msg += "; systemctl --user enable ddupdate.timer"
         print('\nStart ddupdate using "%s"' % msg)

@@ -19,13 +19,11 @@ The module also provides some utility functions used in plugins.
 """
 
 import inspect
-import os.path
 
 import urllib.request
 from urllib.parse import urlencode, urlparse
 
 from socket import timeout as timeoutError
-from netrc import netrc
 
 URL_TIMEOUT = 120  # Default timeout in get_response()
 
@@ -43,6 +41,7 @@ def get_auth_plugin():
     """ Return actual AuthPlugin used. """
     return auth_plugin
 
+# pylint: disable=duplicate-code
 
 def http_basic_auth_setup(url, host=None):
     """
@@ -115,9 +114,9 @@ def get_response(log, url, **kwargs):
             code = response.getcode()
             html = response.read().decode('ascii')
     except timeoutError:
-        raise ServiceError("Timeout reading %s" % url)
+        raise ServiceError("Timeout reading %s" % url)  from None
     except (urllib.error.HTTPError, urllib.error.URLError) as err:
-        raise ServiceError("Error reading %s :%s" % (url, err))
+        raise ServiceError("Error reading %s :%s" % (url, err)) from err
     log.debug("Got response (%d) : %s", code, html)
     if code != 200:
         raise ServiceError("Cannot update, response code: %d" % code)
@@ -139,7 +138,7 @@ def get_netrc_auth(machine):
     return auth_plugin.get_auth(machine.lower())
 
 
-class IpAddr(object):
+class IpAddr:
     """A (ipv4, ipv6) container."""
 
     def __init__(self, ipv4=None, ipv6=None):
@@ -225,15 +224,11 @@ class AddressError(Exception):
 class ServiceError(AddressError):
     """General error in ServicePlugin."""
 
-    pass
-
 class AuthError(AddressError):
     """General error in AuthPlugin."""
 
-    pass
 
-
-class AbstractPlugin(object):
+class AbstractPlugin:
     """Abstract base for all plugins."""
 
     _name = None
