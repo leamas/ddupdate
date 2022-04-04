@@ -5,6 +5,8 @@ See: ddupdate(8)
 See: https://www.duiadns.net/duiadns-url-update
 
 """
+import requests
+
 from html.parser import HTMLParser
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
@@ -37,6 +39,9 @@ class DuiadnsParser(HTMLParser):
 class DuiadnsPlugin(ServicePlugin):
     """
     Update a dns entry on duiadns.com.
+
+    At the time of writing the server has an expired certificate. Code
+    here works around this while rightfully issuing warnings.
 
     As usual, any host updated must first be defined in the web UI. Although
     the server supports auto-detection of addresses this plugin does not;
@@ -73,7 +78,13 @@ class DuiadnsPlugin(ServicePlugin):
             url += "&ip4=" + ip.v4
         if ip and ip.v6:
             url += "&ip6=" + ip.v6
-        html = get_response(log, url)
+        try: 
+            html = get_response(log, url)
+        except ServiceError:
+            resp = requests.get(url, verify = False)
+            if resp.status_code != 200:
+                raise ServiceError("Cannot access update url: " + url)
+            html = resp.content.decode('ascii')
         parser = DuiadnsParser()
         parser.feed(html)
         if 'error' in parser.data or 'Ipv4' not in parser.data:
