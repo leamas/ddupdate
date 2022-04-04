@@ -1,7 +1,8 @@
 """
 Implement credentials lookup using the ~/.netrc(5) file
 """
-
+import base64
+import binascii
 from netrc import netrc
 import os.path
 
@@ -31,8 +32,11 @@ class AuthNetrc(AuthPlugin):
             raise AuthError("No .netrc data found for " + machine)
         if not auth[2]:
             raise AuthError("No password found for " + machine)
-        return auth[0], auth[2]
-    
+        try:
+            pw = base64.b64decode(auth[2]).decode('ascii')
+        except (binascii.Error, UnicodeDecodeError):
+            pw = auth[2]
+        return auth[0], pw
 
     def set_password(self, machine, username, password):
 
@@ -40,6 +44,9 @@ class AuthNetrc(AuthPlugin):
             """ Either update existing line matching machine or add a new """
             line_found = False
             new_lines = []
+            nonlocal password
+            password = \
+                base64.b64encode(password.encode('utf-8')).decode('ascii')
             for line in lines:
                 words = line.split(' ')
                 for i in range(0, len(words) - 1):
