@@ -58,10 +58,18 @@ existing plugins and pick solutions from them. Some hints:
   - Most services uses a http GET request to set the data. See
     ```freedns_io.py``` for a http POST example.
 
+  - Handling expired server certificate: see duiadns.
+
   - Reply decoding:
       - Most sites just returns some text, simple enough
       - json: example in ```system_ns.py```
       - html: example in ```duiadns.py```
+
+  - Configuration:
+      The line 'netrc line' in the plugin method documentation is parsed
+      by ddupdate-config to determine what user should define for example
+      user, password, etc. This mechanism based on the netrc syntax is
+      used also in the keyring backend.
 
 
 Packaging
