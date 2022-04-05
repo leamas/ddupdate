@@ -33,6 +33,8 @@ auth_plugin = None
 
 def set_auth_plugin(plugin):
     """ Define the actual AuthPlugin used. """
+    # pylint: disable=global-statement
+    # See #63
     global auth_plugin
     auth_plugin = plugin
 
