@@ -1,5 +1,5 @@
 """
-Implement credentials lookup using the ~/.netrc(5) file
+Implement credentials lookup using the ~/.netrc(5) file.
 """
 import base64
 import binascii
@@ -10,17 +10,19 @@ from ddupdate.ddplugin import AuthPlugin, AuthError
 
 
 class AuthNetrc(AuthPlugin):
-    """ Get credentials stored in the .netrc(5) file
+    """Get credentials stored in the .netrc(5) file.
+
     This is the original storage used before 0.7.0. It is less secure
     than for example the keyring but is convenient and, since it does
     not require anything to be unlocked, a good candidate for servers.
     """
+
     _name = 'netrc'
     _oneliner = 'Store credentials in .netrc(5)'
     __version__ = '0.7.0'
 
     def get_auth(self, machine):
-
+        """Implement AuthPlugin::get_auth()."""
         if os.path.exists(os.path.expanduser('~/.netrc')):
             path = os.path.expanduser('~/.netrc')
         elif os.path.exists('/etc/netrc'):
@@ -39,9 +41,10 @@ class AuthNetrc(AuthPlugin):
         return auth[0], pw
 
     def set_password(self, machine, username, password):
+        """Implement AuthPlugin::set_password()."""
 
         def update(lines):
-            """ Either update existing line matching machine or add a new """
+            """Either update existing line matching machine or add a new."""
             line_found = False
             new_lines = []
             nonlocal password

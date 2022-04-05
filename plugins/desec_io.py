@@ -11,7 +11,7 @@ from ddupdate.ddplugin import get_response, get_netrc_auth
 
 class DesecPlugin(ServicePlugin):
     """
-    Update a dns entry on https://desec.io
+    Update a dns entry on https://desec.io.
 
     Supports most address plugins including default-web-ip, default-if and
     ip-disabled. ipv6 is supported.

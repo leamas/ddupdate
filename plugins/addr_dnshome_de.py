@@ -19,12 +19,14 @@ TIMEOUT = 20
 
 class DeDnshomeAddressURL(Enum):
     """Enumeration of the available *.dnshome.de ip-resolver urls."""
+
     IP4 = 'https://ip4.dnshome.de'
     IP6 = 'https://ip6.dnshome.de'
 
 
 class DeDnshomeWebPlugin(AddressPlugin):
     """Get the external IPv4 and/or IPv6 address as seen from ip.dnshome.de.
+
     Depending on the type of your connection one or the other address may
     be `None`.  Also the presence of an IPv4 address does not guarantee that
     inbound connections can be instantiated from external endpoints (see:
@@ -41,7 +43,8 @@ class DeDnshomeWebPlugin(AddressPlugin):
 
     @staticmethod
     def extract_ip(data: AnyStr) -> IpAddr:
-        """Extracts the IPs from data
+        """Extracts the IPs from data.
+        
         Expects `data` to be an UTF-8 string holding either an single
         IPv4 or an IPv6 address.
 
@@ -51,7 +54,6 @@ class DeDnshomeWebPlugin(AddressPlugin):
         Returns:
             An `IpAddr` which may hold the IPv4 or IPv6 Address found.
         """
-
         try:
             ip = ipaddress.ip_address(data.strip())
 
@@ -65,7 +67,8 @@ class DeDnshomeWebPlugin(AddressPlugin):
 
     @staticmethod
     def load_ip(log: Logger, url: str) -> Optional[IpAddr]:
-        """Loads the external IP from an remote Endpoint (url)
+        """Loads the external IP from an remote Endpoint (url).
+
         Expects the Endpoint to respond with an UTF-8-String containing the IP.
 
         Args:
@@ -75,7 +78,6 @@ class DeDnshomeWebPlugin(AddressPlugin):
         Returns:
             An `IPAddr` holding the IPv4 and/or IPv6 Address found or `None`.
         """
-
         log.debug('loading ip from %s' % url)
 
         try:
@@ -96,8 +98,7 @@ class DeDnshomeWebPlugin(AddressPlugin):
         return result
 
     def get_ip(self, log: Logger, options: [str]) -> Optional[IpAddr]:
-        """Implements AddressPlugin.get_ip()"""
-
+        """Implements AddressPlugin.get_ip()."""
         urls = [DeDnshomeAddressURL.IP4, DeDnshomeAddressURL.IP6]
         ip = IpAddr(None, None)
 

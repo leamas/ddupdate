@@ -51,7 +51,7 @@ class _GoodbyeError(Exception):
 
 
 class _SectionFailError(Exception):
-    """General error, terminates section processing"""
+    """General error, terminates section processing."""
 
 
 def envvar_default(var, default=None):
@@ -136,7 +136,7 @@ def parse_conffile(log):
 
 
 def parse_config(config, section):
-    """Return dict with values from config backed by DEFAULTS"""
+    """Return dict with values from config backed by DEFAULTS."""
     results = {}
     if section not in config:
         raise _GoodbyeError("No such section: " + section, 2)
@@ -147,7 +147,7 @@ def parse_config(config, section):
 
 
 def get_config(log):
-    """ Parse config file, return a (ConfigParser, list of sections) tuple."""
+    """Parse config file, return a (ConfigParser, list of sections) tuple."""
     path = parse_conffile(log)
     config = configparser.ConfigParser()
     config.read(path)
@@ -292,7 +292,7 @@ def log_setup():
 
 
 def log_init(log, loglevel, opts):
-    """ Initiate the global log. """
+    """Initiate the global log."""
     log.handlers[0].setLevel(loglevel if loglevel else opts.loglevel)
     log.debug('Using config file: %s', parse_conffile(log))
     log.info("Loglevel: " + logging.getLevelName(opts.loglevel))
@@ -383,7 +383,7 @@ def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
 
 
 def set_password(opts):
-    """ Set password using selected auth plugin. """
+    """Set password using selected auth plugin."""
     auth_plugin = get_auth_plugin()
     auth_plugin.set_password(*opts.set_password)
 
@@ -468,7 +468,7 @@ def get_plugins(opts, log, sections):
 
 
 def get_ip(ip_plugin, opts, log):
-    """ Try to get current ip address using the ip_plugin"""
+    """Try to get current ip address using the ip_plugin."""
     try:
         ip = ip_plugin.get_ip(log, opts.address_options)
     except AddressError as err:
@@ -484,7 +484,7 @@ def get_ip(ip_plugin, opts, log):
 
 
 def check_ip_cache(ip, service_plugin, opts, log):
-    """ Throw a _SectionFailError if ip is already in a fresh cache."""
+    """Throw a _SectionFailError if ip is already in a fresh cache."""
     if opts.force:
         ip_cache_clear(opts, log)
     cached_ip, age = ip_cache_data(opts, log)
@@ -496,7 +496,6 @@ def check_ip_cache(ip, service_plugin, opts, log):
 
 def main():
     """Indeed: main function."""
-
     try:
         log = log_setup()
         config, sections = get_config(log)

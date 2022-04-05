@@ -38,7 +38,7 @@ class DeDnsHomeAddressPlugin(ServicePlugin):
 
     @staticmethod
     def is_success(response: AnyStr) -> bool:
-        """Checks if the action was successful using the response
+        """Checks if the action was successful using the response.
 
         Args:
             response: The response-body to analyze.
@@ -49,11 +49,11 @@ class DeDnsHomeAddressPlugin(ServicePlugin):
                 'nochg' - No change was performed, since records were
                           already up to date.
         """
-
         return response.startswith('good') or response.startswith('nochg')
 
     def register(self, log: Logger, hostname: str, ip: IpAddr, options):
         """Implement ServicePlugin.register.
+
         Expects the `ip` to be filtered already according to the _global_
         `--ip-version` option.
         """

@@ -40,6 +40,6 @@ pydocstyle: $(PYTHON_SRC)
 	pydocstyle $?
 
 pycodestyle: $(PYTHON_SRC)
-	pycodestyle $?
+	-pycodestyle $?
 
 .phony:

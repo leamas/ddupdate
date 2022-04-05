@@ -18,7 +18,7 @@ ROOT = ROOT if ROOT else '.'
 
 
 def systemd_unitdir():
-    """Return the official systemd user unit dir path"""
+    """Return the official systemd user unit dir path."""
     cmd = 'pkg-config systemd --variable=systemduserunitdir'.split()
     try:
         return subprocess.check_output(cmd).decode().strip()

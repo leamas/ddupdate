@@ -1,5 +1,4 @@
-"""
-Implement credentials lookup using python3-keyring.
+"""Implement credentials lookup using python3-keyring.
 
 The keyring just provides a basic username -> password lookup. However,
 the get_auth() call should possibly return both username and password
@@ -27,8 +26,9 @@ except (ModuleNotFoundError, ImportError):
 
 
 class AuthKeyring(AuthPlugin):
-    """ Implement credentials lookup using python3-keyring. This is a
-    reasonably secure way to handle the passwords. Before actually
+    """Implement credentials lookup using python3-keyring.
+
+    This is a reasonably secure way to handle the passwords. Before actually
     accessing the passwords the keyring must be unlocked. This makes this
     backend less suited to servers but is no problem on for example a
     notebook.
@@ -43,6 +43,7 @@ class AuthKeyring(AuthPlugin):
     __version__ = '0.7.0'
 
     def get_auth(self, machine):
+        """Implement AuthPlugin::get_auth()."""
         try:
             credentials = keyring.get_password('ddupdate', machine.lower())
             if not credentials:
@@ -58,6 +59,7 @@ class AuthKeyring(AuthPlugin):
         return credentials[0], credentials[1]
 
     def set_password(self, machine, username, password):
+        """Implement AuthPlugin::set_password()."""
         if not username:
             username = 'api-key'
         credentials = username + '\t' + password

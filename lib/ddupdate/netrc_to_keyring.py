@@ -1,5 +1,4 @@
-"""
-Simple tools to  migrate  credentials  from  ~/.netrc to the keyring
+"""Simple tools to  migrate  credentials  from  ~/.netrc to the keyring.
 """
 
 import netrc
@@ -8,7 +7,7 @@ import keyring
 
 
 def main():
-    """ Indeed: main function. """
+    """Indeed: main function."""
     _netrc = netrc.netrc()
     for host in _netrc.hosts:
         login, _, password = _netrc.authenticators(host)

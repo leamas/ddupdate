@@ -28,7 +28,7 @@ except (ImportError, ModuleNotFoundError):
 
 
 def error(message):
-    """Just a shorthand"""
+    """Just a shorthand."""
     raise ServiceError("HTML parser error: " + message)
 
 

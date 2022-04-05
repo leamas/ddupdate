@@ -73,6 +73,7 @@ class CloudflareAuth(AuthBase):
     Attaches a Cloudflare X-Auth-Email/Key authentication scheme to the given
     Request object.
     """
+
     # pylint: disable=too-few-public-methods
     def __init__(self, email, auth_key):
         """Email and auth_key are required."""

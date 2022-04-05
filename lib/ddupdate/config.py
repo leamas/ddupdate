@@ -219,8 +219,7 @@ def copy_systemd_units():
 
 
 def get_netrc(service):
-    """
-    Get .netrc line for service.
+    """Get .netrc line for service.
 
     Looks into the service class documentation for a line starting
     with 'machine' and returns it after substituting values in
@@ -300,7 +299,7 @@ def write_config_files(config):
 
 
 def write_credentials(auth_plugin, hostname, netrc):
-    """ Update credentials at auth_plugin with data from netrc. """
+    """Update credentials at auth_plugin with data from netrc."""
     username = None
     password = None
     if not netrc:

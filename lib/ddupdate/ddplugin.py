@@ -32,7 +32,7 @@ auth_plugin = None
 
 
 def set_auth_plugin(plugin):
-    """ Define the actual AuthPlugin used. """
+    """Define the actual AuthPlugin used."""
     # pylint: disable=global-statement
     # See #63
     global auth_plugin
@@ -40,7 +40,7 @@ def set_auth_plugin(plugin):
 
 
 def get_auth_plugin():
-    """ Return actual AuthPlugin used. """
+    """Return actual AuthPlugin used."""
     return auth_plugin
 
 # pylint: disable=duplicate-code
@@ -127,9 +127,9 @@ def get_response(log, url, **kwargs):
 
 
 def get_netrc_auth(machine):
-    """
-    Retrieve data from configured credentials source. The function name is
-    thus misleading but kept for legacy reasons.
+    """Retrieve data from configured credentials source.
+
+    The function name is thus misleading but kept for legacy reasons.
 
     Parameters:
       - machine: key used to look up credentials.
@@ -317,11 +317,10 @@ class ServicePlugin(AbstractPlugin):
 
 
 class AuthPlugin(AbstractPlugin):
-    """ Abstract plugin for managing credentials for a hostname. """
+    """Abstract plugin for managing credentials for a hostname."""
 
     def get_auth(self, machine):
-        """
-        Retrieve credentials for a machine
+        """Retrieve credentials for a machine.
 
         Parameters:
           - machine: Key while searching for credentials.
