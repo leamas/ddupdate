@@ -43,5 +43,4 @@ class OnHubPlugin(AddressPlugin):
 
         log.debug("WAN online: %s", status["wan"]["online"])
 
-        # TODO: Can we also get an external IPv6 address?
         return IpAddr(status["wan"]["localIpAddress"])
