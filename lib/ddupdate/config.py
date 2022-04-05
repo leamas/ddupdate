@@ -215,7 +215,7 @@ def copy_systemd_units():
         else:
             output.append(line)
     with open(os.path.join(user_dir, 'ddupdate.service'), 'w') as f:
-        f.write(['\n'.join(elem.strip()) for elem in output])
+        f.write('\n'.join([elem.strip() for elem in output]))
 
 
 def get_netrc(service):
