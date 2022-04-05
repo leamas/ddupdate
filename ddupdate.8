@@ -55,6 +55,11 @@ primary address. Use \fI\-\-list-addressers\fR to list available
 plugins.
 
 .TP 4
+\fB-C, --auth-plugin <\fIplugin\fR>
+Plugin providing authentication credentials, either \fInetrc\fR or
+\fIkeyring\fR
+
+.TP 4
 \fB-v, --ip-version\fR <\fIv4\fR|\fIv6\fR|\fIall\fR>
 The kind of ip addresses to register. The addresses obtained by the
 address-plugin could be either v6, v4 or both. However, the actual addresses
@@ -112,6 +117,10 @@ List service provider plugins.
 .TP 4
 \fB-A, --list-addressers\fR
 List plugins providing one or more ip addresses
+
+.TP 4
+\fB-P, --list-auth-plugins\fR
+List plugins for storing credentials like \fInetrc\fR and \fIkeyring\fR.
 
 .TP 4
 \fB-E, --list-sections\fR
