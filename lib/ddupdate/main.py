@@ -520,7 +520,7 @@ def main():
                 ip_cache_set(opts, ip)
                 log.info("Update OK")
             except _SectionFailError:
-                print("Skipping config section: %s", section)
+                print("Skipping config section: %s" % section)
                 continue
             except (ServiceError, AuthError) as err:
                 log.error("Cannot update DNS data: %s", err)
