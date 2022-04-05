@@ -336,12 +336,18 @@ def enable_service():
         cmd = 'systemctl --user start ddupdate.timer'
         cmd += ';systemctl --user enable ddupdate.timer'
         print("\nStarting and enabling ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd], check=True)
+        try:
+            subprocess.run(['sh', '-c', cmd], check=True)
+        except subprocess.CalledProcessError as err:
+            raise _GoodbyeError("Cannot start ddupdate.timer", 2) from err
     else:
         cmd = 'systemctl --user stop ddupdate.timer'
         cmd += 'systemctl --user disable ddupdate.timer'
         print("Stopping ddupdate.timer")
-        subprocess.run(['sh', '-c', cmd], check=True)
+        try:
+            subprocess.run(['sh', '-c', cmd], check=True)
+        except subprocess.CalledProcessError as err:
+            print("Cannot stop ddupdate.timer (already stopped?)")
         msg = "systemctl --user start ddupdate.timer"
         msg += "; systemctl --user enable ddupdate.timer"
         print('\nStart ddupdate using "%s"' % msg)
