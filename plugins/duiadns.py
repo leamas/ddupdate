@@ -6,16 +6,29 @@ See: https://www.duiadns.net/duiadns-url-update
 
 """
 
-from html.parser import HTMLParser
+REQUESTS_NOT_FOUND = """
+The duiadns plugin uses the python3-requests package which cannot be found.
+Please install python-requests or python3-requests. Giving up.
+"""
 
-import requests
+
+# pylint: disable=wrong-import-position
+
+from html.parser import HTMLParser
 
 from ddupdate.ddplugin import ServicePlugin, ServiceError
 from ddupdate.ddplugin import get_response, get_netrc_auth
 
+try:
+    import requests
+except (ImportError, ModuleNotFoundError):
+    import sys
+    print(REQUESTS_NOT_FOUND, file=sys.stderr)
+    sys.exit(1)
+
 
 def error(message):
-    """Implement HTMLParser.error()."""
+    """Just a shorthand"""
     raise ServiceError("HTML parser error: " + message)
 
 
