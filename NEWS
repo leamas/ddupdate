@@ -2,6 +2,7 @@
 * Drop the dnsdynamic plugin, service is discontinued.
 * Drop the system-ns plugin, service is discontinued.
 * Add new plugin for desec.io (#36).
+* Add new plugin for DNS-O-Matic (#57)
 * Handle expired certificate on duiadns server.
 * myonlineportal, dnsexit, dynu: Handle API updates.
 * Multiple bugfixes in new credentials backends.
