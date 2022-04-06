@@ -44,7 +44,7 @@ class DeDnshomeWebPlugin(AddressPlugin):
     @staticmethod
     def extract_ip(data: AnyStr) -> IpAddr:
         """Extracts the IPs from data.
-        
+
         Expects `data` to be an UTF-8 string holding either an single
         IPv4 or an IPv6 address.
 
