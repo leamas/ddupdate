@@ -367,16 +367,12 @@ def list_plugins(plugins):
         print("%-20s %s" % (name, plugin.oneliner()))
 
 
-def plugin_help(auth_plugins, ip_plugins, service_plugins, plugid):
+def plugin_help(plugins, plugid):
     """Print full help for given plugin."""
-    if plugid in ip_plugins:
-        plugin = ip_plugins[plugid]
-    elif plugid in service_plugins:
-        plugin = service_plugins[plugid]
-    elif plugid in auth_plugins:
-        plugin = auth_plugins[plugid]
+    if plugid in plugins:
+        plugin = plugins[plugid]
     else:
-        raise _GoodbyeError("No help found (nu such plugin?): " + plugid, 1)
+        raise _GoodbyeError("No help found (no such plugin?): " + plugid, 1)
     print("Name: " + plugin.name())
     print("Source file: " + plugin.module.__file__ + "\n")
     print(plugin.info())
@@ -442,7 +438,8 @@ def get_plugins(opts, log, sections):
         list_plugins(auth_plugins)
         raise _GoodbyeError()
     if opts.help and opts.help != '-':
-        plugin_help(auth_plugins, ip_plugins, service_plugins, opts.help)
+        all_plugins = {**auth_plugins, **ip_plugins, **service_plugins}
+        plugin_help(all_plugins, opts.help)
         raise _GoodbyeError()
     if opts.list_sections:
         print("\n".join(sections))
