@@ -373,7 +373,7 @@ def plugin_help(plugins, plugid):
         plugin = plugins[plugid]
     else:
         raise _GoodbyeError("No help found (no such plugin?): " + plugid, 1)
-    print("Name: " + plugin.name())
+    print("Name: " + str(plugin))
     print("Source file: " + plugin.module.__file__ + "\n")
     print(plugin.info())
 
@@ -416,7 +416,7 @@ def get_plugins(opts, log, sections):
 
     Return: (auth_plugin, ip plugin, service plugin) tuple.
     """
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-locals
     ip_plugins = {}
     service_plugins = {}
     auth_plugins = {}
@@ -509,7 +509,7 @@ def main():
                 auth_plugin, ip_plugin, service_plugin = get_plugins(
                     opts, log, sections)
                 set_auth_plugin(auth_plugin)
-                log.debug("Using auth plugin: %s", auth_plugin.name())
+                log.debug("Using auth plugin: %s", str(auth_plugin))
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
                 service_plugin.register(

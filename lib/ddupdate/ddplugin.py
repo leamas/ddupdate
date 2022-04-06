@@ -239,6 +239,10 @@ class AbstractPlugin:
     _oneliner = 'No info found'
     __version__ = '0.7.0'
 
+    def __str__(self):             # pylint: disable=invalid-str-returned
+        """Standard implementation."""
+        return self.name()
+
     def oneliner(self):
         """Return oneliner describing the plugin."""
         return self._oneliner
