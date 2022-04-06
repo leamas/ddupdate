@@ -311,6 +311,7 @@ def write_credentials(auth_plugin, hostname, netrc):
         print("NOTE: No credentials defined")
         return
     words = netrc.split(' ')
+    words = [word for word in words if word]
     for i in range(0, len(words) - 1):
         if words[i] == 'machine':
             hostname = words[i + 1].lower()
