@@ -43,36 +43,23 @@ class AuthNetrc(AuthPlugin):
     def set_password(self, machine, username, password):
         """Implement AuthPlugin::set_password()."""
 
-        def update(lines):
-            """Either update existing line matching machine or add a new."""
-            line_found = False
-            new_lines = []
-            nonlocal password
-            password = \
-                base64.b64encode(password.encode('utf-8')).decode('ascii')
-            for line in lines:
-                words = line.split(' ')
-                for i in range(0, len(words) - 1):
-                    if words[i] == 'machine' and \
-                            words[i + 1].lower() == machine.lower():
-                        line_found = True
-                if not line_found:
-                    new_lines.append(line)
-                    continue
-                for i in range(0, len(words) - 1):
-                    if words[i] == 'password':
-                        words[i + 1] = password
-                    if words[i] == 'login' and username:
-                        words[i + 1] = username
-                new_lines.append(' '.join(words))
-            if not line_found:
-                line = 'machine ' + machine.lower()
-                if username:
-                    line += ' login ' + username
-                line += ' password ' + password
-                new_lines.append(line)
-            new_lines = [element.strip() for element in new_lines]
-            return '\n'.join(new_lines)
+        def is_matching_entry(line):
+            """Return True if line contains 'machine' machine'."""
+            words = line.split(' ')
+            for i in range(0, len(words) - 1):
+                if words[i] == 'machine' \
+                        and words[i + 1].lower() == machine.lower():
+                    return True
+            return False
+
+        def new_entry():
+            """Return new entry."""
+            pw = base64.b64encode(password.encode('utf-8')).decode('ascii')
+            line = 'machine ' + machine.lower()
+            if username:
+                line += ' login ' + username
+            line += ' password ' + pw
+            return line
 
         if os.path.exists(os.path.expanduser('~/.netrc')):
             path = os.path.expanduser('~/.netrc')
@@ -82,6 +69,8 @@ class AuthNetrc(AuthPlugin):
             raise AuthError("Cannot locate the netrc file (see manpage).")
         with open(path, 'r') as f:
             lines = f.readlines()
-        lines = update(lines)
+        lines = [line for line in lines if not is_matching_entry(line)]
+        lines.append(new_entry())
+        lines = [line.strip() + "\n" for line in lines]
         with open(path, 'w') as f:
             f.writelines(lines)
