@@ -27,7 +27,7 @@ def systemd_unitdir():
 
 
 DATA = [
-    (systemd_unitdir(), glob('systemd/*')),
+    ("lib/systemd/user", glob('systemd/*')),
     ('share/bash-completion/completions/', ['bash_completion.d/ddupdate']),
     ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8',
                         'ddupdate-netrc-to-keyring.8']),
@@ -111,7 +111,7 @@ setup(
     keywords=['dyndns', 'dhcp', 'dns'],
     package_dir={'': 'lib'},
     packages=['ddupdate'],
-    scripts=['ddupdate', 'ddupdate-config', 'ddupdate_netrc_to_keyring'],
+    scripts=['ddupdate', 'ddupdate-config', 'ddupdate-netrc-to-keyring'],
     data_files=DATA,
     cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
 )
