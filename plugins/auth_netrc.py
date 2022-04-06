@@ -12,14 +12,14 @@ from ddupdate.ddplugin import AuthPlugin, AuthError
 class AuthNetrc(AuthPlugin):
     """Get credentials stored in the .netrc(5) file.
 
-    This is the original storage used before 0.7.0. It is less secure
+    This is the original storage used before 0.7.1. It is less secure
     than for example the keyring but is convenient and, since it does
     not require anything to be unlocked, a good candidate for servers.
     """
 
     _name = 'netrc'
     _oneliner = 'Store credentials in .netrc(5)'
-    __version__ = '0.7.0'
+    __version__ = '0.7.1'
 
     def get_auth(self, machine):
         """Implement AuthPlugin::get_auth()."""

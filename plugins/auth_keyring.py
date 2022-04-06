@@ -33,14 +33,14 @@ class AuthKeyring(AuthPlugin):
     backend less suited to servers but is no problem on for example a
     notebook.
 
-    Prior to 0.7.0 all passwords was stored in the .netrc file. See the
+    Prior to 0.7.1 all passwords was stored in the .netrc file. See the
     ddupdate-netrc-to-keyring tool for migrating passwords from .netrc to
     the keyring backend.
     """
 
     _name = 'keyring'
     _oneliner = 'Store credentials in the system keyring'
-    __version__ = '0.7.0'
+    __version__ = '0.7.1'
 
     def get_auth(self, machine):
         """Implement AuthPlugin::get_auth()."""

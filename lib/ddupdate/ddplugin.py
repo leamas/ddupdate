@@ -237,7 +237,7 @@ class AbstractPlugin:
 
     _name = None
     _oneliner = 'No info found'
-    __version__ = '0.7.0'
+    __version__ = '0.7.1'
 
     def __str__(self):             # pylint: disable=invalid-str-returned
         """Standard implementation."""
