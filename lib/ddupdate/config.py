@@ -48,7 +48,7 @@ def check_existing_files():
     reply = input("OK to overwrite (Yes/No) [No]: ")
     if not reply or not reply.lower().startswith('y'):
         print("Please save these file(s) and try again.")
-        raise _GoodbyeError("", 0)
+        raise _GoodbyeError("", 0) from None
 
 
 def _load_plugins(log, paths, plugin_class):
@@ -113,7 +113,7 @@ def get_service_plugin(service_plugins):
     except ValueError:
         raise _GoodbyeError("Illegal number format", 1) from None
     if ix not in range(1, len(services_by_ix) + 1):
-        raise _GoodbyeError("Illegal selection\n", 2)
+        raise _GoodbyeError("Illegal selection\n", 2) from None
     return services_by_ix[ix]
 
 
@@ -174,7 +174,7 @@ def get_address_plugin(log, paths):
     }
     if ix in plugin_by_ix:
         return plugin_by_ix[ix]
-    raise _GoodbyeError("Illegal value", 1)
+    raise _GoodbyeError("Illegal value", 1) from None
 
 
 def copy_systemd_units():
@@ -184,18 +184,23 @@ def copy_systemd_units():
     user_dir = os.path.join(confdir, 'systemd/user')
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
-    path = os.path.join(user_dir, "ddupdate.service")
     here = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     srcdir = os.path.join(here, '..', '..', 'systemd')
     if not os.path.exists(srcdir):
-        srcdir = "/usr/share/ddupdate/systemd"
+        srcdir = "/usr/local/share/ddupdate/systemd"
+        if not os.path.exists(srcdir):
+            srcdir = "/usr/share/ddupdate/systemd"
 
+    path = os.path.join(user_dir, "ddupdate.service")
     if not os.path.exists(path):
         shutil.copy(os.path.join(srcdir, "ddupdate.service"), path)
     path = os.path.join(user_dir, "ddupdate.timer")
     if not os.path.exists(path):
         shutil.copy(os.path.join(srcdir, "ddupdate.timer"), path)
 
+    # Ad-hoc logic: Use script in /usr/local/bin or /usr/bin if existing,
+    # else the one in current dir. This is practical although not quite
+    # consistent.
     installconf_path = os.path.join(here, "install.conf")
     parser = configparser.SafeConfigParser()
     try:
@@ -339,7 +344,8 @@ def enable_service():
         try:
             subprocess.run(['sh', '-c', cmd], check=True)
         except subprocess.CalledProcessError as err:
-            raise _GoodbyeError("Cannot start ddupdate.timer", 2) from err
+            raise _GoodbyeError(
+                "Cannot start ddupdate.timer: " + str(err), 2) from None
     else:
         cmd = 'systemctl --user stop ddupdate.timer'
         cmd += 'systemctl --user disable ddupdate.timer'
