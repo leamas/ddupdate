@@ -1,7 +1,7 @@
-.TH DDUPDATE "8" "Last change: Jun 2019" "ddupdate" "System Administration Utilities"
+.TH DDUPDATE "8" "Last change: Apr 2022" "ddupdate" "System Administration Utilities"
 .SH NAME
 .P
-\fBddupdate\fR - Update dns data for dynamic IP addresses
+\fBddupdate\fR - Update DNS data for dynamic IP addresses
 .SH SYNOPSIS
 .B ddupdate
 [\fIoptions\fR]
@@ -10,8 +10,6 @@ A tool to update dynamic IP addresses typically obtained using DHCP with
 dynamic DNS service providers such as changeip.com, duckdns.org or no-ip.com.
 It makes it possible to access a machine with a fixed
 name like myhost.duckdns.org even if the ip address changes.
-\fBddupdate\fR caches the address, and only attempts the update if the address
-actually is changed.
 .P
 The tool has a plugin structure with plugins for obtaining the actual
 address (typically hardware-dependent) and to update it (service
@@ -24,7 +22,7 @@ options e. g., while testing.
 .P
 Using service providers and possibly also firewalls requires use of
 username/password credentials.
-For these, the netrc(5) file is used.
+For these, either the netrc(5) or the system keyring is used.
 .P
 \fBddupdate\fR is distributed with systemd support to run at regular intervals,
 and with NetworkManager templates to run when interfaces goes up or down. It
@@ -204,13 +202,14 @@ files distributed has provisions to define these as required.
 .SH FILES
 .TP 4
 .B ~/.netrc
-Used to store username and password for logging in to service providers
-to update, firewalls to get the IP address etc. See netrc(5) for
-the format used. The file must have restricted permissions like 600 to
-be accepted.
+When configured with the \fInetrc\fR authentication backend, this file is
+used to store username and password for logging in to service providers.
+See netrc(5) for the format used.
+The file must have restricted permissions like 600 to be accepted.
 .TP 4
 .B /etc/netrc
 Fallback location for credentials when \fI~/.netrc\fR is not found.
+The use of this file is deprecated.
 .TP 4
 .B ~/.config/ddupdate.conf
 Default config file location. If defined, the XDG_CONFIG_HOME variable
@@ -234,20 +233,20 @@ update service.
 Setting the XDG_CACHE_HOME environment variable relocates these files to
 $XDG_CACHE_HOME/ddupdate/*.
 
-.SH BUGS
-Passwords used must not contain characters which requires escaping.
-That is, use printable characters; not control chars, tabs, spaces, etc.
-
 .SH "SEE ALSO"
 .TP 4
 .B ddupdate.conf(5)
 Configuration file
 .TP 4
-.B netrc(5)
-Authentication tokens file, originally used by ftp(1).
-.TP 4
 .B ddupdate-config(8)
 Configuration tool
+.TP 4
+.B netrc(5)
+Authentication tokens file, originally used by ftp(1), used by the
+netrc authentication backend.
+.TP 4
+.B https://pypi.org/project/keyring/
+Interface for the keyring authentication backend
 .TP 4
 .B  https://github.com/leamas/ddupdate
 Project homesite and README
