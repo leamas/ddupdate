@@ -61,14 +61,11 @@ class AuthNetrc(AuthPlugin):
             line += ' password ' + pw
             return line
 
-        if os.path.exists(os.path.expanduser('~/.netrc')):
-            path = os.path.expanduser('~/.netrc')
-        elif os.path.exists('/etc/netrc'):
-            path = '/etc/netrc'
-        else:
-            raise AuthError("Cannot locate the netrc file (see manpage).")
-        with open(path, 'r') as f:
-            lines = f.readlines()
+        path = os.path.expanduser('~/.netrc')
+        lines = []
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                lines = f.readlines()
         lines = [line for line in lines if not is_matching_entry(line)]
         lines.append(new_entry())
         lines = [line.strip() + "\n" for line in lines]
