@@ -29,7 +29,8 @@ def systemd_unitdir():
 DATA = [
     (systemd_unitdir(), glob('systemd/*')),
     ('share/bash-completion/completions/', ['bash_completion.d/ddupdate']),
-    ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8']),
+    ('share/man/man8', ['ddupdate.8', 'ddupdate-config.8',
+                        'ddupdate-netrc-to-keyring.8']),
     ('share/man/man5', ['ddupdate.conf.5']),
     ('share/ddupdate/plugins', glob('plugins/*.py')),
     ('share/ddupdate/dispatcher.d', ['dispatcher.d/50-ddupdate']),
