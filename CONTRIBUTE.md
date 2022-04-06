@@ -144,6 +144,8 @@ Creating a new version (maintainer work)
 
   - Update NEWS file.
 
+  - Check Last Changed in all manpages.
+
   - Commit and tag the release: git tag 0.7.1
 
   - Create fedora package:
@@ -155,28 +157,22 @@ Creating a new version (maintainer work)
         rm -rf rpmbuild
         rpmbuild-here -ba *.spec
 
-  - Copy tarball and repo to debian and commit it on pristine-tar
+  - Possibly iterate. When done, merge to master and push with
+    tags:
+        
+        $ git checkout master
+        $ git merge devel
+        $ git push --tags origin master:master
+        $ git push origin devel:devel
 
-        git fetch upstream debian:debian
-        git fetch upstream pristine-tar:pristine-tar
-        scp fedora/ddupdate-0.7.1.tar.gz sid:
-        cd ..; ssh sid rm -rf ddupdate.git
-        scp -rq ddupdate sid:ddupdate.git
-        ssh sid
-        cd ddupdate; rm  -rf *
-        mv ../ddupdate-0.7.1.tar.gz ddupdate_0.7.1.orig.tar.gz
-        git clone -o upstream -b debian ../ddupdate.git ddupdate
-        cd ddupdate
-        git remote add github git@github.com:leamas/ddupdate.git
-        git fetch upstream pristine-tar:pristine-tar
-        pristine-tar commit ../ddupdate_0.7.1.orig.tar.gz 0.7.1
+  - Copy tarball and repo to debian and commit it on pristine-tar
 
   - Upload to pypi:
 
         $ python setup.py sdist
         $ twine upload dist/*
 
-  - Create debian test huild on sid::
+  - Create debian test build on sid::
 
         $ cd ddupdate/ddupdate
         $ sudo mk-build-deps -i -r  debian/control
@@ -185,7 +181,6 @@ Creating a new version (maintainer work)
         $ dch -v 0.7.1-1
         $ git commit -am "debian: 0.7.1-1"
         $ Check systemd/ddupdate.service
-        $ dpkg-source --commit
         $ git commit -a --amend
         $ git  clean -fd
         $ gbp buildpackage --git-upstream-tag=0.7.1 -us -uc

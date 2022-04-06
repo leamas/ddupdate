@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+#
+# Update a manpage "Last Change" field using the last git commit as date
+#
+# Usage:
+#     manpage_date <manpage source file>
+
+date=$(git log -1 --pretty="format:%ad" --date="format:%B %Y" $1)
+date=$(echo $date | awk '{print substr($1, 1, 3)  " " $2}')
+sed -i "s/Last change:.*[0-9]/Last change: $date/" $1
