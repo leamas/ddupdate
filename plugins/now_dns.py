@@ -26,7 +26,7 @@ class NowDnsPlugin(ServicePlugin):
     mess.
 
     netrc: Use a line like
-        machine  now-dns.com user <username> password <password>
+        machine  now-dns.com login <username> password <password>
 
     Options:
         None
