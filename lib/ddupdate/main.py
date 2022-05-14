@@ -63,7 +63,8 @@ def ip_cache_setup(opts):
     """Ensure that our cache directory exists, return cache file path."""
     if not os.path.exists(opts.ip_cache):
         os.makedirs(opts.ip_cache)
-    return os.path.join(opts.ip_cache, opts.service_plugin + '.ip')
+    return os.path.join(opts.ip_cache, opts.service_plugin + '_' +
+                                       opts.hostname + '.ip')
 
 
 def ip_cache_clear(opts, log):
