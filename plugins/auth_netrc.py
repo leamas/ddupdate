@@ -23,7 +23,10 @@ class AuthNetrc(AuthPlugin):
 
     def get_auth(self, machine):
         """Implement AuthPlugin::get_auth()."""
-        if os.path.exists(os.path.expanduser('~/.netrc')):
+        path = os.environ.get('NETRC', '')
+        if path:
+            pass
+        elif os.path.exists(os.path.expanduser('~/.netrc')):
             path = os.path.expanduser('~/.netrc')
         elif os.path.exists('/etc/netrc'):
             path = '/etc/netrc'
