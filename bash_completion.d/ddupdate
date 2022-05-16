@@ -6,7 +6,7 @@ _ddupdate()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --hostname --service-plugin --address-plugin --config-file"
     opts="$opts --loglevel --ip-version --service-option --address-option"
-    opts="$opts --list-addressers --list-services"
+    opts="$opts --list-addressers --list-services list-sections"
     opts="$opts --auth-plugin --list-auth-plugins"
     case  "${prev}" in
         --ip-version | -v)
