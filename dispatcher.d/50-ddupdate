@@ -17,7 +17,10 @@ if ! $systemctl is-enabled ddupdate.timer >/dev/null 2>&1; then
     exit 0
 fi
 
-case "$2" in
+interface="$1"
+action="$2"
+
+case "$action" in
     "down")
         if $ip route ls | grep -q '^default'; then
 	    exit 0
@@ -26,12 +29,19 @@ case "$2" in
         sudo -u $DDUSER $systemctl --user stop ddupdate.timer || :
 	;;
     "up")
-        if $ip -o route show dev "$1" | grep -q '^default'
+        if $ip -o route show dev "$interface" | grep -q '^default'
 	then
 	    $logger "ddupdate: default interface up: starting timer" || :
             sudo -u $DDUSER $systemctl --user start ddupdate.timer || :
 	fi
 	;;
+    "dhcp6-change"|"dhcp4-change")
+        if $ip -o route show dev "$interface" | grep -q '^default'
+	then
+	    $logger "ddupdate: default interface $action: triggering service" || :
+            sudo -u $DDUSER $systemctl --user --no-ask-password start ddupdate.service || :
+	fi
+        ;;
     *)
         ;;
 esac
