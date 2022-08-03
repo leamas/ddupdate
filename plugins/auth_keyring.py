@@ -22,7 +22,9 @@ try:
     import keyring
     import keyring.errors
 except (ModuleNotFoundError, ImportError):
-    raise AuthError(KEYRING_MISSING_MSG) from None
+    import sys
+    print(KEYRING_MISSING_MSG)
+    sys.exit(1)
 
 
 class AuthKeyring(AuthPlugin):
