@@ -1,6 +1,7 @@
 """Update DNS data for dynamic ip addresses."""
 
 import argparse
+import ast
 import configparser
 import glob
 import importlib
@@ -13,7 +14,6 @@ import os.path
 import stat
 import sys
 import time
-import ast
 
 
 from ddupdate.ddplugin import AddressPlugin, AddressError
@@ -131,7 +131,8 @@ def parse_conffile(log):
                 # Trust that the regular parsing handles the error.
                 return None
     if not os.access(path, os.R_OK):
-        log.warning("Cannot open config file '%s' for read", path)
+        log.warning("Cannot open config file ~/.config/ddupdate.conf for read",
+                path)
         return None
     return path
 
