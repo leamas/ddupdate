@@ -29,7 +29,8 @@ Still, this is beta and there is most likely bugs out there.
 Dependencies
 ------------
 
-  - python3 (tested on 3.6 and 3.4)
+  - python3
+  - python3-keyring
   - The /usr/sbin/ip command is used in some plugins.
   - python3-setuptools  (build)
   - pkg-config  (build)

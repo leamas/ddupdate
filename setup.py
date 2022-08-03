@@ -113,5 +113,6 @@ setup(
     packages=['ddupdate'],
     scripts=['ddupdate', 'ddupdate-config', 'ddupdate-netrc-to-keyring'],
     data_files=DATA,
-    cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall}
+    cmdclass={'clean': _ProjectClean, 'install': _ProjectInstall},
+    install_requires=["keyring"]
 )
