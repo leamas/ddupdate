@@ -1,6 +1,13 @@
 ddupdate - Update dns data for dynamic ip addresses.
 ====================================================
 
+What's inside this fork?
+--------------------
+
+Support for freedns.afraid.org API v2 update token, this uses a random generated
+token which is associated with your domain. is simpler, faster and more secure.
+Your credentials or domains are never exposed. I hope were merged soon.
+
 General
 -------
 
