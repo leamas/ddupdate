@@ -6,12 +6,11 @@
 import shutil
 import os
 import subprocess
+from glob import glob
 
+from setuptools import setup
 from distutils.command.clean import clean
 from distutils.command.install import install
-
-from glob import glob
-from setuptools import setup
 
 ROOT = os.path.dirname(__file__)
 ROOT = ROOT if ROOT else '.'
