@@ -46,7 +46,7 @@ directory. To make it possible to run from anywhere make a symlink::
 
 It is also possible to install as a pypi package using::
 
-    $ sudo pip3 install ddupdate --prefix=/usr/local
+    $ sudo pip3 install ddupdate --prefix=/usr
 
 See CONTRIBUTE.md for more info on using the pypi package.
 
