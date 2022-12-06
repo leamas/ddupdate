@@ -48,11 +48,11 @@ class NamecheapPlugin(ServicePlugin):
         domain = '.'.join(hostname.split('.')[-2:])
         # hostname is everything above the last two elements of 'host'
         host = '.'.join(hostname.split('.')[:-2])
-	# handle the special case of co.uk 
-	# it is the only second-level domain namecheap support
-	if domain == "co.uk":
-		domain = '.'.join(hostname.split('.')[-3:])
-		host = '.'.join(hostname.split('.')[:-3])
+        # handle the special case of co.uk 
+        # it is the only second-level domain namecheap support
+        if domain == "co.uk":
+            domain = '.'.join(hostname.split('.')[-3:])
+            host = '.'.join(hostname.split('.')[:-3])
         # ip address is either an ipv4 or ipv6
         ip = ip.v4 if ip.v4 else ip.v6
 
