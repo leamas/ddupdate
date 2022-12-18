@@ -6,7 +6,7 @@ See: ddupdate(8)
 
 import subprocess
 
-from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr
+from ddupdate.ddplugin import AddressPlugin, AddressError, IpAddr, dict_of_opts
 
 
 def find_device(words):
@@ -27,7 +27,8 @@ class DefaultIfPLugin(AddressPlugin):
     Digs in the routing tables and returns it's address using linux-specific
     code based on the ip utility which must be in $PATH
 
-    Options used: none
+    Options used:
+       link
     """
 
     _name = 'default-if'
@@ -37,6 +38,7 @@ class DefaultIfPLugin(AddressPlugin):
         """
         Get default interface using ip route and address using ifconfig.
         """
+        opts = dict_of_opts(options)
         if_ = None
         for line in subprocess.getoutput('ip route').split('\n'):
             words = line.split()
@@ -47,5 +49,5 @@ class DefaultIfPLugin(AddressPlugin):
             raise AddressError("Cannot find default interface, giving up")
         address = IpAddr()
         output = subprocess.getoutput('ip address show dev ' + if_)
-        address.parse_ifconfig_output(output)
+        address.parse_ifconfig_output(output, opts.get('link', 'false'))
         return address

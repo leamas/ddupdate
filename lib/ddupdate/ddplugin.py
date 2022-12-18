@@ -171,7 +171,7 @@ class IpAddr:
         """Check if any address is set."""
         return self.v4 is None and self.v6 is None
 
-    def parse_ifconfig_output(self, text):
+    def parse_ifconfig_output(self, text, link='false'):
         """
         Update v4 and v6 attributes by parsing ifconfig(8) or ip(8) output.
 
@@ -192,11 +192,15 @@ class IpAddr:
                     continue
                 addr = words[1].split('/')[0]
                 words = set(words[2:])
-                if ('link' in words) or ('0x20<link>' in words):
-                    # don't use a link-local address
-                    continue
                 if 'deprecated' in words:
                     # don't use a "deprecated" address
+                    continue
+                if ('link' in words) or ('0x20<link>' in words):
+                    if link.lower() == 'false':
+                        # don't use a link-local address
+                        continue
+                elif link.lower() == 'force':
+                    # force use of a link-local address
                     continue
                 self.v6 = addr
         if self.empty():
