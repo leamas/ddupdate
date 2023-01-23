@@ -82,8 +82,11 @@ class CloudflareAuth(AuthBase):
 
     def __call__(self, r):
         """Implement AuthBase."""
-        r.headers['X-Auth-Email'] = self.email
-        r.headers['X-Auth-Key'] = self.auth_key
+        if self.email == '<Token>':
+            r.headers['Authorization'] = ' Bearer ' + self.auth_key
+        else:
+            r.headers['X-Auth-Email'] = self.email
+            r.headers['X-Auth-Key'] = self.auth_key
         return r
 
 
@@ -100,6 +103,10 @@ class CloudflarePlugin(ServicePlugin):
 
     netrc: Use a line like
         machine api.cloudflare.com login <email> password <authkey>
+    To use API token set login to '<Token>' and password to token value like
+        machine api.cloudflare.com login <Token> password CloudflareApiToken
+    Use "User Profile -> API Tokens -> Create Token -> Edit Zone DNS (Use
+    template)" on Cloudflare site to generate token.
     Options:
         zone = Cloudflare Zone name (mandatory)
     """
