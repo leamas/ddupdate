@@ -198,6 +198,9 @@ class IpAddr:
                 if 'deprecated' in words:
                     # don't use a "deprecated" address
                     continue
+                if 'temporary' in words:
+                    # don't use a "temporary" address
+                    continue
                 self.v6 = addr
         if self.empty():
             raise AddressError("Cannot find address for %s, giving up" % text)
