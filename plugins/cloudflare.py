@@ -196,6 +196,7 @@ class CloudflarePlugin(ServicePlugin):
         log.debug("host=%s existing_ipv4=%s existing_ipv6=%s",
                   hostname, ipv4, ipv6)
 
+        updated = 0
         if ip.v4:
             if ipv4 != ip.v4:
                 record = {
@@ -216,6 +217,7 @@ class CloudflarePlugin(ServicePlugin):
                     ipv4_id, ipv4 = \
                         self._create_dnsrecord(session, record, opts)
                 log.debug("ipv4_id=%s updated_ipv4=%s", ipv4_id, ipv4)
+                updated += 1
             else:
                 log.info("Existing ipv4 record matches, skipping update")
 
@@ -239,5 +241,8 @@ class CloudflarePlugin(ServicePlugin):
                     ipv6_id, ipv6 = \
                         self._create_dnsrecord(session, record, opts)
                 log.debug("ipv6_id=%s updated_ipv6=%s", ipv6_id, ipv6)
+                updated += 1
             else:
                 log.info("Existing ipv6 record matches, skipping update")
+
+        return True if updated else False
