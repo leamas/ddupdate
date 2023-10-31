@@ -245,4 +245,4 @@ class CloudflarePlugin(ServicePlugin):
             else:
                 log.info("Existing ipv6 record matches, skipping update")
 
-        return True if updated else False
+        return bool(updated)
