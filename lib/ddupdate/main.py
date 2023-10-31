@@ -543,7 +543,7 @@ def main():
                     elif result == False:
                         log.info(opts.service_plugin + " service plugin reported no IP update, not calling the script")
                     elif result == None:
-                        log.info(opts.service_plugin + " service plugin not updated to report IP update, can't use the script feature")
+                        log.warning(opts.service_plugin + " service plugin not updated to report IP update, can't use the script feature")
                 log.info("Update OK")
             except _SectionFailError:
                 print("Skipping config section: %s" % section)
