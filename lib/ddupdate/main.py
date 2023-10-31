@@ -34,6 +34,7 @@ DEFAULTS = {
     'auth-plugin': 'netrc',
     'loglevel': 'info',
     'ip-version': 'v4',
+    'script-file' : None,
     'service-options': None,
     'address-options': None,
     'ip-cache': os.path.join(CACHE_DIR, 'ddupdate'),
@@ -187,6 +188,10 @@ def get_parser(conf):
         % conf['auth-plugin'],
         default=conf['auth-plugin'])
     normals.add_argument(
+        "-x", "--run-script", metavar="file",
+        help='Script to run after execution',
+        dest='script_file', default=conf['script-file'])
+    normals.add_argument(
         "-c", "--config-file", metavar="path",
         help='Config file with default values for all options'
         + ' [' + envvar_default('XDG_CONFIG_HOME', ' ~/.config/ddupdate.conf')
@@ -280,6 +285,16 @@ def parse_options(conf):
     opts.ip_cache = conf['ip-cache']
     return opts
 
+def check_script(path, log):
+    """Check script path, returns verified path or None."""
+    if os.path.isfile(path):
+        if not os.access(path, os.X_OK):
+            log.warning("Script " + path + " not executable")
+            return None
+    else:
+        log.warning("Cannot find script " + path)
+        return None
+    return path
 
 def log_setup():
     """Initialize and return the module log."""
@@ -299,6 +314,8 @@ def log_init(log, loglevel, opts):
     log.debug('Using config file: %s', parse_conffile(log))
     log.info("Loglevel: " + logging.getLevelName(opts.loglevel))
     log.info("Using hostname: " + opts.hostname)
+    if opts.script_file:
+        log.info("Using script: " + opts.script_file)
     log.info("Using ip address plugin: " + opts.address_plugin)
     log.info("Using service plugin: " + opts.service_plugin)
 
@@ -506,6 +523,8 @@ def main():
             try:
                 conf = parse_config(config, section)
                 opts = parse_options(conf)
+                if opts.script_file:
+                    opts.script_file = check_script(opts.script_file, log)
                 log_init(log, None, opts)
                 log.info("Processing configuration section: %s", section)
                 auth_plugin, ip_plugin, service_plugin = get_plugins(
@@ -514,9 +533,17 @@ def main():
                 log.debug("Using auth plugin: %s", str(auth_plugin))
                 ip = get_ip(ip_plugin, opts, log)
                 check_ip_cache(ip, service_plugin, opts, log)
-                service_plugin.register(
-                    log, opts.hostname, ip, opts.service_options)
+                result = service_plugin.register(log, opts.hostname, ip, opts.service_options)
                 ip_cache_set(opts, ip)
+                if opts.script_file:
+                    if result == True:
+                        cmd_line = opts.script_file + " " + opts.hostname + " " + repr(ip.v4) + " " + repr(ip.v6)
+                        log.info(opts.service_plugin + " service plugin reported successful IP update, calling script with arguments: " + cmd_line)
+                        os.system(cmd_line)
+                    elif result == False:
+                        log.info(opts.service_plugin + " service plugin reported no IP update, not calling the script")
+                    elif result == None:
+                        log.warning(opts.service_plugin + " service plugin not updated to report IP update, can't use the script feature")
                 log.info("Update OK")
             except _SectionFailError:
                 print("Skipping config section: %s" % section)
