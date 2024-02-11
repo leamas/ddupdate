@@ -15,6 +15,7 @@ class HardcodedIfPlugin(AddressPlugin):
 
     Options:
         if=interface
+        link
     """
 
     _name = 'hardcoded-if'
@@ -28,5 +29,5 @@ class HardcodedIfPlugin(AddressPlugin):
         if_ = opts['if']
         address = IpAddr()
         output = subprocess.getoutput('ip address show dev ' + if_)
-        address.parse_ifconfig_output(output)
+        address.parse_ifconfig_output(output, opts.get('link', '0'))
         return address
